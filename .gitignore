@@ -1,0 +1,21 @@
+# 秘密情報
+.htaccess
+.env
+
+# データ・キャッシュ
+data/
+logs/
+search_cache.json
+stats.json
+usage_counter.txt
+
+# Node.js
+node_modules/
+package-lock.json
+
+# バックアップ
+*.bak
+*.broken
+*.broken_*
+*.test_bak
+*.new
