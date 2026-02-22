@@ -1070,7 +1070,7 @@ if (isset($_GET['logout'])) {
             <div id="status" class="call-progress-status"></div>
             <div id="resultCard" class="call-progress-result" style="display:none;"><div id="resultText"></div></div>
             <div id="recordingPlayer" class="recording-player">
-              <div class="recording-player-header"><i class="fa-solid fa-circle-play"></i> 通話録音</div>
+              <div class="recording-player-header"><i class="fa-solid fa-circle-play"></i> ${t("通話録音")}</div>
               <div id="recordingLoading" class="recording-loading"><i class="fa-solid fa-spinner fa-spin"></i> 録音データを読み込み中…</div>
               <audio id="recordingAudio" controls preload="none"></audio>
               <div id="recordingInfo" class="recording-player-info">
@@ -1380,7 +1380,7 @@ function toActive(v) {
 
 // ★ ボタンを元の状態に戻す
 function resetCallBtn() {
-    btn.innerHTML = '<i class="fa-solid fa-phone-volume"></i> 発信する';
+    btn.innerHTML = '<i class="fa-solid fa-phone-volume"></i> ' + t('発信する');
     btn.style.background = '';
 }
 
@@ -1491,7 +1491,7 @@ function initBgMap(center) {
       bgMap.panTo(pos);
       bgMap.setZoom(15);
       if (bgMapMarker) bgMapMarker.setPosition(pos);
-    }).catch(() => alert('位置情報を取得できません'));
+    }).catch(() => alert(t('位置情報を取得できません')));
   });
 
   // 現在地マーカーを表示
@@ -1500,7 +1500,7 @@ function initBgMap(center) {
     bgMapMarker = new google.maps.Marker({
       position: pos,
       map: bgMap,
-      title: '現在地',
+      title: t('現在地'),
       icon: {
         path: google.maps.SymbolPath.CIRCLE,
         scale: 10,
@@ -1877,7 +1877,7 @@ function openStoreInfoWindow(marker, store) {
   placeDetailBody.innerHTML = `
     <div class="pd-name">${safeName}</div>
     <div class="pd-info-row"><i class="fa-solid fa-phone"></i><span class="pd-phone-num">${safePhone}</span></div>
-    <div style="color:var(--muted);font-size:13px;padding:16px 0;"><i class="fa-solid fa-spinner fa-spin"></i> 詳細を読み込み中...</div>`;
+    <div style="color:var(--muted);font-size:13px;padding:16px 0;"><i class="fa-solid fa-spinner fa-spin"></i> ${t('詳細を読み込み中...')}</div>`;
   showPlaceDetail();
   if (marker) bgMap.panTo(marker.getPosition());
 
@@ -1936,8 +1936,8 @@ function buildDetailContent(d, store) {
 
   // 営業中/休業
   let statusHtml = '';
-  if (d.open_now === true) statusHtml = `<span class="pd-status-open">営業中</span>`;
-  else if (d.open_now === false) statusHtml = `<span class="pd-status-closed">営業時間外</span>`;
+  if (d.open_now === true) statusHtml = `<span class="pd-status-open">${t('営業中')}</span>`;
+  else if (d.open_now === false) statusHtml = `<span class="pd-status-closed">${t('営業時間外')}</span>`;
   else if (d.business_status) statusHtml = `<span class="pd-meta">${s(d.business_status)}</span>`;
 
   // 営業時間（今日）
@@ -1979,7 +1979,7 @@ function buildDetailContent(d, store) {
   // Google マップリンク
   let gmapHtml = '';
   if (d.google_url) {
-    gmapHtml = `<div class="pd-info-row"><i class="fa-solid fa-map"></i><a href="${s(d.google_url)}" target="_blank">Google マップで見る</a></div>`;
+    gmapHtml = `<div class="pd-info-row"><i class="fa-solid fa-map"></i><a href="${s(d.google_url)}" target="_blank">${t('Google マップで見る')}</a></div>`;
   }
 
   // レビュー
@@ -1990,7 +1990,7 @@ function buildDetailContent(d, store) {
         <div class="pd-review-stars">${buildStars(rv.rating)}<span class="pd-review-time">${s(rv.time)}</span></div>
         <div class="pd-review-text">${s(rv.text)}</div>
       </div>`).join('');
-    reviewsHtml = `<div class="pd-review"><div class="pd-review-header">クチコミ</div>${items}</div>`;
+    reviewsHtml = `<div class="pd-review"><div class="pd-review-header">${t('クチコミ')}</div>${items}</div>`;
   }
 
   return `
@@ -2016,13 +2016,13 @@ function panelActionButtons(phone, name, store) {
   const disabledAttr = noPhone ? 'disabled style="opacity:0.4;pointer-events:none;"' : '';
   return `<div class="pd-actions">
     <button class="pd-call-btn" ${disabledAttr} onclick="selectStoreFromPanel('${phone.replace(/'/g, "\\'")}','${name.replace(/'/g, "\\'")}')">
-      <i class="fa-solid fa-phone" style="font-size:12px;"></i> 営業確認
+      <i class="fa-solid fa-phone" style="font-size:12px;"></i> ${t('営業確認')}
     </button>
     <button class="pd-reserve-btn" ${disabledAttr} onclick="openReservationFromPanel(this)" data-phone="${phone.replace(/"/g, '&quot;')}" data-name="${name.replace(/"/g, '&quot;')}" data-store='${JSON.stringify(store).replace(/'/g, "&#39;").replace(/</g, "&lt;").replace(/>/g, "&gt;")}'>
-      <i class="fa-solid fa-calendar-check" style="font-size:12px;"></i> 予約
+      <i class="fa-solid fa-calendar-check" style="font-size:12px;"></i> ${t('予約')}
     </button>
     <button class="pd-route-btn" onclick="showRouteFromPanel(this)" data-store='${JSON.stringify(store).replace(/'/g, "&#39;").replace(/</g, "&lt;").replace(/>/g, "&gt;")}'>
-      <i class="fa-solid fa-diamond-turn-right" style="font-size:12px;"></i> ルート
+      <i class="fa-solid fa-diamond-turn-right" style="font-size:12px;"></i> ${t('ルート')}
     </button>
   </div>`;
 }
@@ -2057,7 +2057,7 @@ function showRouteMode(store) {
   // 目的地
   const lat = parseFloat(store.lat);
   const lng = parseFloat(store.lng);
-  if (!lat || !lng) { alert('店舗の座標がありません'); return; }
+  if (!lat || !lng) { alert(t('店舗の座標がありません')); return; }
   const dest = new google.maps.LatLng(lat, lng);
 
   if (!userLocation) {
@@ -2093,31 +2093,31 @@ function showRoutePanelInfo(store, leg) {
       <div style="display:flex;gap:16px;padding:12px 0;border-bottom:1px solid #f1f3f4;">
         <div style="text-align:center;flex:1;">
           <div style="font-size:18px;font-weight:500;color:var(--primary);">${leg.duration.text}</div>
-          <div style="font-size:12px;color:var(--muted);">車</div>
+          <div style="font-size:12px;color:var(--muted);">${t('車')}</div>
         </div>
         <div style="text-align:center;flex:1;">
           <div style="font-size:18px;font-weight:500;color:var(--text);">${leg.distance.text}</div>
-          <div style="font-size:12px;color:var(--muted);">距離</div>
+          <div style="font-size:12px;color:var(--muted);">${t('距離')}</div>
         </div>
       </div>`;
   } else if (!userLocation) {
-    infoHtml = '<div style="padding:12px 0;color:var(--muted);font-size:13px;text-align:center;">現在地を取得できませんでした</div>';
+    infoHtml = '<div style="padding:12px 0;color:var(--muted);font-size:13px;text-align:center;">' + t('現在地を取得できませんでした') + '</div>';
   } else {
-    infoHtml = '<div style="padding:12px 0;color:var(--muted);font-size:13px;text-align:center;">ルートを取得できませんでした</div>';
+    infoHtml = '<div style="padding:12px 0;color:var(--muted);font-size:13px;text-align:center;">' + t('ルートを取得できませんでした') + '</div>';
   }
 
   // 詳細パネルにルート情報を表示
-  placeDetailTitle.textContent = store.name + ' へのルート';
+  placeDetailTitle.textContent = t('{0} へのルート', store.name);
   placeDetailBody.innerHTML = `
     <div class="pd-name">${s(store.name)}</div>
     <div class="pd-meta">${s(store.address || '')}</div>
     ${infoHtml}
     <div class="pd-actions" style="margin-top:10px;">
       <button class="pd-call-btn" ${s(store.phone_number) ? '' : 'disabled style="opacity:0.4;pointer-events:none;"'} onclick="selectStoreFromPanel('${s(store.phone_number).replace(/'/g, "\\'")}','${s(store.name).replace(/'/g, "\\'")}')">
-        <i class="fa-solid fa-phone" style="font-size:12px;"></i> 発信
+        <i class="fa-solid fa-phone" style="font-size:12px;"></i> ${t('発信')}
       </button>
       <button class="pd-route-btn" onclick="clearRoute()">
-        <i class="fa-solid fa-xmark" style="font-size:12px;"></i> 閉じる
+        <i class="fa-solid fa-xmark" style="font-size:12px;"></i> ${t('閉じる')}
       </button>
     </div>`;
 
@@ -2172,7 +2172,7 @@ window.__earlyGeo.then(pos => {
       if (bgMapMarker) bgMapMarker.setPosition(pos);
       else {
         bgMapMarker = new google.maps.Marker({
-          position: pos, map: bgMap, title: '現在地',
+          position: pos, map: bgMap, title: t('現在地'),
           icon: { path: google.maps.SymbolPath.CIRCLE, scale: 10, fillColor: '#007AFF', fillOpacity: 1, strokeColor: '#fff', strokeWeight: 3 }
         });
       }
@@ -2183,7 +2183,7 @@ window.__earlyGeo.then(pos => {
   // キャッシュ位置で初期化済みだがまだマーカーがない場合
   if (bgMap && userLocation && !bgMapMarker) {
     bgMapMarker = new google.maps.Marker({
-      position: userLocation, map: bgMap, title: '現在地',
+      position: userLocation, map: bgMap, title: t('現在地'),
       icon: { path: google.maps.SymbolPath.CIRCLE, scale: 10, fillColor: '#007AFF', fillOpacity: 1, strokeColor: '#fff', strokeWeight: 3 }
     });
   }
@@ -2237,10 +2237,10 @@ function showStoreOnMap(storeInfo) {
         icon: { url: 'https://maps.google.com/mapfiles/ms/icons/red-dot.png' }
       });
       showRouteToStore(storeLocation);
-      mapTitle.textContent = `${storeInfo.name} へのルート`;
+      mapTitle.textContent = t('{0} へのルート', storeInfo.name);
       mapContainer.style.display = 'block';
     } else {
-      alert('住所の座標取得に失敗しました');
+      alert(t('住所の座標取得に失敗しました'));
     }
   });
 }
@@ -2248,7 +2248,7 @@ function showStoreOnMap(storeInfo) {
 // 現在地から店舗までのルートを表示
 function showRouteToStore(storeLocation) {
   if (!userLocation) {
-    mapDirections.innerHTML = '<div style="text-align:center;color:var(--muted);padding:20px;"><i class="fa-solid fa-location-dot"></i><br>現在地を取得できませんでした</div>';
+    mapDirections.innerHTML = '<div style="text-align:center;color:var(--muted);padding:20px;"><i class="fa-solid fa-location-dot"></i><br>' + t('現在地を取得できませんでした') + '</div>';
     return;
   }
   const request = {
@@ -2267,7 +2267,7 @@ function showRouteToStore(storeLocation) {
       });
       mapDirections.innerHTML = html;
     } else {
-      mapDirections.innerHTML = '<div style="text-align:center;color:var(--muted);padding:20px;"><i class="fa-solid fa-exclamation-triangle"></i><br>ルートの取得に失敗しました</div>';
+      mapDirections.innerHTML = '<div style="text-align:center;color:var(--muted);padding:20px;"><i class="fa-solid fa-exclamation-triangle"></i><br>' + t('ルートの取得に失敗しました') + '</div>';
     }
   });
 }
@@ -2281,7 +2281,7 @@ function getUserLocation() {
     }
     
     if (!navigator.geolocation) {
-      reject(new Error('位置情報がサポートされていません'));
+      reject(new Error(t('位置情報がサポートされていません')));
       return;
     }
     
@@ -2330,7 +2330,7 @@ getUserLocation().then((loc) => {
     if (bgMapMarker) bgMapMarker.setPosition(pos);
     else {
       bgMapMarker = new google.maps.Marker({
-        position: pos, map: bgMap, title: '現在地',
+        position: pos, map: bgMap, title: t('現在地'),
         icon: { path: google.maps.SymbolPath.CIRCLE, scale: 10, fillColor: '#007AFF', fillOpacity: 1, strokeColor: '#fff', strokeWeight: 3 }
       });
     }
@@ -2355,10 +2355,10 @@ function showPhoneDirectCard(phone) {
     <div class="store-card">
       <div class="store-card-body">
         <div class="store-card-name"><i class="fa-solid fa-phone" style="color:var(--primary);margin-right:6px;"></i>${escapeHtml(displayPhone)}</div>
-        <div class="store-card-meta">電話番号を直接入力</div>
+        <div class="store-card-meta">${t('電話番号を直接入力')}</div>
         <div class="store-card-actions">
-          <button class="sc-call-btn" onclick="directCallPhone('${escapeAttr(phone)}')"><i class="fa-solid fa-phone-volume"></i> 営業確認</button>
-          <button class="sc-reserve-btn" onclick="directReservePhone('${escapeAttr(phone)}','${escapeAttr(displayPhone)}')"><i class="fa-solid fa-calendar-check"></i> 予約</button>
+          <button class="sc-call-btn" onclick="directCallPhone('${escapeAttr(phone)}')"><i class="fa-solid fa-phone-volume"></i> ${t('営業確認')}</button>
+          <button class="sc-reserve-btn" onclick="directReservePhone('${escapeAttr(phone)}','${escapeAttr(displayPhone)}')"><i class="fa-solid fa-calendar-check"></i> ${t('予約')}</button>
         </div>
       </div>
     </div>`;
@@ -2405,7 +2405,7 @@ async function searchPhoneNumber(storeName) {
   dragL.addEventListener('click', toggleResultsExpand);
   const loadMsg = document.createElement('div');
   loadMsg.className = 'results-list';
-  loadMsg.innerHTML = '<div style="text-align:center;color:var(--muted);padding:24px;font-size:14px;"><i class="fa-solid fa-spinner fa-spin"></i>&nbsp; 店舗を検索中...</div>';
+  loadMsg.innerHTML = '<div style="text-align:center;color:var(--muted);padding:24px;font-size:14px;"><i class="fa-solid fa-spinner fa-spin"></i>&nbsp; ' + t('店舗を検索中...') + '</div>';
   storeSuggestions.appendChild(dragL);
   storeSuggestions.appendChild(loadMsg);
   showSearchResults();
@@ -2450,11 +2450,11 @@ async function searchPhoneNumber(storeName) {
     } else if (data.success && data.phone_number) {
       toEl.value = data.phone_number;
       toActive(true);
-      statusEl.innerHTML = '<i class="fa-solid fa-check-circle"></i> 電話番号を自動補完しました: ' + escapeHtml(data.phone_number);
+      statusEl.innerHTML = '<i class="fa-solid fa-check-circle"></i> ' + t('電話番号を自動補完しました:') + ' ' + escapeHtml(data.phone_number);
       hideSearchResults();
     } else {
       const rl = storeSuggestions.querySelector('.results-list');
-      if (rl) rl.innerHTML = '<div style="text-align:center;color:var(--muted);padding:24px;font-size:14px;">検索結果がありません</div>';
+      if (rl) rl.innerHTML = '<div style="text-align:center;color:var(--muted);padding:24px;font-size:14px;">' + t('検索結果がありません') + '</div>';
     }
   } catch (error) {
     if (error.name === 'AbortError') return;
@@ -2472,7 +2472,7 @@ async function loadMoreStores() {
   const loader = document.createElement('div');
   loader.id = 'storeLoadingMore';
   loader.style.cssText = 'text-align:center; color: var(--muted); padding: 20px; font-size: 14px;';
-  loader.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>&nbsp; もっと読み込み中...';
+  loader.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>&nbsp; ' + t('もっと読み込み中...');
   const rl = document.getElementById('resultsList');
   if (rl) rl.appendChild(loader);
   
@@ -2659,10 +2659,10 @@ function showStoreSuggestions(stores, append = false) {
     // 営業状態 + 距離
     let statusHtml = '';
     const sParts = [];
-    if (store.open_now === true) sParts.push('<span class="open-badge">営業中</span>');
-    else if (store.open_now === false) sParts.push('<span class="closed-badge">営業時間外</span>');
-    else if (store.business_status === 'CLOSED_TEMPORARILY') sParts.push('<span class="closed-badge">一時休業</span>');
-    else if (store.business_status === 'CLOSED_PERMANENTLY') sParts.push('<span class="closed-badge">閉業</span>');
+    if (store.open_now === true) sParts.push('<span class="open-badge">' + t('営業中') + '</span>');
+    else if (store.open_now === false) sParts.push('<span class="closed-badge">' + t('営業時間外') + '</span>');
+    else if (store.business_status === 'CLOSED_TEMPORARILY') sParts.push('<span class="closed-badge">' + t('一時休業') + '</span>');
+    else if (store.business_status === 'CLOSED_PERMANENTLY') sParts.push('<span class="closed-badge">' + t('閉業') + '</span>');
     if (distText) sParts.push(distText);
     if (sParts.length > 0) statusHtml = `<div class="store-card-meta">${sParts.join('<span class="dot-sep">·</span>')}</div>`;
 
@@ -2676,11 +2676,11 @@ function showStoreSuggestions(stores, append = false) {
         ${ratingHtml}
         ${statusHtml}
         ${addr ? `<div class="store-card-info"><i class="fa-solid fa-location-dot"></i><span>${addr}</span></div>` : ''}
-        ${safePhone ? `<div class="store-card-info"><i class="fa-solid fa-phone"></i><span class="phone-num">${safePhone}</span></div>` : `<div class="store-card-info" style="color:#999;"><i class="fa-solid fa-phone-slash"></i><span>電話番号なし</span></div>`}
+        ${safePhone ? `<div class="store-card-info"><i class="fa-solid fa-phone"></i><span class="phone-num">${safePhone}</span></div>` : `<div class="store-card-info" style="color:#999;"><i class="fa-solid fa-phone-slash"></i><span>${t('電話番号なし')}</span></div>`}
         <div class="store-card-actions">
-          <button class="sc-call-btn" ${safePhone ? '' : 'disabled style="opacity:0.4;pointer-events:none;"'}><i class="fa-solid fa-phone" style="font-size:12px;"></i> 営業確認</button>
-          <button class="sc-reserve-btn" ${safePhone ? '' : 'disabled style="opacity:0.4;pointer-events:none;"'}><i class="fa-solid fa-calendar-check" style="font-size:12px;"></i> 予約</button>
-          <button class="sc-route-btn"><i class="fa-solid fa-diamond-turn-right" style="font-size:12px;"></i> ルート</button>
+          <button class="sc-call-btn" ${safePhone ? '' : 'disabled style="opacity:0.4;pointer-events:none;"'}><i class="fa-solid fa-phone" style="font-size:12px;"></i> ${t('営業確認')}</button>
+          <button class="sc-reserve-btn" ${safePhone ? '' : 'disabled style="opacity:0.4;pointer-events:none;"'}><i class="fa-solid fa-calendar-check" style="font-size:12px;"></i> ${t('予約')}</button>
+          <button class="sc-route-btn"><i class="fa-solid fa-diamond-turn-right" style="font-size:12px;"></i> ${t('ルート')}</button>
         </div>
       </div>
     `;
@@ -2765,7 +2765,7 @@ function showStoreSuggestions(stores, append = false) {
 
   // 件数表示を更新
   const countRow = document.getElementById('resultsCountRow');
-  if (countRow) countRow.textContent = itemCount + '件の結果';
+  if (countRow) countRow.textContent = t('{0}件の結果', itemCount);
 }
 
 // 店名入力時の自動検索
@@ -2860,7 +2860,7 @@ const callProgressClose = $('#callProgressClose');
 
 function showCallProgress(label) {
   const hdr = callProgressCard.querySelector('.call-progress-header');
-  hdr.innerHTML = `<i class="fa-solid fa-phone-volume"></i> ${escapeHtml(label || '営業確認中')}<button id="callProgressClose" class="call-progress-close"><i class="fa-solid fa-times"></i></button>`;
+  hdr.innerHTML = `<i class="fa-solid fa-phone-volume"></i> ${escapeHtml(label || t('営業確認中'))}<button id="callProgressClose" class="call-progress-close"><i class="fa-solid fa-times"></i></button>`;
   hdr.querySelector('.call-progress-close').addEventListener('click', hideCallProgress);
   callProgressCard.style.display = 'block';
   const rc = document.getElementById('resultCard');
@@ -2884,7 +2884,7 @@ function resetRecordingPlayer() {
   recordingAudio.removeAttribute('src');
   recordingAudio.style.display = 'none';
   recordingLoading.style.display = 'flex';
-  recordingLoading.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> 録音データを読み込み中…';
+  recordingLoading.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> ' + t('録音データを読み込み中…');
   recordingInfo.style.display = 'none';
   recordingDuration.textContent = '';
   recordingDownload.href = '';
@@ -2900,9 +2900,9 @@ btn.addEventListener('click', async ()=>{
   const name = nameEl.value.trim();
   if(!to){ return; }
   toActive(false);
-  btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> 通信中…';
+  btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> ' + t('通信中…');
   btn.style.background = '#e53e3e';
-  statusEl.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Twilioに発信依頼中…';
+  statusEl.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> ' + t('Twilioに発信依頼中…');
 
   // 通話進行カードを表示
   showCallProgress(name || to);
@@ -2915,7 +2915,7 @@ btn.addEventListener('click', async ()=>{
     fd.append('to', to);
     if(name) fd.append('name', name);
     const res = await fetch('call', { method:'POST', body: fd });
-    if(!res.ok){ throw new Error('発信に失敗しました'); }
+    if(!res.ok){ throw new Error(t('発信に失敗しました')); }
     const j = await res.json();
     if(!j.ok){ throw new Error(j.error || 'failed'); }
     
@@ -2923,7 +2923,7 @@ btn.addEventListener('click', async ()=>{
     incrementUsageCount();
     
     currentSid = j.sid;
-    statusEl.innerHTML = '<i class="fa-solid fa-phone-volume"></i> 発信しました（CallSid: '+ currentSid +'）。相手の応答を待っています…';
+    statusEl.innerHTML = '<i class="fa-solid fa-phone-volume"></i> ' + t('発信しました（CallSid: {0}）。相手の応答を待っています…', currentSid);
     actionsEl.style.display = 'flex';
     viewLink.href = j.view_url;
     twimlLink.href = j.twiml_url;
@@ -2932,7 +2932,7 @@ btn.addEventListener('click', async ()=>{
     await poll();
     pollTimer = setInterval(poll, 2000);
   }catch(e){
-    statusEl.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i> エラー: ' + escapeHtml(e.message);
+    statusEl.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i> ' + t('エラー:') + ' ' + escapeHtml(e.message);
     toActive(true);
     resetCallBtn();
   }
@@ -2948,11 +2948,11 @@ async function poll(){
 
     // ★ 状態メッセージを優先表示
     if (j.result_state === 'no_response') {
-      statusEl.innerHTML = '<i class="fa-solid fa-microphone-slash"></i> ' + escapeHtml(j.message || '無言で電話を切られました');
+      statusEl.innerHTML = '<i class="fa-solid fa-microphone-slash"></i> ' + escapeHtml(j.message || t('無言で電話を切られました'));
     } else if (j.result_state === 'no_result') {
-      statusEl.innerHTML = '<i class="fa-solid fa-circle-exclamation"></i> ' + escapeHtml(j.message || '通話は終了しましたが回答を取得できませんでした。');
+      statusEl.innerHTML = '<i class="fa-solid fa-circle-exclamation"></i> ' + escapeHtml(j.message || t('通話は終了しましたが回答を取得できませんでした。'));
     } else if (j.result_state === 'call_failed') {
-      statusEl.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i> ' + escapeHtml(j.message || '通話が確立できませんでした。時間をおいて再度お試しください。');
+      statusEl.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i> ' + escapeHtml(j.message || t('通話が確立できませんでした。時間をおいて再度お試しください。'));
     } else if (j.message) {
       statusEl.innerHTML = '<i class="fa-regular fa-message"></i> ' + escapeHtml(j.message);
     }
@@ -2962,7 +2962,7 @@ async function poll(){
     if (open || hours) {
       let resultHtml = '';
       if (open) resultHtml += `<div style="font-size: 16px;">${escapeHtml(open)}</div>`;
-      if (hours) resultHtml += `<div style="font-size: 13px; color: var(--muted); margin-top: 4px;">営業時間: ${escapeHtml(hours)}</div>`;
+      if (hours) resultHtml += `<div style="font-size: 13px; color: var(--muted); margin-top: 4px;">${t('営業時間:')} ${escapeHtml(hours)}</div>`;
       resultText.innerHTML = resultHtml;
       const rc = document.getElementById('resultCard');
       if (rc) rc.style.display = 'block';
@@ -3000,13 +3000,13 @@ async function poll(){
 
     if(j.completed){
       if (j.result_state !== 'no_response' && !j.message) {
-        statusEl.innerHTML = '<i class="fa-regular fa-circle-check"></i> 通話完了。結果を取得しました。';
+        statusEl.innerHTML = '<i class="fa-regular fa-circle-check"></i> ' + t('通話完了。結果を取得しました。');
       }
       // ヘッダーを完了状態に更新
       const hdr = callProgressCard.querySelector('.call-progress-header');
       if (hdr) {
         const label = nameEl.value || toEl.value || '';
-        hdr.innerHTML = `<i class="fa-solid fa-circle-check" style="color:#1e8e3e;"></i> ${escapeHtml(label)} - 通話完了<button class="call-progress-close" onclick="hideCallProgress()"><i class="fa-solid fa-times"></i></button>`;
+        hdr.innerHTML = `<i class="fa-solid fa-circle-check" style="color:#1e8e3e;"></i> ${escapeHtml(label)} - ${t("通話完了")}<button class="call-progress-close" onclick="hideCallProgress()"><i class="fa-solid fa-times"></i></button>`;
       }
       clearInterval(pollTimer);
       toActive(true);
@@ -3022,7 +3022,7 @@ async function poll(){
       if (!j.recording_url && !recordingPollTimer) {
         recordingPlayer.classList.add('show');
         recordingLoading.style.display = 'flex';
-        recordingLoading.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> 録音データの準備を待っています…';
+        recordingLoading.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> ' + t('録音データの準備を待っています…');
         
         let recordingRetries = 0;
         const maxRecordingRetries = 15; // 最大30秒待つ（2秒×15回）
@@ -3045,7 +3045,7 @@ async function poll(){
           if (recordingRetries >= maxRecordingRetries) {
             clearInterval(recordingPollTimer);
             recordingPollTimer = null;
-            recordingLoading.innerHTML = '<i class="fa-solid fa-circle-info"></i> 録音データが取得できませんでした（短い通話では録音されない場合があります）';
+            recordingLoading.innerHTML = '<i class="fa-solid fa-circle-info"></i> ' + t('録音データが取得できませんでした（短い通話では録音されない場合があります）');
           }
         }, 2000);
       }
@@ -3079,7 +3079,7 @@ function renderFavorites() {
   const favs = getFavorites();
   if (favs.length === 0) {
     favoritesSection.style.display = 'block';
-    favoritesList.innerHTML = '<span style="font-size: 12px; color: var(--muted);">よく確認する店舗を登録するとワンタップで発信できます</span>';
+    favoritesList.innerHTML = '<span style="font-size: 12px; color: var(--muted);">' + t('よく確認する店舗を登録するとワンタップで発信できます') + '</span>';
     return;
   }
   favoritesSection.style.display = 'block';
@@ -3091,7 +3091,7 @@ function renderFavorites() {
       </span>
       <span class="fav-delete" data-index="${i}" title="削除"><i class="fa-solid fa-xmark"></i></span>
     </div>
-  `).join('') + '<div class="fav-chip fav-add-chip" style="color:var(--primary);border-style:dashed;"><i class="fa-solid fa-plus"></i> 追加</div>';
+  `).join('') + '<div class="fav-chip fav-add-chip" style="color:var(--primary);border-style:dashed;"><i class="fa-solid fa-plus"></i> ' + t('追加') + '</div>';
 
   // 追加ボタン
   favoritesList.querySelector('.fav-add-chip')?.addEventListener('click', () => {
@@ -3110,7 +3110,7 @@ function renderFavorites() {
       nameEl.value = el.dataset.name;
       toEl.value = el.dataset.phone;
       toActive(true);
-      statusEl.innerHTML = `<i class="fa-solid fa-star" style="color: #f59e0b;"></i> ${escapeHtml(el.dataset.name)} を選択しました`;
+      statusEl.innerHTML = `<i class="fa-solid fa-star" style="color: #f59e0b;"></i> ${t("{0} を選択しました", escapeHtml(el.dataset.name))}`;
     });
   });
   
@@ -3159,7 +3159,7 @@ favAddBtn.addEventListener('click', () => {
   const favs = getFavorites();
   // 重複チェック
   if (favs.some(f => f.phone === phone)) {
-    alert('この電話番号は既に登録されています');
+    alert(t('この電話番号は既に登録されています'));
     return;
   }
   favs.push({ name, phone });
@@ -3218,7 +3218,7 @@ function removeReservation(index) {
 function renderReservations() {
   const list = getReservations();
   if (list.length === 0) {
-    rsvHistoryList.innerHTML = '<div class="history-empty"><i class="fa-solid fa-calendar-xmark"></i><br>予約履歴がありません</div>';
+    rsvHistoryList.innerHTML = '<div class="history-empty"><i class="fa-solid fa-calendar-xmark"></i><br>' + t('予約履歴がありません') + '</div>';
     return;
   }
   const now = new Date();
@@ -3245,7 +3245,7 @@ function renderReservations() {
     }
     const detail = (r.rsvDate ? r.rsvDate.replace(/\d{4}-/, '').replace('-', '/') : '') +
       (r.rsvTime ? ' ' + r.rsvTime : '') +
-      (r.partySize ? ' / ' + r.partySize + '名' : '') +
+      (r.partySize ? ' / ' + t('{0}名', r.partySize) : '') +
       (r.rsvName ? ' / ' + escapeHtml(r.rsvName) : '');
     const playBtn = r.recordingUrl
       ? `<button class="rsv-history-play" data-url="${escapeAttr(r.recordingUrl)}" title="録音再生"><i class="fa-solid fa-play"></i></button>`
@@ -3337,7 +3337,7 @@ async function loadHistory(search = '') {
     const j = await res.json();
     
     if (!j.ok || !j.calls || j.calls.length === 0) {
-      historyList.innerHTML = '<div class="history-empty"><i class="fa-solid fa-phone-slash"></i><br>通話履歴がありません</div>';
+      historyList.innerHTML = '<div class="history-empty"><i class="fa-solid fa-phone-slash"></i><br>' + t('通話履歴がありません') + '</div>';
       historyMore.style.display = 'none';
       return;
     }
@@ -3353,7 +3353,7 @@ async function loadHistory(search = '') {
       const isFav = favPhones.has(phone);
       const sid = c.sid || '';
       const hasRec = c.has_recording ? '1' : '';
-      const dur = c.duration ? `${Math.floor(c.duration/60)}分${(c.duration%60).toString().padStart(2,'0')}秒` : '';
+      const dur = c.duration ? t('{0}分{1}秒', Math.floor(c.duration/60), (c.duration%60).toString().padStart(2,'0')) : '';
 
       return `
         <div class="history-item-wrap" data-sid="${escapeAttr(sid)}">
@@ -3370,7 +3370,7 @@ async function loadHistory(search = '') {
             </div>
           </div>
           <div class="history-expand">
-            <div class="history-expand-loading"><i class="fa-solid fa-spinner fa-spin"></i> 読み込み中…</div>
+            <div class="history-expand-loading"><i class="fa-solid fa-spinner fa-spin"></i> ${t("読み込み中…")}</div>
           </div>
         </div>
       `;
@@ -3450,19 +3450,19 @@ async function toggleHistoryExpand(wrap) {
   const sid = wrap.dataset.sid;
 
   if (!sid) {
-    expandEl.innerHTML = '<div style="font-size:12px;color:var(--muted);padding:4px 0;">データがありません</div>';
+    expandEl.innerHTML = '<div style="font-size:12px;color:var(--muted);padding:4px 0;">' + t('データがありません') + '</div>';
     return;
   }
 
   // データが既に読み込み済みならスキップ
   if (expandEl.dataset.loaded === '1') return;
 
-  expandEl.innerHTML = '<div class="history-expand-loading"><i class="fa-solid fa-spinner fa-spin"></i> 読み込み中…</div>';
+  expandEl.innerHTML = '<div class="history-expand-loading"><i class="fa-solid fa-spinner fa-spin"></i> ' + t('読み込み中…') + '</div>';
 
   try {
     const res = await fetch('call?json=1&sid=' + encodeURIComponent(sid));
     if (res.status === 204 || !res.ok) {
-      expandEl.innerHTML = '<div style="font-size:12px;color:var(--muted);padding:4px 0;">詳細データがありません</div>';
+      expandEl.innerHTML = '<div style="font-size:12px;color:var(--muted);padding:4px 0;">' + t('詳細データがありません') + '</div>';
       expandEl.dataset.loaded = '1';
       return;
     }
@@ -3476,14 +3476,14 @@ async function toggleHistoryExpand(wrap) {
     }
     // 営業時間
     if (j.hours_answer) {
-      html += `<div class="history-expand-row"><i class="fa-regular fa-clock"></i> 営業時間: ${escapeHtml(j.hours_answer)}</div>`;
+      html += `<div class="history-expand-row"><i class="fa-regular fa-clock"></i> ${t("営業時間:")} ${escapeHtml(j.hours_answer)}</div>`;
     }
     // 通話時間
     if (j.duration) {
       const dur = parseInt(j.duration, 10);
       const min = Math.floor(dur / 60);
       const sec = dur % 60;
-      html += `<div class="history-expand-row"><i class="fa-solid fa-hourglass-half"></i> 通話時間: ${min}分${sec.toString().padStart(2,'0')}秒</div>`;
+      html += `<div class="history-expand-row"><i class="fa-solid fa-hourglass-half"></i> ${t("通話時間: {0}分{1}秒", min, sec.toString().padStart(2,"0"))}</div>`;
     }
     // サマリー
     if (j.summary) {
@@ -3494,7 +3494,7 @@ async function toggleHistoryExpand(wrap) {
       const recId = 'hist-rec-' + sid.replace(/[^a-zA-Z0-9]/g, '');
       html += `
         <div class="recording-player show" style="display:block;">
-          <div class="recording-player-header"><i class="fa-solid fa-circle-play"></i> 通話録音</div>
+          <div class="recording-player-header"><i class="fa-solid fa-circle-play"></i> ${t("通話録音")}</div>
           <audio id="${recId}" controls preload="none" src="${escapeAttr(j.recording_url)}" style="width:100%;height:36px;border-radius:8px;"></audio>
           <div class="recording-player-info">
             <span></span>
@@ -3502,13 +3502,13 @@ async function toggleHistoryExpand(wrap) {
           </div>
         </div>`;
     } else {
-      html += '<div style="font-size:12px;color:var(--muted);padding:4px 0;"><i class="fa-solid fa-microphone-slash"></i> 録音データなし</div>';
+      html += '<div style="font-size:12px;color:var(--muted);padding:4px 0;"><i class="fa-solid fa-microphone-slash"></i> ' + t('録音データなし') + '</div>';
     }
 
     expandEl.innerHTML = html;
     expandEl.dataset.loaded = '1';
   } catch(e) {
-    expandEl.innerHTML = '<div style="font-size:12px;color:#d93025;padding:4px 0;"><i class="fa-solid fa-triangle-exclamation"></i> 読み込みエラー</div>';
+    expandEl.innerHTML = '<div style="font-size:12px;color:#d93025;padding:4px 0;"><i class="fa-solid fa-triangle-exclamation"></i> ' + t('読み込みエラー') + '</div>';
   }
 }
 
@@ -3536,11 +3536,11 @@ function getStatusIcon(openStatus, callStatus) {
 
 function buildDetail(c) {
   const parts = [];
-  if (c.open_status === 'open') parts.push('営業中');
-  else if (c.open_status === 'closed') parts.push('休業');
-  else if (c.open_status === 'no_response') parts.push('無応答');
-  else if (c.status === 'failed' || c.status === 'busy' || c.status === 'no-answer') parts.push('不通');
-  else parts.push('不明');
+  if (c.open_status === 'open') parts.push(t('営業中'));
+  else if (c.open_status === 'closed') parts.push(t('休業'));
+  else if (c.open_status === 'no_response') parts.push(t('無応答'));
+  else if (c.status === 'failed' || c.status === 'busy' || c.status === 'no-answer') parts.push(t('不通'));
+  else parts.push(t('不明'));
   
   if (c.hours_answer) parts.push(c.hours_answer);
   else if (c.hours_end) parts.push('〜' + c.hours_end);
@@ -3554,10 +3554,10 @@ function formatTime(dateStr) {
     const d = new Date(dateStr);
     const now = new Date();
     const diff = now - d;
-    if (diff < 60000) return 'たった今';
-    if (diff < 3600000) return Math.floor(diff / 60000) + '分前';
-    if (diff < 86400000) return Math.floor(diff / 3600000) + '時間前';
-    if (diff < 604800000) return Math.floor(diff / 86400000) + '日前';
+    if (diff < 60000) return t('たった今');
+    if (diff < 3600000) return t('{0}分前', Math.floor(diff / 60000));
+    if (diff < 86400000) return t('{0}時間前', Math.floor(diff / 3600000));
+    if (diff < 604800000) return t('{0}日前', Math.floor(diff / 86400000));
     return (d.getMonth() + 1) + '/' + d.getDate();
   } catch(e) { return ''; }
 }
@@ -3668,11 +3668,11 @@ function showReservationPanel(phone, name, store) {
   currentRsvStore = { phone, name, store };
   rsvStoreName.textContent = name;
   rsvStorePhone.textContent = phone;
-  reservationTitle.textContent = name + ' - 予約';
+  reservationTitle.textContent = t('{0} - 予約', name);
 
   // フォームリセット
   rsvSubmitBtn.disabled = false;
-  rsvSubmitBtn.innerHTML = '<i class="fa-solid fa-phone-volume"></i> 予約電話をかける';
+  rsvSubmitBtn.innerHTML = '<i class="fa-solid fa-phone-volume"></i> ' + t('予約電話をかける');
   rsvSubmitBtn.style.background = '#e67e22';
   rsvStatus.style.display = 'none';
   rsvResultCard.style.display = 'none';
@@ -3725,8 +3725,8 @@ function openReservationFromPanel(btn) {
 // 日付を日本語に変換
 function formatRsvDate(dateStr) {
   const d = new Date(dateStr + 'T00:00:00');
-  const days = ['日', '月', '火', '水', '木', '金', '土'];
-  return (d.getMonth() + 1) + '月' + d.getDate() + '日(' + days[d.getDay()] + ')';
+  const days = [t('日'), t('月'), t('火'), t('水'), t('木'), t('金'), t('土')];
+  return t('{0}月{1}日({2})', d.getMonth() + 1, d.getDate(), days[d.getDay()]);
 }
 
 // フォーム送信
@@ -3739,20 +3739,20 @@ reservationForm.addEventListener('submit', async (e) => {
 
   // バリデーション
   if (!rsvDate.value || !rsvTime.value || !rsvPartySize.value || !rsvNameInput.value.trim() || !rsvPhoneInput.value.trim()) {
-    alert('必須項目を入力してください。');
+    alert(t('必須項目を入力してください。'));
     return;
   }
   if (!/^[\u3040-\u309F\u30FC\s\u3000]+$/.test(rsvNameInput.value.trim())) {
-    alert('予約者名はひらがなで入力してください。');
+    alert(t('予約者名はひらがなで入力してください。'));
     rsvNameInput.focus();
     return;
   }
 
   rsvSubmitBtn.disabled = true;
-  rsvSubmitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> 発信中…';
+  rsvSubmitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> ' + t('発信中…');
   rsvSubmitBtn.style.background = '#e53e3e';
   rsvStatus.style.display = 'block';
-  rsvStatus.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Twilioに発信依頼中…';
+  rsvStatus.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> ' + t('Twilioに発信依頼中…');
 
   try {
     const fd = new FormData();
@@ -3773,13 +3773,13 @@ reservationForm.addEventListener('submit', async (e) => {
     }
 
     const res = await fetch('call', { method: 'POST', body: fd });
-    if (!res.ok) throw new Error('発信に失敗しました');
+    if (!res.ok) throw new Error(t('発信に失敗しました'));
     const j = await res.json();
     if (!j.ok) throw new Error(j.error || 'failed');
 
     incrementUsageCount();
     rsvSid = j.sid;
-    rsvStatus.innerHTML = '<i class="fa-solid fa-phone-volume"></i> 予約電話を発信しました。AIが店舗と会話中です…';
+    rsvStatus.innerHTML = '<i class="fa-solid fa-phone-volume"></i> ' + t('予約電話を発信しました。AIが店舗と会話中です…');
 
     // ポーリング開始
     if (rsvPollTimer) clearInterval(rsvPollTimer);
@@ -3787,9 +3787,9 @@ reservationForm.addEventListener('submit', async (e) => {
     await pollReservation();
     rsvPollTimer = setInterval(pollReservation, 2000);
   } catch (e) {
-    rsvStatus.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i> エラー: ' + escapeHtml(e.message);
+    rsvStatus.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i> ' + t('エラー:') + ' ' + escapeHtml(e.message);
     rsvSubmitBtn.disabled = false;
-    rsvSubmitBtn.innerHTML = '<i class="fa-solid fa-phone-volume"></i> 予約電話をかける';
+    rsvSubmitBtn.innerHTML = '<i class="fa-solid fa-phone-volume"></i> ' + t('予約電話をかける');
     rsvSubmitBtn.style.background = '#e67e22';
   }
 });
@@ -3829,24 +3829,24 @@ async function pollReservation() {
       if (j.reservation_result) {
         showReservationResult(j.reservation_result);
       } else if (j.result_state === 'call_failed') {
-        rsvStatus.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i> 通話が確立できませんでした。';
+        rsvStatus.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i> ' + t('通話が確立できませんでした。');
         addReservation({
           sid: rsvSid || '', storeName: currentRsvStore ? currentRsvStore.name : '',
           storePhone: currentRsvStore ? currentRsvStore.phone : '',
           rsvDate: rsvDate.value, rsvTime: rsvTime.value, partySize: rsvPartySize.value,
           rsvName: rsvNameInput.value.trim(), status: 'failed',
-          summary: '通話が確立できませんでした',
+          summary: t('通話が確立できませんでした'),
           recordingUrl: rsvRecordingShown && rsvRecordingAudio.src ? rsvRecordingAudio.src : '',
           createdAt: new Date().toISOString()
         });
       } else if (j.result_state === 'no_response') {
-        rsvStatus.innerHTML = '<i class="fa-solid fa-microphone-slash"></i> 無応答でした。';
+        rsvStatus.innerHTML = '<i class="fa-solid fa-microphone-slash"></i> ' + t('無応答でした。');
         addReservation({
           sid: rsvSid || '', storeName: currentRsvStore ? currentRsvStore.name : '',
           storePhone: currentRsvStore ? currentRsvStore.phone : '',
           rsvDate: rsvDate.value, rsvTime: rsvTime.value, partySize: rsvPartySize.value,
           rsvName: rsvNameInput.value.trim(), status: 'failed',
-          summary: '無応答でした',
+          summary: t('無応答でした'),
           recordingUrl: rsvRecordingShown && rsvRecordingAudio.src ? rsvRecordingAudio.src : '',
           createdAt: new Date().toISOString()
         });
@@ -3861,7 +3861,7 @@ async function pollReservation() {
       if (!j.recording_url && !rsvRecordingPollTimer) {
         rsvRecordingPlayer.classList.add('show');
         rsvRecordingLoading.style.display = 'flex';
-        rsvRecordingLoading.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> 録音データの準備を待っています…';
+        rsvRecordingLoading.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> ' + t('録音データの準備を待っています…');
         let retries = 0;
         rsvRecordingPollTimer = setInterval(async () => {
           retries++;
@@ -3881,7 +3881,7 @@ async function pollReservation() {
           if (retries >= 15) {
             clearInterval(rsvRecordingPollTimer);
             rsvRecordingPollTimer = null;
-            rsvRecordingLoading.innerHTML = '<i class="fa-solid fa-circle-info"></i> 録音データが取得できませんでした';
+            rsvRecordingLoading.innerHTML = '<i class="fa-solid fa-circle-info"></i> ' + t('録音データが取得できませんでした');
           }
         }, 2000);
       }
@@ -3894,22 +3894,22 @@ function showReservationResult(result) {
   let icon, title, cls;
   if (status === 'confirmed') {
     icon = '<i class="fa-solid fa-circle-check" style="color:#1e8e3e;"></i>';
-    title = '予約が確定しました！';
+    title = t('予約が確定しました！');
     cls = 'confirmed';
   } else if (status === 'rejected') {
     icon = '<i class="fa-solid fa-circle-xmark" style="color:#d93025;"></i>';
-    title = '予約できませんでした';
+    title = t('予約できませんでした');
     cls = 'rejected';
   } else {
     icon = '<i class="fa-solid fa-circle-question" style="color:#e37400;"></i>';
-    title = '予約の可否を確認できませんでした';
+    title = t('予約の可否を確認できませんでした');
     cls = 'unknown';
   }
 
   let detailHtml = '';
   if (result.confirmation) detailHtml += '<div>' + escapeHtml(result.confirmation) + '</div>';
-  if (result.rejection_reason) detailHtml += '<div>理由: ' + escapeHtml(result.rejection_reason) + '</div>';
-  if (result.alternative_suggestion) detailHtml += '<div>代替案: ' + escapeHtml(result.alternative_suggestion) + '</div>';
+  if (result.rejection_reason) detailHtml += '<div>' + t('理由:') + ' ' + escapeHtml(result.rejection_reason) + '</div>';
+  if (result.alternative_suggestion) detailHtml += '<div>' + t('代替案:') + ' ' + escapeHtml(result.alternative_suggestion) + '</div>';
   if (result.summary) detailHtml += '<div style="margin-top:4px;font-style:italic;">' + escapeHtml(result.summary) + '</div>';
 
   rsvResultCard.className = 'rsv-result-card ' + cls;
@@ -3951,13 +3951,13 @@ function showRsvRecording(url, duration) {
     rsvRecordingInfo.style.display = 'flex';
     if (duration) {
       const dur = parseInt(duration, 10);
-      rsvRecordingDuration.textContent = '録音時間: ' + Math.floor(dur / 60) + '分' + (dur % 60).toString().padStart(2, '0') + '秒';
+      rsvRecordingDuration.textContent = t('録音時間: {0}分{1}秒', Math.floor(dur / 60), (dur % 60).toString().padStart(2, '0'));
     }
     rsvRecordingAudio.removeEventListener('canplay', onCanPlay);
   }, { once: true });
 
   rsvRecordingAudio.addEventListener('error', function onError() {
-    rsvRecordingLoading.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i> 録音データの読み込みに失敗しました';
+    rsvRecordingLoading.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i> ' + t('録音データの読み込みに失敗しました');
     rsvRecordingAudio.removeEventListener('error', onError);
   }, { once: true });
 
@@ -3990,7 +3990,7 @@ function showRsvRecording(url, duration) {
   supportNewBtn.addEventListener('click', () => {
     supportConvId = '';
     sessionStorage.removeItem('supportConvId');
-    supportMsgs.innerHTML = '<div class="support-msg welcome"><i class="fa-solid fa-robot"></i><br>質問・バグ報告・改善提案をお気軽にどうぞ</div>';
+    supportMsgs.innerHTML = '<div class="support-msg welcome"><i class="fa-solid fa-robot"></i><br>' + t('質問・バグ報告・改善提案をお気軽にどうぞ') + '</div>';
   });
 
   function appendSupportMsg(role, text) {
@@ -4034,11 +4034,11 @@ function showRsvRecording(url, duration) {
         sessionStorage.setItem('supportConvId', supportConvId);
         appendSupportMsg('ai', j.reply);
       } else {
-        appendSupportMsg('ai', 'エラーが発生しました。もう一度お試しください。');
+        appendSupportMsg('ai', t('エラーが発生しました。もう一度お試しください。'));
       }
     } catch (e) {
       loading.remove();
-      appendSupportMsg('ai', '通信エラーが発生しました。');
+      appendSupportMsg('ai', t('通信エラーが発生しました。'));
     }
     supportSending = false;
     supportSend.disabled = false;
@@ -4060,17 +4060,17 @@ if (new URLSearchParams(location.search).has('support_admin')) {
   overlay.className = 'admin-overlay show';
   overlay.innerHTML = `
     <div class="admin-header">
-      <h2><i class="fa-solid fa-headset"></i> サポート管理</h2>
+      <h2><i class="fa-solid fa-headset"></i> ${t("サポート管理")}</h2>
       <div class="admin-filter">
-        <button class="admin-filter-btn active" data-f="all">すべて</button>
-        <button class="admin-filter-btn" data-f="question">質問</button>
-        <button class="admin-filter-btn" data-f="bug">バグ</button>
-        <button class="admin-filter-btn" data-f="improvement">改善</button>
-        <button class="admin-filter-btn" data-f="unresolved">未解決</button>
+        <button class="admin-filter-btn active" data-f="all">${t("すべて")}</button>
+        <button class="admin-filter-btn" data-f="question">${t("質問")}</button>
+        <button class="admin-filter-btn" data-f="bug">${t("バグ")}</button>
+        <button class="admin-filter-btn" data-f="improvement">${t("改善")}</button>
+        <button class="admin-filter-btn" data-f="unresolved">${t("未解決")}</button>
       </div>
       <button class="admin-close" id="adminClose">&times;</button>
     </div>
-    <div class="admin-list" id="adminList"><div style="text-align:center;padding:40px;color:var(--muted);"><i class="fa-solid fa-spinner fa-spin"></i> 読み込み中…</div></div>
+    <div class="admin-list" id="adminList"><div style="text-align:center;padding:40px;color:var(--muted);"><i class="fa-solid fa-spinner fa-spin"></i> ${t("読み込み中…")}</div></div>
     <div class="admin-detail" id="adminDetail" style="display:none;"></div>`;
   document.body.appendChild(overlay);
 
@@ -4103,18 +4103,18 @@ if (new URLSearchParams(location.search).has('support_admin')) {
     else if (currentFilter !== 'all') filtered = allConvs.filter(c => c.type === currentFilter);
 
     if (filtered.length === 0) {
-      list.innerHTML = '<div style="text-align:center;padding:40px;color:var(--muted);">該当するサポート履歴はありません</div>';
+      list.innerHTML = '<div style="text-align:center;padding:40px;color:var(--muted);">' + t('該当するサポート履歴はありません') + '</div>';
       return;
     }
-    const typeLabel = { question: '質問', bug: 'バグ', improvement: '改善' };
+    const typeLabel = { question: t('質問'), bug: t('バグ'), improvement: t('改善') };
     list.innerHTML = filtered.map(c => {
       const date = c.updatedAt ? new Date(c.updatedAt).toLocaleDateString('ja-JP', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : '';
       return `<div class="admin-item${c.resolved ? ' resolved' : ''}" data-id="${c.convId}">
         <div class="admin-item-top">
-          <span class="admin-type-badge ${c.type}">${typeLabel[c.type] || '質問'}</span>
+          <span class="admin-type-badge ${c.type}">${typeLabel[c.type] || t('質問')}</span>
           <span class="admin-item-user">${escapeHtml(c.userName || c.uid?.slice(0,8) || '?')}</span>
           <span class="admin-item-date">${date}</span>
-          ${c.resolved ? '<span style="font-size:10px;color:#1e8e3e;">✓解決済</span>' : ''}
+          ${c.resolved ? '<span style="font-size:10px;color:#1e8e3e;">✓' + t("解決済み") + '</span>' : ''}
         </div>
         <div class="admin-item-summary">${escapeHtml(c.summary || '(要約なし)')}</div>
         <div class="admin-item-last">${escapeHtml(c.lastMessage || '')}</div>
@@ -4133,11 +4133,11 @@ if (new URLSearchParams(location.search).has('support_admin')) {
       const j = await res.json();
       if (!j.ok) return;
       const c = j.conversation;
-      const typeLabel = { question: '質問', bug: 'バグ報告', improvement: '改善提案' };
+      const typeLabel = { question: t('質問'), bug: t('バグ報告'), improvement: t('改善提案') };
       detail.innerHTML = `
-        <button class="admin-detail-back"><i class="fa-solid fa-arrow-left"></i> 一覧に戻る</button>
+        <button class="admin-detail-back"><i class="fa-solid fa-arrow-left"></i> ${t("一覧に戻る")}</button>
         <div style="margin-bottom:8px;">
-          <span class="admin-type-badge ${c.type}">${typeLabel[c.type] || '質問'}</span>
+          <span class="admin-type-badge ${c.type}">${typeLabel[c.type] || t('質問')}</span>
           <strong>${escapeHtml(c.userName || '')}</strong>
           <span style="font-size:11px;color:var(--muted);margin-left:8px;">${c.createdAt ? new Date(c.createdAt).toLocaleString('ja-JP') : ''}</span>
         </div>
@@ -4145,7 +4145,7 @@ if (new URLSearchParams(location.search).has('support_admin')) {
         <div class="admin-detail-msgs">
           ${(c.messages || []).map(m => `<div class="support-msg ${m.role === 'user' ? 'user' : 'ai'}">${escapeHtml(m.text)}</div>`).join('')}
         </div>
-        ${!c.resolved ? '<button class="admin-resolve-btn" data-id="' + c.convId + '"><i class="fa-solid fa-check"></i> 解決済みにする</button>' : '<div style="margin-top:12px;font-size:12px;color:#1e8e3e;">✓ 解決済み</div>'}`;
+        ${!c.resolved ? '<button class="admin-resolve-btn" data-id="' + c.convId + '"><i class="fa-solid fa-check"></i> ' + t('解決済みにする') + '</button>' : '<div style="margin-top:12px;font-size:12px;color:#1e8e3e;">✓ ' + t('解決済み') + '</div>'}`;
       list.style.display = 'none';
       detail.style.display = 'block';
 
@@ -4158,7 +4158,7 @@ if (new URLSearchParams(location.search).has('support_admin')) {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ secret: ADMIN_SECRET, convId: c.convId })
           });
-          resolveBtn.outerHTML = '<div style="margin-top:12px;font-size:12px;color:#1e8e3e;">✓ 解決済み</div>';
+          resolveBtn.outerHTML = '<div style="margin-top:12px;font-size:12px;color:#1e8e3e;">✓ ' + t('解決済み') + '</div>';
           const idx = allConvs.findIndex(x => x.convId === c.convId);
           if (idx !== -1) allConvs[idx].resolved = true;
         });
@@ -4173,7 +4173,7 @@ if (new URLSearchParams(location.search).has('support_admin')) {
       const j = await res.json();
       if (j.ok) { allConvs = j.conversations; renderAdminList(); }
     } catch(e) {
-      document.getElementById('adminList').innerHTML = '<div style="text-align:center;padding:40px;color:#d93025;">読み込みに失敗しました</div>';
+      document.getElementById('adminList').innerHTML = '<div style="text-align:center;padding:40px;color:#d93025;">' + t('読み込みに失敗しました') + '</div>';
     }
   })();
 }

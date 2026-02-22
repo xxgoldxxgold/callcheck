@@ -255,6 +255,183 @@
     }
   </style>
 
+  <!-- ====== i18n ====== -->
+  <script>
+  (function(){
+    var nav = (navigator.language || 'ja').toLowerCase();
+    var lang = 'ja';
+    if (nav.startsWith('ko')) lang = 'ko';
+    else if (nav.startsWith('zh-tw') || nav.startsWith('zh-hant')) lang = 'zh-TW';
+    else if (nav.startsWith('zh')) lang = 'zh-CN';
+    else if (nav.startsWith('es')) lang = 'es';
+    else if (nav.startsWith('fr')) lang = 'fr';
+    else if (nav.startsWith('de')) lang = 'de';
+    else if (nav.startsWith('pt')) lang = 'pt';
+    else if (nav.startsWith('th')) lang = 'th';
+    else if (nav.startsWith('vi')) lang = 'vi';
+    else if (nav.startsWith('id') || nav.startsWith('ms')) lang = 'id';
+    else if (!nav.startsWith('ja')) lang = 'en';
+    window._lang = lang;
+    if (lang !== 'ja') document.documentElement.lang = lang;
+    var D = {};
+    D.en = {
+      'ソーシャルでログイン':'Social Login','Googleでログイン':'Sign in with Google',
+      'Appleでログイン':'Sign in with Apple','新規登録（メール）':'Sign Up (Email)',
+      'ログイン（メール）':'Log In (Email)','メールアドレス':'Email',
+      'パスワード（6文字以上）':'Password (6+ characters)','パスワード':'Password',
+      '登録する':'Sign Up','ログイン':'Log In','ログイン中':'Signed In',
+      'ログアウト':'Logout',
+      'この画面は稀に表示されることがありますが、通常は自動でアプリ画面へ遷移します。':'This screen rarely appears; you will be automatically redirected.',
+      'AIが電話をかけて営業状況や営業時間を確認したり、予約をとったりします。':'AI calls stores to check business hours and make reservations.',
+      'このメールアドレスは既に登録されています。':'This email is already registered.',
+      'メールアドレスの形式が正しくありません。':'Invalid email format.',
+      'パスワードは6文字以上にしてください。':'Password must be at least 6 characters.',
+      'このメールアドレスは登録されていません。':'This email is not registered.',
+      'パスワードが正しくありません。':'Incorrect password.',
+      'ログイン画面が閉じられました。もう一度お試しください。':'Login window was closed. Please try again.',
+      'ネットワークエラーが発生しました。接続を確認してください。':'Network error. Please check your connection.',
+      '試行回数が多すぎます。しばらく待ってから再度お試しください。':'Too many attempts. Please wait and try again.',
+      'エラーが発生しました。もう一度お試しください。':'An error occurred. Please try again.',
+      '登録できました。':'Registered successfully.','ログイン成功。':'Login successful.'
+    };
+    D.ko = {
+      'ソーシャルでログイン':'소셜 로그인','Googleでログイン':'Google로 로그인',
+      'Appleでログイン':'Apple로 로그인','新規登録（メール）':'회원가입 (이메일)',
+      'ログイン（メール）':'로그인 (이메일)','メールアドレス':'이메일',
+      'パスワード（6文字以上）':'비밀번호 (6자 이상)','パスワード':'비밀번호',
+      '登録する':'가입하기','ログイン':'로그인','ログイン中':'로그인 중','ログアウト':'로그아웃',
+      'この画面は稀に表示されることがありますが、通常は自動でアプリ画面へ遷移します。':'이 화면은 드물게 표시되며, 보통 자동으로 앱 화면으로 이동합니다.',
+      'AIが電話をかけて営業状況や営業時間を確認したり、予約をとったりします。':'AI가 전화를 걸어 영업 상황과 영업시간을 확인하고 예약을 합니다.',
+      'このメールアドレスは既に登録されています。':'이 이메일은 이미 등록되어 있습니다.',
+      'メールアドレスの形式が正しくありません。':'이메일 형식이 올바르지 않습니다.',
+      'パスワードは6文字以上にしてください。':'비밀번호는 6자 이상이어야 합니다.',
+      'このメールアドレスは登録されていません。':'이 이메일은 등록되어 있지 않습니다.',
+      'パスワードが正しくありません。':'비밀번호가 올바르지 않습니다.',
+      'ログイン画面が閉じられました。もう一度お試しください。':'로그인 창이 닫혔습니다. 다시 시도해 주세요.',
+      'ネットワークエラーが発生しました。接続を確認してください。':'네트워크 오류가 발생했습니다. 연결을 확인해 주세요.',
+      '試行回数が多すぎます。しばらく待ってから再度お試しください。':'시도 횟수가 너무 많습니다. 잠시 후 다시 시도해 주세요.',
+      'エラーが発生しました。もう一度お試しください。':'오류가 발생했습니다. 다시 시도해 주세요.',
+      '登録できました。':'등록되었습니다.','ログイン成功。':'로그인 성공.'
+    };
+    D['zh-CN'] = {
+      'ソーシャルでログイン':'社交账号登录','Googleでログイン':'Google登录',
+      'Appleでログイン':'Apple登录','新規登録（メール）':'注册（邮箱）',
+      'ログイン（メール）':'登录（邮箱）','メールアドレス':'邮箱地址',
+      'パスワード（6文字以上）':'密码（6位以上）','パスワード':'密码',
+      '登録する':'注册','ログイン':'登录','ログイン中':'已登录','ログアウト':'退出登录',
+      'この画面は稀に表示されることがありますが、通常は自動でアプリ画面へ遷移します。':'此页面很少显示，通常会自动跳转到应用。',
+      'AIが電話をかけて営業状況や営業時間を確認したり、予約をとったりします。':'AI拨打电话确认营业状况、营业时间并进行预约。',
+      'このメールアドレスは既に登録されています。':'该邮箱已注册。',
+      'メールアドレスの形式が正しくありません。':'邮箱格式不正确。',
+      'パスワードは6文字以上にしてください。':'密码至少需要6位。',
+      'このメールアドレスは登録されていません。':'该邮箱未注册。',
+      'パスワードが正しくありません。':'密码不正确。',
+      'ログイン画面が閉じられました。もう一度お試しください。':'登录窗口已关闭，请重试。',
+      'ネットワークエラーが発生しました。接続を確認してください。':'网络错误，请检查连接。',
+      '試行回数が多すぎます。しばらく待ってから再度お試しください。':'尝试次数过多，请稍后重试。',
+      'エラーが発生しました。もう一度お試しください。':'发生错误，请重试。',
+      '登録できました。':'注册成功。','ログイン成功。':'登录成功。'
+    };
+    D['zh-TW'] = {
+      'ソーシャルでログイン':'社群帳號登入','Googleでログイン':'Google登入',
+      'Appleでログイン':'Apple登入','新規登録（メール）':'註冊（電子郵件）',
+      'ログイン（メール）':'登入（電子郵件）','メールアドレス':'電子郵件',
+      'パスワード（6文字以上）':'密碼（6位以上）','パスワード':'密碼',
+      '登録する':'註冊','ログイン':'登入','ログイン中':'已登入','ログアウト':'登出',
+      'AIが電話をかけて営業状況や営業時間を確認したり、予約をとったりします。':'AI撥打電話確認營業狀況、營業時間並進行預約。',
+      '登録できました。':'註冊成功。','ログイン成功。':'登入成功。'
+    };
+    D.es = {
+      'ソーシャルでログイン':'Inicio social','Googleでログイン':'Iniciar con Google',
+      'Appleでログイン':'Iniciar con Apple','新規登録（メール）':'Registro (email)',
+      'ログイン（メール）':'Iniciar sesión (email)','メールアドレス':'Correo electrónico',
+      'パスワード（6文字以上）':'Contraseña (6+ caracteres)','パスワード':'Contraseña',
+      '登録する':'Registrarse','ログイン':'Iniciar sesión','ログイン中':'Sesión iniciada','ログアウト':'Cerrar sesión',
+      'AIが電話をかけて営業状況や営業時間を確認したり、予約をとったりします。':'La IA llama para verificar horarios y hacer reservas.',
+      '登録できました。':'Registrado.','ログイン成功。':'Sesión iniciada.'
+    };
+    D.fr = {
+      'ソーシャルでログイン':'Connexion sociale','Googleでログイン':'Se connecter avec Google',
+      'Appleでログイン':'Se connecter avec Apple','新規登録（メール）':'Inscription (email)',
+      'ログイン（メール）':'Connexion (email)','メールアドレス':'Adresse e-mail',
+      'パスワード（6文字以上）':'Mot de passe (6+ caractères)','パスワード':'Mot de passe',
+      '登録する':'S\'inscrire','ログイン':'Se connecter','ログイン中':'Connecté','ログアウト':'Déconnexion',
+      'AIが電話をかけて営業状況や営業時間を確認したり、予約をとったりします。':'L\'IA appelle pour vérifier les horaires et effectuer des réservations.',
+      '登録できました。':'Inscrit.','ログイン成功。':'Connecté.'
+    };
+    D.de = {
+      'ソーシャルでログイン':'Soziale Anmeldung','Googleでログイン':'Mit Google anmelden',
+      'Appleでログイン':'Mit Apple anmelden','新規登録（メール）':'Registrierung (E-Mail)',
+      'ログイン（メール）':'Anmelden (E-Mail)','メールアドレス':'E-Mail-Adresse',
+      'パスワード（6文字以上）':'Passwort (6+ Zeichen)','パスワード':'Passwort',
+      '登録する':'Registrieren','ログイン':'Anmelden','ログイン中':'Angemeldet','ログアウト':'Abmelden',
+      'AIが電話をかけて営業状況や営業時間を確認したり、予約をとったりします。':'KI ruft an, um Öffnungszeiten zu prüfen und Reservierungen vorzunehmen.',
+      '登録できました。':'Registriert.','ログイン成功。':'Angemeldet.'
+    };
+    D.pt = {
+      'Googleでログイン':'Entrar com Google','Appleでログイン':'Entrar com Apple',
+      'メールアドレス':'E-mail','パスワード':'Senha','登録する':'Registrar','ログイン':'Entrar',
+      'ログアウト':'Sair','登録できました。':'Registrado.','ログイン成功。':'Login efetuado.'
+    };
+    D.th = {
+      'Googleでログイン':'เข้าด้วย Google','Appleでログイン':'เข้าด้วย Apple',
+      'メールアドレス':'อีเมล','パスワード':'รหัสผ่าน','登録する':'ลงทะเบียน','ログイン':'เข้าสู่ระบบ',
+      'ログアウト':'ออกจากระบบ','登録できました。':'ลงทะเบียนสำเร็จ','ログイン成功。':'เข้าสู่ระบบสำเร็จ'
+    };
+    D.vi = {
+      'Googleでログイン':'Đăng nhập Google','Appleでログイン':'Đăng nhập Apple',
+      'メールアドレス':'Email','パスワード':'Mật khẩu','登録する':'Đăng ký','ログイン':'Đăng nhập',
+      'ログアウト':'Đăng xuất','登録できました。':'Đã đăng ký.','ログイン成功。':'Đăng nhập thành công.'
+    };
+    D.id = {
+      'Googleでログイン':'Masuk dengan Google','Appleでログイン':'Masuk dengan Apple',
+      'メールアドレス':'Email','パスワード':'Kata sandi','登録する':'Daftar','ログイン':'Masuk',
+      'ログアウト':'Keluar','登録できました。':'Terdaftar.','ログイン成功。':'Login berhasil.'
+    };
+    window._i18n = D;
+    window.t = function(key) {
+      if (window._lang === 'ja') { var s = key; for (var i = 1; i < arguments.length; i++) s = s.replace('{' + (i-1) + '}', arguments[i]); return s; }
+      var d = D[window._lang] || D.en;
+      var v = (d && d[key]) || (D.en && D.en[key]) || key;
+      for (var i = 1; i < arguments.length; i++) v = v.replace('{' + (i-1) + '}', arguments[i]);
+      return v;
+    };
+    // Translate static HTML
+    if (lang !== 'ja') {
+      document.addEventListener('DOMContentLoaded', function() {
+        document.title = 'denwa2.com ' + t('ログイン');
+        function tText(el, key) { var nodes = el.childNodes; for (var i = nodes.length - 1; i >= 0; i--) { if (nodes[i].nodeType === 3 && nodes[i].textContent.trim()) { nodes[i].textContent = ' ' + t(key); return; } } }
+        var lead = document.querySelector('.lead');
+        if (lead) tText(lead, 'AIが電話をかけて営業状況や営業時間を確認したり、予約をとったりします。');
+        document.querySelectorAll('.section-title').forEach(function(el) {
+          var text = el.textContent.trim();
+          if (text.includes('ソーシャル')) tText(el, 'ソーシャルでログイン');
+          else if (text.includes('新規登録')) tText(el, '新規登録（メール）');
+          else if (text.includes('ログイン（')) tText(el, 'ログイン（メール）');
+          else if (text.includes('ログイン中')) tText(el, 'ログイン中');
+        });
+        var gb = document.getElementById('google-btn');
+        if (gb) tText(gb, 'Googleでログイン');
+        var ab = document.getElementById('apple-btn');
+        if (ab) tText(ab, 'Appleでログイン');
+        document.querySelectorAll('input[placeholder]').forEach(function(el) {
+          if (el.placeholder === 'メールアドレス') el.placeholder = t('メールアドレス');
+          else if (el.placeholder === 'パスワード（6文字以上）') el.placeholder = t('パスワード（6文字以上）');
+          else if (el.placeholder === 'パスワード') el.placeholder = t('パスワード');
+        });
+        document.querySelectorAll('.btn').forEach(function(el) {
+          var text = el.textContent.trim();
+          if (text.includes('登録する')) tText(el, '登録する');
+          else if (text.includes('ログアウト')) tText(el, 'ログアウト');
+          else if (text.includes('ログイン')) tText(el, 'ログイン');
+        });
+        var signedInP = document.querySelector('#signed-in .muted');
+        if (signedInP) signedInP.textContent = t('この画面は稀に表示されることがありますが、通常は自動でアプリ画面へ遷移します。');
+      });
+    }
+  })();
+  </script>
+
   <!-- ====== Firebase & Auth ====== -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
@@ -306,18 +483,18 @@
       el.innerHTML = "";
     }
 
-    // Firebaseエラーコード→日本語
+    // Firebaseエラーコード→多言語
     function translateError(code) {
       switch (code) {
-        case "auth/email-already-in-use": return "このメールアドレスは既に登録されています。";
-        case "auth/invalid-email": return "メールアドレスの形式が正しくありません。";
-        case "auth/weak-password": return "パスワードは6文字以上にしてください。";
-        case "auth/user-not-found": return "このメールアドレスは登録されていません。";
-        case "auth/wrong-password": return "パスワードが正しくありません。";
-        case "auth/popup-closed-by-user": return "ログイン画面が閉じられました。もう一度お試しください。";
-        case "auth/network-request-failed": return "ネットワークエラーが発生しました。接続を確認してください。";
-        case "auth/too-many-requests": return "試行回数が多すぎます。しばらく待ってから再度お試しください。";
-        default: return "エラーが発生しました。もう一度お試しください。";
+        case "auth/email-already-in-use": return t("このメールアドレスは既に登録されています。");
+        case "auth/invalid-email": return t("メールアドレスの形式が正しくありません。");
+        case "auth/weak-password": return t("パスワードは6文字以上にしてください。");
+        case "auth/user-not-found": return t("このメールアドレスは登録されていません。");
+        case "auth/wrong-password": return t("パスワードが正しくありません。");
+        case "auth/popup-closed-by-user": return t("ログイン画面が閉じられました。もう一度お試しください。");
+        case "auth/network-request-failed": return t("ネットワークエラーが発生しました。接続を確認してください。");
+        case "auth/too-many-requests": return t("試行回数が多すぎます。しばらく待ってから再度お試しください。");
+        default: return t("エラーが発生しました。もう一度お試しください。");
       }
     }
 
@@ -357,7 +534,7 @@
       const pass  = document.getElementById("su-pass").value;
       try {
         await createUserWithEmailAndPassword(auth, email, pass);
-        showMsg("signup-msg", '<i class="fa-solid fa-circle-check"></i> 登録できました。');
+        showMsg("signup-msg", '<i class="fa-solid fa-circle-check"></i> ' + t('登録できました。'));
       } catch (err) {
         showMsg("signup-msg", `<i class="fa-solid fa-circle-exclamation"></i> ${translateError(err.code)}`);
       }
@@ -370,7 +547,7 @@
       const pass  = document.getElementById("li-pass").value;
       try {
         await signInWithEmailAndPassword(auth, email, pass);
-        showMsg("login-msg", '<i class="fa-solid fa-circle-check"></i> ログイン成功。');
+        showMsg("login-msg", '<i class="fa-solid fa-circle-check"></i> ' + t('ログイン成功。'));
       } catch (err) {
         showMsg("login-msg", `<i class="fa-solid fa-circle-exclamation"></i> ${translateError(err.code)}`);
       }
