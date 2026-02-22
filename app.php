@@ -130,6 +130,533 @@ if (isset($_GET['logout'])) {
     });
   })();
   </script>
+  <script>
+  // === i18n: UI多言語化 ===
+  (function(){
+    var nav = (navigator.language || 'ja').toLowerCase();
+    var lang = 'ja';
+    if (nav.startsWith('ko')) lang = 'ko';
+    else if (nav.startsWith('zh-tw') || nav.startsWith('zh-hant')) lang = 'zh-TW';
+    else if (nav.startsWith('zh')) lang = 'zh-CN';
+    else if (nav.startsWith('es')) lang = 'es';
+    else if (nav.startsWith('fr')) lang = 'fr';
+    else if (nav.startsWith('de')) lang = 'de';
+    else if (nav.startsWith('pt')) lang = 'pt';
+    else if (nav.startsWith('th')) lang = 'th';
+    else if (nav.startsWith('vi')) lang = 'vi';
+    else if (nav.startsWith('id') || nav.startsWith('ms')) lang = 'id';
+    else if (!nav.startsWith('ja')) lang = 'en';
+    window._lang = lang;
+    if (lang !== 'ja') document.documentElement.lang = lang;
+
+    var D = {};
+    D.en = {
+      '営業時間確認コール':'Business Hours Check','ログアウト':'Logout','ログアウトしました':'Logged Out',
+      '3秒後にトップへ戻ります…':'Redirecting in 3 seconds...','営業確認':'Check Hours','発信する':'Call',
+      '発信':'Call','ルート':'Route','閉じる':'Close','予約':'Reserve','予約電話をかける':'Make Reservation Call',
+      '追加':'Add','もっと見る':'Show More','+ 新しい会話':'+ New Conversation','削除':'Delete',
+      '営業中':'Open','営業時間外':'Closed','一時休業':'Temporarily Closed','閉業':'Permanently Closed',
+      '営業確認中':'Checking Hours','店舗を検索中...':'Searching stores...',
+      'もっと読み込み中...':'Loading more...','読み込み中…':'Loading...','通信中…':'Connecting...',
+      '発信中…':'Calling...','録音データを読み込み中…':'Loading recording...',
+      '検索結果がありません':'No results found','電話番号なし':'No phone number',
+      '電話番号を直接入力':'Direct phone input','通話録音':'Call Recording',
+      '車':'Driving','距離':'Distance','Google マップで見る':'View on Google Maps','クチコミ':'Reviews',
+      '現在地':'My Location','拡大':'Zoom In','縮小':'Zoom Out',
+      '位置情報を取得できません':'Cannot get location',
+      '住所の座標取得に失敗しました':'Failed to get address coordinates',
+      '現在地を取得できませんでした':'Could not get current location',
+      'ルートを取得できませんでした':'Could not get route',
+      'ルートの取得に失敗しました':'Failed to get route',
+      'この電話番号は既に登録されています':'This phone number is already registered',
+      '必須項目を入力してください。':'Please fill in all required fields.',
+      '予約者名はひらがなで入力してください。':'Please enter the name in hiragana.',
+      '店舗の座標がありません':'Store coordinates not available',
+      '録音データの読み込みに失敗しました':'Failed to load recording',
+      '録音データが取得できませんでした（短い通話では録音されない場合があります）':'Recording not available (may not be recorded for short calls)',
+      '録音データが取得できませんでした':'Recording not available',
+      'エラーが発生しました。もう一度お試しください。':'An error occurred. Please try again.',
+      '通信エラーが発生しました。':'A communication error occurred.',
+      '発信に失敗しました':'Failed to make call',
+      '位置情報がサポートされていません':'Geolocation not supported',
+      '通話完了。結果を取得しました。':'Call completed. Results retrieved.',
+      '通話完了':'Call Completed',
+      '無言で電話を切られました':'Call ended without response',
+      '通話は終了しましたが回答を取得できませんでした。':'Call ended but no answer was obtained.',
+      '通話が確立できませんでした。時間をおいて再度お試しください。':'Could not connect. Please try again later.',
+      '通話が確立できませんでした。':'Could not connect the call.',
+      '通話が確立できませんでした':'Could not connect the call',
+      '無応答でした。':'No response received.',
+      '無応答でした':'No response received',
+      '営業時間:':'Hours:','Twilioに発信依頼中…':'Placing call...',
+      '録音データの準備を待っています…':'Waiting for recording...',
+      '電話番号を自動補完しました:':'Phone number auto-completed:',
+      'よく確認する店舗を登録するとワンタップで発信できます':'Register stores for one-tap calling',
+      '日付':'Date','時間':'Time','人数':'Party Size',
+      '予約者名（ひらがな）':'Guest Name (hiragana)','連絡先電話番号':'Contact Phone',
+      '指定時間が空いていない場合、前後の近い時間で予約を試みる':'Try nearby times if specified time is unavailable',
+      '予約時間前':'Before','予約時間後':'After',
+      '30分':'30 min','1時間':'1 hour','1時間30分':'1.5 hours',
+      '2時間':'2 hours','2時間30分':'2.5 hours','3時間':'3 hours',
+      '予約電話を発信しました。AIが店舗と会話中です…':'Call placed. AI is talking to the store...',
+      '予約が確定しました！':'Reservation confirmed!','予約できませんでした':'Reservation failed',
+      '予約の可否を確認できませんでした':'Could not confirm reservation status',
+      '理由:':'Reason:','代替案:':'Alternative:',
+      '予約履歴がありません':'No reservation history','通話履歴がありません':'No call history',
+      '休業':'Closed','無応答':'No Response','不通':'Unreachable','不明':'Unknown',
+      '録音データなし':'No recording','通話時間:':'Duration:','録音時間:':'Recording:',
+      'たった今':'Just now','予約一覧':'Reservations','通話履歴':'Call History',
+      'サポート':'Support','質問':'Question','バグ報告':'Bug Report','改善提案':'Suggestion',
+      '質問・バグ報告・改善提案をお気軽にどうぞ':'Feel free to ask questions, report bugs, or suggest improvements',
+      '店名か電話番号を入力して検索':'Search by name or phone','店名':'Store Name',
+      '電話番号':'Phone Number','検索…':'Search...','メッセージを入力…':'Enter message...',
+      'サポート管理':'Support Admin','すべて':'All','バグ':'Bug','改善':'Improvement','未解決':'Unresolved',
+      '該当するサポート履歴はありません':'No matching support history',
+      '一覧に戻る':'Back to list','読み込みに失敗しました':'Failed to load',
+      '解決済み':'Resolved','店舗へのルート':'Route to Store',
+      'データがありません':'No data available','詳細データがありません':'No detailed data',
+      '読み込みエラー':'Load error','詳細を読み込み中...':'Loading details...',
+      'ひらがなで入力してください':'Please enter in hiragana',
+      '{0}分前':'{0}m ago','{0}時間前':'{0}h ago','{0}日前':'{0}d ago',
+      '{0}分{1}秒':'{0}m {1}s','{0}件の結果':'{0} results',
+      '{0} へのルート':'Route to {0}','{0} - 予約':'{0} - Reservation',
+      '{0} を選択しました':'{0} selected','{0}名':'{0} guests',
+      '録音時間: {0}分{1}秒':'Recording: {0}m {1}s','通話時間: {0}分{1}秒':'Duration: {0}m {1}s',
+      '発信しました（CallSid: {0}）。相手の応答を待っています…':'Call placed (SID: {0}). Waiting for response...',
+      '日':'Sun','月':'Mon','火':'Tue','水':'Wed','木':'Thu','金':'Fri','土':'Sat',
+      '{0}月{1}日({2})':'{0}/{1} ({2})',
+      'ソーシャルでログイン':'Social Login','Googleでログイン':'Sign in with Google',
+      'Appleでログイン':'Sign in with Apple','新規登録（メール）':'Sign Up (Email)',
+      'ログイン（メール）':'Log In (Email)','メールアドレス':'Email',
+      'パスワード（6文字以上）':'Password (6+ characters)','パスワード':'Password',
+      '登録する':'Sign Up','ログイン':'Log In','ログイン中':'Signed In',
+      'この画面は稀に表示されることがありますが、通常は自動でアプリ画面へ遷移します。':'This screen rarely appears; you will be automatically redirected.',
+      'AIが電話をかけて営業状況や営業時間を確認したり、予約をとったりします。':'AI calls stores to check business hours and make reservations.',
+      'このメールアドレスは既に登録されています。':'This email is already registered.',
+      'メールアドレスの形式が正しくありません。':'Invalid email format.',
+      'パスワードは6文字以上にしてください。':'Password must be at least 6 characters.',
+      'このメールアドレスは登録されていません。':'This email is not registered.',
+      'パスワードが正しくありません。':'Incorrect password.',
+      'ログイン画面が閉じられました。もう一度お試しください。':'Login window was closed. Please try again.',
+      'ネットワークエラーが発生しました。接続を確認してください。':'Network error. Please check your connection.',
+      '試行回数が多すぎます。しばらく待ってから再度お試しください。':'Too many attempts. Please wait and try again.',
+      '登録できました。':'Registered successfully.','ログイン成功。':'Login successful.',
+      'やまだたろう':'yamada taro'
+    };
+    D.ko = {
+      '営業時間確認コール':'영업시간 확인','ログアウト':'로그아웃','ログアウトしました':'로그아웃되었습니다',
+      '3秒後にトップへ戻ります…':'3초 후 메인으로 이동합니다…','営業確認':'영업 확인','発信する':'전화하기',
+      '発信':'전화','ルート':'경로','閉じる':'닫기','予約':'예약','予約電話をかける':'예약 전화하기',
+      '追加':'추가','もっと見る':'더 보기','+ 新しい会話':'+ 새 대화','削除':'삭제',
+      '営業中':'영업 중','営業時間外':'영업시간 외','一時休業':'임시 휴업','閉業':'폐업',
+      '営業確認中':'영업 확인 중','店舗を検索中...':'매장 검색 중...',
+      'もっと読み込み中...':'더 불러오는 중...','読み込み中…':'로딩 중…','通信中…':'연결 중…',
+      '発信中…':'발신 중…','録音データを読み込み中…':'녹음 로딩 중…',
+      '検索結果がありません':'검색 결과가 없습니다','電話番号なし':'전화번호 없음',
+      '電話番号を直接入力':'전화번호 직접 입력','通話録音':'통화 녹음',
+      '車':'자동차','距離':'거리','Google マップで見る':'Google 지도에서 보기','クチコミ':'리뷰',
+      '現在地':'현재 위치','拡大':'확대','縮小':'축소',
+      '位置情報を取得できません':'위치 정보를 가져올 수 없습니다',
+      '住所の座標取得に失敗しました':'주소 좌표를 가져오지 못했습니다',
+      '現在地を取得できませんでした':'현재 위치를 가져올 수 없습니다',
+      'ルートを取得できませんでした':'경로를 가져올 수 없습니다',
+      'ルートの取得に失敗しました':'경로를 가져오지 못했습니다',
+      'この電話番号は既に登録されています':'이 전화번호는 이미 등록되어 있습니다',
+      '必須項目を入力してください。':'필수 항목을 입력해 주세요.',
+      '予約者名はひらがなで入力してください。':'예약자명을 히라가나로 입력해 주세요.',
+      '店舗の座標がありません':'매장 좌표가 없습니다',
+      '録音データの読み込みに失敗しました':'녹음 데이터 로딩 실패',
+      '録音データが取得できませんでした（短い通話では録音されない場合があります）':'녹음을 가져올 수 없습니다 (짧은 통화는 녹음되지 않을 수 있습니다)',
+      '録音データが取得できませんでした':'녹음을 가져올 수 없습니다',
+      'エラーが発生しました。もう一度お試しください。':'오류가 발생했습니다. 다시 시도해 주세요.',
+      '通信エラーが発生しました。':'통신 오류가 발생했습니다.',
+      '発信に失敗しました':'발신에 실패했습니다',
+      '位置情報がサポートされていません':'위치 정보가 지원되지 않습니다',
+      '通話完了。結果を取得しました。':'통화 완료. 결과를 가져왔습니다.',
+      '通話完了':'통화 완료','無言で電話を切られました':'무응답으로 전화가 끊겼습니다',
+      '通話は終了しましたが回答を取得できませんでした。':'통화가 종료되었지만 응답을 얻지 못했습니다.',
+      '通話が確立できませんでした。時間をおいて再度お試しください。':'통화를 연결할 수 없습니다. 잠시 후 다시 시도해 주세요.',
+      '通話が確立できませんでした。':'통화를 연결할 수 없습니다.',
+      '通話が確立できませんでした':'통화를 연결할 수 없습니다',
+      '無応答でした。':'무응답이었습니다.','無応答でした':'무응답이었습니다',
+      '営業時間:':'영업시간:','Twilioに発信依頼中…':'전화 연결 중…',
+      '録音データの準備を待っています…':'녹음 준비 대기 중…',
+      '電話番号を自動補完しました:':'전화번호가 자동 완성되었습니다:',
+      'よく確認する店舗を登録するとワンタップで発信できます':'자주 확인하는 매장을 등록하면 원탭으로 전화할 수 있습니다',
+      '日付':'날짜','時間':'시간','人数':'인원',
+      '予約者名（ひらがな）':'예약자명 (히라가나)','連絡先電話番号':'연락처',
+      '指定時間が空いていない場合、前後の近い時間で予約を試みる':'지정 시간에 빈자리가 없으면 전후 시간으로 예약 시도',
+      '予約時間前':'예약시간 전','予約時間後':'예약시간 후',
+      '30分':'30분','1時間':'1시간','1時間30分':'1시간 30분',
+      '2時間':'2시간','2時間30分':'2시간 30분','3時間':'3시간',
+      '予約電話を発信しました。AIが店舗と会話中です…':'예약 전화를 걸었습니다. AI가 매장과 통화 중…',
+      '予約が確定しました！':'예약이 확정되었습니다!','予約できませんでした':'예약에 실패했습니다',
+      '予約の可否を確認できませんでした':'예약 가능 여부를 확인할 수 없습니다',
+      '理由:':'이유:','代替案:':'대안:',
+      '予約履歴がありません':'예약 내역이 없습니다','通話履歴がありません':'통화 내역이 없습니다',
+      '休業':'휴업','無応答':'무응답','不通':'불통','不明':'불명',
+      '録音データなし':'녹음 없음','通話時間:':'통화시간:','録音時間:':'녹음시간:',
+      'たった今':'방금','予約一覧':'예약 목록','通話履歴':'통화 내역',
+      'サポート':'지원','質問':'질문','バグ報告':'버그 신고','改善提案':'개선 제안',
+      '質問・バグ報告・改善提案をお気軽にどうぞ':'질문, 버그 신고, 개선 제안을 편하게 해주세요',
+      '店名か電話番号を入力して検索':'매장명 또는 전화번호로 검색','店名':'매장명',
+      '電話番号':'전화번호','検索…':'검색…','メッセージを入力…':'메시지 입력…',
+      'サポート管理':'지원 관리','すべて':'전체','バグ':'버그','改善':'개선','未解決':'미해결',
+      '該当するサポート履歴はありません':'해당 지원 내역이 없습니다',
+      '一覧に戻る':'목록으로','読み込みに失敗しました':'로딩 실패','解決済み':'해결됨',
+      '店舗へのルート':'매장 경로','データがありません':'데이터가 없습니다',
+      '詳細データがありません':'상세 데이터가 없습니다','読み込みエラー':'로딩 오류',
+      '詳細を読み込み中...':'상세 정보 로딩 중...','ひらがなで入力してください':'히라가나로 입력해 주세요',
+      '{0}分前':'{0}분 전','{0}時間前':'{0}시간 전','{0}日前':'{0}일 전',
+      '{0}分{1}秒':'{0}분 {1}초','{0}件の結果':'{0}건의 결과',
+      '{0} へのルート':'{0} 경로','{0} - 予約':'{0} - 예약',
+      '{0} を選択しました':'{0} 선택됨','{0}名':'{0}명',
+      '録音時間: {0}分{1}秒':'녹음시간: {0}분 {1}초','通話時間: {0}分{1}秒':'통화시간: {0}분 {1}초',
+      '発信しました（CallSid: {0}）。相手の応答を待っています…':'발신 완료 (SID: {0}). 응답 대기 중…',
+      '日':'일','月':'월','火':'화','水':'수','木':'목','金':'금','土':'토',
+      '{0}月{1}日({2})':'{0}/{1} ({2})',
+      'ソーシャルでログイン':'소셜 로그인','Googleでログイン':'Google로 로그인',
+      'Appleでログイン':'Apple로 로그인','新規登録（メール）':'회원가입 (이메일)',
+      'ログイン（メール）':'로그인 (이메일)','メールアドレス':'이메일',
+      'パスワード（6文字以上）':'비밀번호 (6자 이상)','パスワード':'비밀번호',
+      '登録する':'가입하기','ログイン':'로그인','ログイン中':'로그인 중',
+      'この画面は稀に表示されることがありますが、通常は自動でアプリ画面へ遷移します。':'이 화면은 드물게 표시되며, 보통 자동으로 앱 화면으로 이동합니다.',
+      'AIが電話をかけて営業状況や営業時間を確認したり、予約をとったりします。':'AI가 전화를 걸어 영업 상황과 영업시간을 확인하고 예약을 합니다.',
+      'このメールアドレスは既に登録されています。':'이 이메일은 이미 등록되어 있습니다.',
+      'メールアドレスの形式が正しくありません。':'이메일 형식이 올바르지 않습니다.',
+      'パスワードは6文字以上にしてください。':'비밀번호는 6자 이상이어야 합니다.',
+      'このメールアドレスは登録されていません。':'이 이메일은 등록되어 있지 않습니다.',
+      'パスワードが正しくありません。':'비밀번호가 올바르지 않습니다.',
+      'ログイン画面が閉じられました。もう一度お試しください。':'로그인 창이 닫혔습니다. 다시 시도해 주세요.',
+      'ネットワークエラーが発生しました。接続を確認してください。':'네트워크 오류가 발생했습니다. 연결을 확인해 주세요.',
+      '試行回数が多すぎます。しばらく待ってから再度お試しください。':'시도 횟수가 너무 많습니다. 잠시 후 다시 시도해 주세요.',
+      '登録できました。':'등록되었습니다.','ログイン成功。':'로그인 성공.','やまだたろう':'yamada taro'
+    };
+    D['zh-CN'] = {
+      '営業時間確認コール':'营业时间确认','ログアウト':'退出登录','ログアウトしました':'已退出登录',
+      '3秒後にトップへ戻ります…':'3秒后返回首页…','営業確認':'查询营业','発信する':'拨打',
+      '発信':'拨打','ルート':'路线','閉じる':'关闭','予約':'预约','予約電話をかける':'拨打预约电话',
+      '追加':'添加','もっと見る':'查看更多','+ 新しい会話':'+ 新对话','削除':'删除',
+      '営業中':'营业中','営業時間外':'已打烊','一時休業':'暂停营业','閉業':'永久停业',
+      '営業確認中':'正在确认营业','店舗を検索中...':'搜索店铺中...',
+      'もっと読み込み中...':'加载更多...','読み込み中…':'加载中…','通信中…':'连接中…',
+      '発信中…':'拨号中…','録音データを読み込み中…':'加载录音中…',
+      '検索結果がありません':'没有搜索结果','電話番号なし':'无电话号码',
+      '電話番号を直接入力':'直接输入电话号码','通話録音':'通话录音',
+      '車':'驾车','距離':'距离','Google マップで見る':'在Google地图中查看','クチコミ':'评价',
+      '現在地':'当前位置','拡大':'放大','縮小':'缩小',
+      '位置情報を取得できません':'无法获取位置信息',
+      '住所の座標取得に失敗しました':'获取地址坐标失败',
+      '現在地を取得できませんでした':'无法获取当前位置',
+      'ルートを取得できませんでした':'无法获取路线',
+      'ルートの取得に失敗しました':'获取路线失败',
+      'この電話番号は既に登録されています':'该电话号码已注册',
+      '必須項目を入力してください。':'请填写必填项。',
+      '予約者名はひらがなで入力してください。':'请用平假名输入预约人姓名。',
+      '店舗の座標がありません':'店铺坐标不可用',
+      '録音データの読み込みに失敗しました':'加载录音失败',
+      '録音データが取得できませんでした（短い通話では録音されない場合があります）':'无法获取录音（短时通话可能不会录音）',
+      '録音データが取得できませんでした':'无法获取录音',
+      'エラーが発生しました。もう一度お試しください。':'发生错误，请重试。',
+      '通信エラーが発生しました。':'发生通信错误。',
+      '発信に失敗しました':'拨打失败','位置情報がサポートされていません':'不支持位置信息',
+      '通話完了。結果を取得しました。':'通话完成，已获取结果。',
+      '通話完了':'通话完成','無言で電話を切られました':'对方无应答挂断了电话',
+      '通話は終了しましたが回答を取得できませんでした。':'通话已结束但未获得回答。',
+      '通話が確立できませんでした。時間をおいて再度お試しください。':'无法接通电话，请稍后重试。',
+      '通話が確立できませんでした。':'无法接通电话。',
+      '通話が確立できませんでした':'无法接通电话',
+      '無応答でした。':'无人应答。','無応答でした':'无人应答',
+      '営業時間:':'营业时间:','Twilioに発信依頼中…':'正在拨打电话…',
+      '録音データの準備を待っています…':'等待录音准备…',
+      '電話番号を自動補完しました:':'电话号码已自动补全:',
+      'よく確認する店舗を登録するとワンタップで発信できます':'注册常用店铺可一键拨打',
+      '日付':'日期','時間':'时间','人数':'人数',
+      '予約者名（ひらがな）':'预约人姓名（平假名）','連絡先電話番号':'联系电话',
+      '指定時間が空いていない場合、前後の近い時間で予約を試みる':'指定时间无空位时尝试前后相近的时间',
+      '予約時間前':'预约时间前','予約時間後':'预约时间后',
+      '30分':'30分钟','1時間':'1小时','1時間30分':'1.5小时',
+      '2時間':'2小时','2時間30分':'2.5小时','3時間':'3小时',
+      '予約電話を発信しました。AIが店舗と会話中です…':'预约电话已拨出，AI正在与店铺通话…',
+      '予約が確定しました！':'预约已确认！','予約できませんでした':'预约失败',
+      '予約の可否を確認できませんでした':'无法确认预约状态',
+      '理由:':'原因:','代替案:':'替代方案:',
+      '予約履歴がありません':'没有预约记录','通話履歴がありません':'没有通话记录',
+      '休業':'休业','無応答':'无应答','不通':'不通','不明':'不明',
+      '録音データなし':'无录音','通話時間:':'通话时长:','録音時間:':'录音时长:',
+      'たった今':'刚刚','予約一覧':'预约列表','通話履歴':'通话记录',
+      'サポート':'支持','質問':'提问','バグ報告':'报告Bug','改善提案':'改进建议',
+      '質問・バグ報告・改善提案をお気軽にどうぞ':'欢迎提问、报告Bug或提出改进建议',
+      '店名か電話番号を入力して検索':'输入店名或电话搜索','店名':'店名',
+      '電話番号':'电话号码','検索…':'搜索…','メッセージを入力…':'输入消息…',
+      'サポート管理':'支持管理','すべて':'全部','バグ':'Bug','改善':'改进','未解決':'未解决',
+      '該当するサポート履歴はありません':'没有相关支持记录',
+      '一覧に戻る':'返回列表','読み込みに失敗しました':'加载失败','解決済み':'已解决',
+      '店舗へのルート':'到店路线','データがありません':'没有数据',
+      '詳細データがありません':'没有详细数据','読み込みエラー':'加载错误',
+      '詳細を読み込み中...':'加载详情中...','ひらがなで入力してください':'请用平假名输入',
+      '{0}分前':'{0}分钟前','{0}時間前':'{0}小时前','{0}日前':'{0}天前',
+      '{0}分{1}秒':'{0}分{1}秒','{0}件の結果':'{0}个结果',
+      '{0} へのルート':'到{0}的路线','{0} - 予約':'{0} - 预约',
+      '{0} を選択しました':'已选择{0}','{0}名':'{0}人',
+      '録音時間: {0}分{1}秒':'录音: {0}分{1}秒','通話時間: {0}分{1}秒':'通话: {0}分{1}秒',
+      '発信しました（CallSid: {0}）。相手の応答を待っています…':'已拨出 (SID: {0})，等待对方应答…',
+      '日':'日','月':'一','火':'二','水':'三','木':'四','金':'五','土':'六',
+      '{0}月{1}日({2})':'{0}月{1}日 (周{2})',
+      'ソーシャルでログイン':'社交账号登录','Googleでログイン':'Google登录',
+      'Appleでログイン':'Apple登录','新規登録（メール）':'注册（邮箱）',
+      'ログイン（メール）':'登录（邮箱）','メールアドレス':'邮箱地址',
+      'パスワード（6文字以上）':'密码（6位以上）','パスワード':'密码',
+      '登録する':'注册','ログイン':'登录','ログイン中':'已登录',
+      'この画面は稀に表示されることがありますが、通常は自動でアプリ画面へ遷移します。':'此页面很少显示，通常会自动跳转到应用。',
+      'AIが電話をかけて営業状況や営業時間を確認したり、予約をとったりします。':'AI拨打电话确认营业状况、营业时间并进行预约。',
+      'このメールアドレスは既に登録されています。':'该邮箱已注册。',
+      'メールアドレスの形式が正しくありません。':'邮箱格式不正确。',
+      'パスワードは6文字以上にしてください。':'密码至少需要6位。',
+      'このメールアドレスは登録されていません。':'该邮箱未注册。',
+      'パスワードが正しくありません。':'密码不正确。',
+      'ログイン画面が閉じられました。もう一度お試しください。':'登录窗口已关闭，请重试。',
+      'ネットワークエラーが発生しました。接続を確認してください。':'网络错误，请检查连接。',
+      '試行回数が多すぎます。しばらく待ってから再度お試しください。':'尝试次数过多，请稍后重试。',
+      '登録できました。':'注册成功。','ログイン成功。':'登录成功。','やまだたろう':'yamada taro'
+    };
+    D['zh-TW'] = {
+      '営業時間確認コール':'營業時間確認','ログアウト':'登出','ログアウトしました':'已登出',
+      '3秒後にトップへ戻ります…':'3秒後返回首頁…','営業確認':'查詢營業','発信する':'撥打',
+      '発信':'撥打','ルート':'路線','閉じる':'關閉','予約':'預約','予約電話をかける':'撥打預約電話',
+      '追加':'新增','もっと見る':'查看更多','+ 新しい会話':'+ 新對話','削除':'刪除',
+      '営業中':'營業中','営業時間外':'已打烊','一時休業':'暫停營業','閉業':'永久停業',
+      '営業確認中':'正在確認營業','店舗を検索中...':'搜尋店鋪中...',
+      'もっと読み込み中...':'載入更多...','読み込み中…':'載入中…','通信中…':'連接中…',
+      '発信中…':'撥號中…','録音データを読み込み中…':'載入錄音中…',
+      '検索結果がありません':'沒有搜尋結果','電話番号なし':'無電話號碼',
+      '電話番号を直接入力':'直接輸入電話號碼','通話録音':'通話錄音',
+      '車':'駕車','距離':'距離','Google マップで見る':'在Google地圖中查看','クチコミ':'評價',
+      '現在地':'目前位置','拡大':'放大','縮小':'縮小',
+      '位置情報を取得できません':'無法取得位置資訊',
+      '現在地を取得できませんでした':'無法取得目前位置',
+      'ルートを取得できませんでした':'無法取得路線',
+      '通話完了':'通話完成','営業時間:':'營業時間:','Twilioに発信依頼中…':'正在撥打電話…',
+      '通話履歴がありません':'沒有通話記錄','予約履歴がありません':'沒有預約記錄',
+      '日付':'日期','時間':'時間','人数':'人數',
+      '予約者名（ひらがな）':'預約人姓名（平假名）','連絡先電話番号':'聯絡電話',
+      '予約電話を発信しました。AIが店舗と会話中です…':'預約電話已撥出，AI正在與店鋪通話…',
+      '予約が確定しました！':'預約已確認！','予約できませんでした':'預約失敗',
+      '理由:':'原因:','代替案:':'替代方案:',
+      'たった今':'剛剛','予約一覧':'預約列表','通話履歴':'通話記錄',
+      'サポート':'支援','質問':'提問','バグ報告':'回報Bug','改善提案':'改進建議',
+      '店名か電話番号を入力して検索':'輸入店名或電話搜尋','検索…':'搜尋…',
+      'メッセージを入力…':'輸入訊息…','{0}分前':'{0}分鐘前','{0}時間前':'{0}小時前','{0}日前':'{0}天前',
+      '{0}件の結果':'{0}個結果','{0} へのルート':'到{0}的路線','{0}名':'{0}人',
+      'ソーシャルでログイン':'社群帳號登入','Googleでログイン':'Google登入',
+      'Appleでログイン':'Apple登入','新規登録（メール）':'註冊（電子郵件）',
+      'ログイン（メール）':'登入（電子郵件）','メールアドレス':'電子郵件',
+      'パスワード（6文字以上）':'密碼（6位以上）','パスワード':'密碼',
+      '登録する':'註冊','ログイン':'登入','ログイン中':'已登入',
+      'AIが電話をかけて営業状況や営業時間を確認したり、予約をとったりします。':'AI撥打電話確認營業狀況、營業時間並進行預約。',
+      '登録できました。':'註冊成功。','ログイン成功。':'登入成功。','やまだたろう':'yamada taro'
+    };
+    D.es = {
+      '営業時間確認コール':'Consulta de Horarios','ログアウト':'Cerrar sesión','ログアウトしました':'Sesión cerrada',
+      '3秒後にトップへ戻ります…':'Redirigiendo en 3 segundos…','営業確認':'Ver horario','発信する':'Llamar',
+      '発信':'Llamar','ルート':'Ruta','閉じる':'Cerrar','予約':'Reservar','予約電話をかける':'Llamar para reservar',
+      '追加':'Añadir','もっと見る':'Ver más','+ 新しい会話':'+ Nueva conversación','削除':'Eliminar',
+      '営業中':'Abierto','営業時間外':'Cerrado','一時休業':'Cerrado temporalmente','閉業':'Cerrado permanentemente',
+      '営業確認中':'Verificando horario','店舗を検索中...':'Buscando tiendas...',
+      'もっと読み込み中...':'Cargando más...','読み込み中…':'Cargando…','通信中…':'Conectando…',
+      '発信中…':'Llamando…','録音データを読み込み中…':'Cargando grabación…',
+      '検索結果がありません':'Sin resultados','電話番号なし':'Sin teléfono',
+      '電話番号を直接入力':'Número directo','通話録音':'Grabación',
+      '車':'Auto','距離':'Distancia','Google マップで見る':'Ver en Google Maps','クチコミ':'Reseñas',
+      '現在地':'Mi ubicación','拡大':'Acercar','縮小':'Alejar',
+      '位置情報を取得できません':'No se puede obtener la ubicación',
+      '現在地を取得できませんでした':'No se pudo obtener la ubicación actual',
+      'ルートを取得できませんでした':'No se pudo obtener la ruta',
+      '通話完了':'Llamada completada','営業時間:':'Horario:','Twilioに発信依頼中…':'Realizando llamada…',
+      '通話履歴がありません':'Sin historial de llamadas','予約履歴がありません':'Sin historial de reservas',
+      '日付':'Fecha','時間':'Hora','人数':'Personas',
+      '予約者名（ひらがな）':'Nombre (hiragana)','連絡先電話番号':'Teléfono de contacto',
+      '予約が確定しました！':'¡Reserva confirmada!','予約できませんでした':'Reserva fallida',
+      '理由:':'Motivo:','代替案:':'Alternativa:',
+      'たった今':'Ahora','予約一覧':'Reservas','通話履歴':'Historial',
+      'サポート':'Soporte','質問':'Pregunta','バグ報告':'Reporte de bug','改善提案':'Sugerencia',
+      '店名か電話番号を入力して検索':'Buscar por nombre o teléfono','検索…':'Buscar…',
+      'メッセージを入力…':'Escribir mensaje…','{0}分前':'hace {0}m','{0}時間前':'hace {0}h','{0}日前':'hace {0}d',
+      '{0}件の結果':'{0} resultados','{0} へのルート':'Ruta a {0}','{0}名':'{0} personas',
+      'ソーシャルでログイン':'Inicio social','Googleでログイン':'Iniciar con Google',
+      'Appleでログイン':'Iniciar con Apple','新規登録（メール）':'Registro (email)',
+      'ログイン（メール）':'Iniciar sesión (email)','メールアドレス':'Correo electrónico',
+      'パスワード（6文字以上）':'Contraseña (6+ caracteres)','パスワード':'Contraseña',
+      '登録する':'Registrarse','ログイン':'Iniciar sesión',
+      'AIが電話をかけて営業状況や営業時間を確認したり、予約をとったりします。':'La IA llama para verificar horarios y hacer reservas.',
+      '登録できました。':'Registrado.','ログイン成功。':'Sesión iniciada.','やまだたろう':'yamada taro'
+    };
+    D.fr = {
+      '営業時間確認コール':'Vérification des horaires','ログアウト':'Déconnexion','ログアウトしました':'Déconnecté',
+      '3秒後にトップへ戻ります…':'Redirection dans 3 secondes…','営業確認':'Vérifier','発信する':'Appeler',
+      '発信':'Appeler','ルート':'Itinéraire','閉じる':'Fermer','予約':'Réserver','予約電話をかける':'Appeler pour réserver',
+      '追加':'Ajouter','もっと見る':'Voir plus','+ 新しい会話':'+ Nouvelle conversation','削除':'Supprimer',
+      '営業中':'Ouvert','営業時間外':'Fermé','一時休業':'Fermé temporairement','閉業':'Fermé définitivement',
+      '営業確認中':'Vérification en cours','店舗を検索中...':'Recherche...',
+      'もっと読み込み中...':'Chargement...','読み込み中…':'Chargement…','通信中…':'Connexion…',
+      '発信中…':'Appel en cours…','録音データを読み込み中…':'Chargement de l\'enregistrement…',
+      '検索結果がありません':'Aucun résultat','電話番号なし':'Pas de téléphone',
+      '通話録音':'Enregistrement','車':'Voiture','距離':'Distance',
+      'Google マップで見る':'Voir sur Google Maps','クチコミ':'Avis',
+      '現在地':'Ma position','拡大':'Zoom +','縮小':'Zoom -',
+      '通話完了':'Appel terminé','営業時間:':'Horaires:','Twilioに発信依頼中…':'Appel en cours…',
+      '通話履歴がありません':'Aucun historique','予約履歴がありません':'Aucune réservation',
+      '日付':'Date','時間':'Heure','人数':'Personnes',
+      '予約が確定しました！':'Réservation confirmée !','予約できませんでした':'Réservation échouée',
+      '理由:':'Motif :','代替案:':'Alternative :',
+      'たった今':'À l\'instant','予約一覧':'Réservations','通話履歴':'Historique',
+      'サポート':'Support','質問':'Question','バグ報告':'Signaler un bug','改善提案':'Suggestion',
+      '店名か電話番号を入力して検索':'Rechercher par nom ou téléphone','検索…':'Rechercher…',
+      'メッセージを入力…':'Saisir un message…','{0}分前':'il y a {0}m','{0}時間前':'il y a {0}h','{0}日前':'il y a {0}j',
+      '{0}件の結果':'{0} résultats','{0} へのルート':'Itinéraire vers {0}','{0}名':'{0} personnes',
+      'ソーシャルでログイン':'Connexion sociale','Googleでログイン':'Se connecter avec Google',
+      'Appleでログイン':'Se connecter avec Apple','新規登録（メール）':'Inscription (email)',
+      'ログイン（メール）':'Connexion (email)','メールアドレス':'Adresse e-mail',
+      'パスワード（6文字以上）':'Mot de passe (6+ caractères)','パスワード':'Mot de passe',
+      '登録する':'S\'inscrire','ログイン':'Se connecter',
+      'AIが電話をかけて営業状況や営業時間を確認したり、予約をとったりします。':'L\'IA appelle pour vérifier les horaires et effectuer des réservations.',
+      '登録できました。':'Inscrit.','ログイン成功。':'Connecté.','やまだたろう':'yamada taro'
+    };
+    D.de = {
+      '営業時間確認コール':'Öffnungszeiten-Check','ログアウト':'Abmelden','ログアウトしました':'Abgemeldet',
+      '3秒後にトップへ戻ります…':'Weiterleitung in 3 Sekunden…','営業確認':'Prüfen','発信する':'Anrufen',
+      '発信':'Anrufen','ルート':'Route','閉じる':'Schließen','予約':'Reservieren','予約電話をかける':'Reservierung anrufen',
+      '追加':'Hinzufügen','もっと見る':'Mehr anzeigen','+ 新しい会話':'+ Neues Gespräch','削除':'Löschen',
+      '営業中':'Geöffnet','営業時間外':'Geschlossen','一時休業':'Vorübergehend geschlossen','閉業':'Dauerhaft geschlossen',
+      '営業確認中':'Wird geprüft','店舗を検索中...':'Suche...',
+      'もっと読み込み中...':'Mehr laden...','読み込み中…':'Laden…','通信中…':'Verbinden…',
+      '発信中…':'Anruf läuft…','録音データを読み込み中…':'Aufnahme laden…',
+      '検索結果がありません':'Keine Ergebnisse','電話番号なし':'Keine Telefonnummer',
+      '通話録音':'Aufnahme','車':'Auto','距離':'Entfernung',
+      'Google マップで見る':'In Google Maps ansehen','クチコミ':'Bewertungen',
+      '現在地':'Mein Standort','拡大':'Vergrößern','縮小':'Verkleinern',
+      '通話完了':'Anruf beendet','営業時間:':'Öffnungszeiten:','Twilioに発信依頼中…':'Anruf wird getätigt…',
+      '通話履歴がありません':'Kein Anrufverlauf','予約履歴がありません':'Keine Reservierungen',
+      '日付':'Datum','時間':'Uhrzeit','人数':'Personen',
+      '予約が確定しました！':'Reservierung bestätigt!','予約できませんでした':'Reservierung fehlgeschlagen',
+      '理由:':'Grund:','代替案:':'Alternative:',
+      'たった今':'Gerade','予約一覧':'Reservierungen','通話履歴':'Anrufverlauf',
+      'サポート':'Support','質問':'Frage','バグ報告':'Fehlerbericht','改善提案':'Vorschlag',
+      '店名か電話番号を入力して検索':'Nach Name oder Telefon suchen','検索…':'Suchen…',
+      'メッセージを入力…':'Nachricht eingeben…','{0}分前':'vor {0}m','{0}時間前':'vor {0}h','{0}日前':'vor {0}T',
+      '{0}件の結果':'{0} Ergebnisse','{0} へのルート':'Route zu {0}','{0}名':'{0} Personen',
+      'ソーシャルでログイン':'Soziale Anmeldung','Googleでログイン':'Mit Google anmelden',
+      'Appleでログイン':'Mit Apple anmelden','新規登録（メール）':'Registrierung (E-Mail)',
+      'ログイン（メール）':'Anmelden (E-Mail)','メールアドレス':'E-Mail-Adresse',
+      'パスワード（6文字以上）':'Passwort (6+ Zeichen)','パスワード':'Passwort',
+      '登録する':'Registrieren','ログイン':'Anmelden',
+      'AIが電話をかけて営業状況や営業時間を確認したり、予約をとったりします。':'KI ruft an, um Öffnungszeiten zu prüfen und Reservierungen vorzunehmen.',
+      '登録できました。':'Registriert.','ログイン成功。':'Angemeldet.','やまだたろう':'yamada taro'
+    };
+    D.pt = {
+      '営業時間確認コール':'Verificar Horários','ログアウト':'Sair','ログアウトしました':'Desconectado',
+      '3秒後にトップへ戻ります…':'Redirecionando em 3 segundos…','営業確認':'Verificar','発信する':'Ligar',
+      '発信':'Ligar','ルート':'Rota','閉じる':'Fechar','予約':'Reservar','予約電話をかける':'Ligar para reservar',
+      '追加':'Adicionar','もっと見る':'Ver mais','+ 新しい会話':'+ Nova conversa','削除':'Excluir',
+      '営業中':'Aberto','営業時間外':'Fechado','一時休業':'Temporariamente fechado','閉業':'Permanentemente fechado',
+      '営業確認中':'Verificando','店舗を検索中...':'Buscando...',
+      'もっと読み込み中...':'Carregando mais...','読み込み中…':'Carregando…','通信中…':'Conectando…',
+      '発信中…':'Ligando…','検索結果がありません':'Nenhum resultado',
+      '通話録音':'Gravação','車':'Carro','距離':'Distância','クチコミ':'Avaliações',
+      '現在地':'Minha localização','通話完了':'Chamada concluída','営業時間:':'Horário:',
+      '通話履歴がありません':'Sem histórico','日付':'Data','時間':'Hora','人数':'Pessoas',
+      '予約が確定しました！':'Reserva confirmada!','予約できませんでした':'Reserva falhou',
+      'たった今':'Agora','予約一覧':'Reservas','通話履歴':'Histórico',
+      'サポート':'Suporte','質問':'Pergunta','バグ報告':'Reportar bug','改善提案':'Sugestão',
+      '店名か電話番号を入力して検索':'Buscar por nome ou telefone','検索…':'Buscar…',
+      '{0}分前':'há {0}m','{0}時間前':'há {0}h','{0}日前':'há {0}d',
+      '{0}件の結果':'{0} resultados','{0}名':'{0} pessoas',
+      'ソーシャルでログイン':'Login social','Googleでログイン':'Entrar com Google',
+      'Appleでログイン':'Entrar com Apple','メールアドレス':'E-mail',
+      'パスワード':'Senha','登録する':'Registrar','ログイン':'Entrar',
+      '登録できました。':'Registrado.','ログイン成功。':'Login efetuado.','やまだたろう':'yamada taro'
+    };
+    D.th = {
+      '営業時間確認コール':'ตรวจสอบเวลาเปิดทำการ','ログアウト':'ออกจากระบบ','ログアウトしました':'ออกจากระบบแล้ว',
+      '3秒後にトップへ戻ります…':'กำลังเปลี่ยนเส้นทางใน 3 วินาที…','営業確認':'ตรวจสอบ','発信する':'โทร',
+      '発信':'โทร','ルート':'เส้นทาง','閉じる':'ปิด','予約':'จอง','予約電話をかける':'โทรจอง',
+      '追加':'เพิ่ม','もっと見る':'ดูเพิ่มเติม','+ 新しい会話':'+ สนทนาใหม่','削除':'ลบ',
+      '営業中':'เปิดอยู่','営業時間外':'ปิดแล้ว','一時休業':'ปิดชั่วคราว','閉業':'ปิดถาวร',
+      '営業確認中':'กำลังตรวจสอบ','店舗を検索中...':'กำลังค้นหา...',
+      'もっと読み込み中...':'กำลังโหลดเพิ่ม...','読み込み中…':'กำลังโหลด…','通信中…':'กำลังเชื่อมต่อ…',
+      '発信中…':'กำลังโทร…','検索結果がありません':'ไม่พบผลลัพธ์',
+      '通話録音':'บันทึกการโทร','車':'ขับรถ','距離':'ระยะทาง','クチコミ':'รีวิว',
+      '現在地':'ตำแหน่งปัจจุบัน','通話完了':'สิ้นสุดการโทร','営業時間:':'เวลาทำการ:',
+      '通話履歴がありません':'ไม่มีประวัติการโทร','日付':'วันที่','時間':'เวลา','人数':'จำนวน',
+      '予約が確定しました！':'จองสำเร็จ!','予約できませんでした':'จองไม่สำเร็จ',
+      'たった今':'เมื่อกี้','予約一覧':'การจอง','通話履歴':'ประวัติ',
+      'サポート':'สนับสนุน','質問':'คำถาม','バグ報告':'แจ้งบัก','改善提案':'ข้อเสนอแนะ',
+      '店名か電話番号を入力して検索':'ค้นหาด้วยชื่อหรือเบอร์โทร','検索…':'ค้นหา…',
+      '{0}分前':'{0}น. ที่แล้ว','{0}時間前':'{0}ชม. ที่แล้ว','{0}日前':'{0}วัน ที่แล้ว',
+      '{0}件の結果':'{0} ผลลัพธ์','{0}名':'{0} คน',
+      'Googleでログイン':'เข้าด้วย Google','Appleでログイン':'เข้าด้วย Apple',
+      'メールアドレス':'อีเมล','パスワード':'รหัสผ่าน','登録する':'ลงทะเบียน','ログイン':'เข้าสู่ระบบ',
+      '登録できました。':'ลงทะเบียนสำเร็จ','ログイン成功。':'เข้าสู่ระบบสำเร็จ','やまだたろう':'yamada taro'
+    };
+    D.vi = {
+      '営業時間確認コール':'Kiểm tra giờ mở cửa','ログアウト':'Đăng xuất','ログアウトしました':'Đã đăng xuất',
+      '3秒後にトップへ戻ります…':'Chuyển hướng sau 3 giây…','営業確認':'Kiểm tra','発信する':'Gọi',
+      '発信':'Gọi','ルート':'Đường đi','閉じる':'Đóng','予約':'Đặt chỗ','予約電話をかける':'Gọi đặt chỗ',
+      '追加':'Thêm','もっと見る':'Xem thêm','+ 新しい会話':'+ Hội thoại mới','削除':'Xóa',
+      '営業中':'Đang mở','営業時間外':'Đã đóng','一時休業':'Tạm đóng','閉業':'Đóng vĩnh viễn',
+      '営業確認中':'Đang kiểm tra','店舗を検索中...':'Đang tìm kiếm...',
+      'もっと読み込み中...':'Đang tải thêm...','読み込み中…':'Đang tải…','通信中…':'Đang kết nối…',
+      '発信中…':'Đang gọi…','検索結果がありません':'Không có kết quả',
+      '通話録音':'Bản ghi âm','車':'Lái xe','距離':'Khoảng cách','クチコミ':'Đánh giá',
+      '現在地':'Vị trí hiện tại','通話完了':'Cuộc gọi hoàn tất','営業時間:':'Giờ mở cửa:',
+      '通話履歴がありません':'Không có lịch sử','日付':'Ngày','時間':'Giờ','人数':'Số người',
+      '予約が確定しました！':'Đặt chỗ thành công!','予約できませんでした':'Đặt chỗ thất bại',
+      'たった今':'Vừa xong','予約一覧':'Đặt chỗ','通話履歴':'Lịch sử',
+      'サポート':'Hỗ trợ','質問':'Câu hỏi','バグ報告':'Báo lỗi','改善提案':'Góp ý',
+      '店名か電話番号を入力して検索':'Tìm theo tên hoặc số điện thoại','検索…':'Tìm kiếm…',
+      '{0}分前':'{0} phút trước','{0}時間前':'{0} giờ trước','{0}日前':'{0} ngày trước',
+      '{0}件の結果':'{0} kết quả','{0}名':'{0} người',
+      'Googleでログイン':'Đăng nhập Google','Appleでログイン':'Đăng nhập Apple',
+      'メールアドレス':'Email','パスワード':'Mật khẩu','登録する':'Đăng ký','ログイン':'Đăng nhập',
+      '登録できました。':'Đã đăng ký.','ログイン成功。':'Đăng nhập thành công.','やまだたろう':'yamada taro'
+    };
+    D.id = {
+      '営業時間確認コール':'Cek Jam Buka','ログアウト':'Keluar','ログアウトしました':'Sudah keluar',
+      '3秒後にトップへ戻ります…':'Mengarahkan ulang dalam 3 detik…','営業確認':'Cek','発信する':'Telepon',
+      '発信':'Telepon','ルート':'Rute','閉じる':'Tutup','予約':'Reservasi','予約電話をかける':'Telepon reservasi',
+      '追加':'Tambah','もっと見る':'Lihat lebih','+ 新しい会話':'+ Percakapan baru','削除':'Hapus',
+      '営業中':'Buka','営業時間外':'Tutup','一時休業':'Tutup sementara','閉業':'Tutup permanen',
+      '営業確認中':'Memeriksa','店舗を検索中...':'Mencari toko...',
+      'もっと読み込み中...':'Memuat lebih...','読み込み中…':'Memuat…','通信中…':'Menghubungkan…',
+      '発信中…':'Menelepon…','検索結果がありません':'Tidak ada hasil',
+      '通話録音':'Rekaman','車':'Mobil','距離':'Jarak','クチコミ':'Ulasan',
+      '現在地':'Lokasi saya','通話完了':'Panggilan selesai','営業時間:':'Jam buka:',
+      '通話履歴がありません':'Tidak ada riwayat','日付':'Tanggal','時間':'Waktu','人数':'Jumlah',
+      '予約が確定しました！':'Reservasi dikonfirmasi!','予約できませんでした':'Reservasi gagal',
+      'たった今':'Baru saja','予約一覧':'Reservasi','通話履歴':'Riwayat',
+      'サポート':'Bantuan','質問':'Pertanyaan','バグ報告':'Lapor Bug','改善提案':'Saran',
+      '店名か電話番号を入力して検索':'Cari nama atau nomor telepon','検索…':'Cari…',
+      '{0}分前':'{0}m lalu','{0}時間前':'{0}j lalu','{0}日前':'{0}h lalu',
+      '{0}件の結果':'{0} hasil','{0}名':'{0} orang',
+      'Googleでログイン':'Masuk dengan Google','Appleでログイン':'Masuk dengan Apple',
+      'メールアドレス':'Email','パスワード':'Kata sandi','登録する':'Daftar','ログイン':'Masuk',
+      '登録できました。':'Terdaftar.','ログイン成功。':'Login berhasil.','やまだたろう':'yamada taro'
+    };
+    window._i18n = D;
+
+    window.t = function(key) {
+      if (window._lang === 'ja') {
+        var s = key;
+        for (var i = 1; i < arguments.length; i++) s = s.replace('{' + (i - 1) + '}', arguments[i]);
+        return s;
+      }
+      var d = D[window._lang] || D.en;
+      var v = (d && d[key]) || (D.en && D.en[key]) || key;
+      for (var i = 1; i < arguments.length; i++) v = v.replace('{' + (i - 1) + '}', arguments[i]);
+      return v;
+    };
+  })();
+  </script>
   <script src="https://maps.googleapis.com/maps/api/js?key=<?php echo htmlspecialchars(getenv('GOOGLE_API_KEY'), ENT_QUOTES, 'UTF-8'); ?>&libraries=places,geometry"></script>
   <style>
     :root {
@@ -710,6 +1237,97 @@ if (isset($_GET['logout'])) {
   </main>
 
 <script>
+// === i18n: 静的HTML翻訳 ===
+(function(){
+  if (window._lang === 'ja') return;
+  document.title = t('営業時間確認コール');
+  // placeholders
+  var ph = {'name':'店名か電話番号を入力して検索','favName':'店名','favPhone':'電話番号','historySearch':'検索…','supportInput':'メッセージを入力…','rsvName':'やまだたろう','rsvPhone':0};
+  for (var id in ph) { var el = document.getElementById(id); if (el && ph[id]) el.placeholder = t(ph[id]); }
+  // title attributes
+  var ti = {'mapMyLoc':'現在地','mapZoomIn':'拡大','mapZoomOut':'縮小'};
+  for (var id in ti) { var el = document.getElementById(id); if (el) el.title = t(ti[id]); }
+  // Translate text nodes in elements with mixed content (icon + text)
+  function tText(el, key) {
+    if (!el) return;
+    var nodes = el.childNodes;
+    for (var i = nodes.length - 1; i >= 0; i--) {
+      if (nodes[i].nodeType === 3 && nodes[i].textContent.trim()) {
+        nodes[i].textContent = ' ' + t(key);
+        return;
+      }
+    }
+  }
+  // Bottom sheet sections
+  document.querySelectorAll('.collapse-header').forEach(function(el) {
+    var text = el.textContent.trim();
+    if (text.includes('予約一覧')) tText(el, '予約一覧');
+    else if (text.includes('通話履歴')) tText(el, '通話履歴');
+    else if (text.includes('サポート')) tText(el, 'サポート');
+  });
+  // Call progress header
+  var cph = document.querySelector('.call-progress-header');
+  if (cph) tText(cph, '営業確認中');
+  // Recording headers
+  document.querySelectorAll('.recording-player-header').forEach(function(el) { tText(el, '通話録音'); });
+  // Recording loading
+  document.querySelectorAll('.recording-loading').forEach(function(el) { tText(el, '録音データを読み込み中…'); });
+  // Map title
+  var mt = document.getElementById('mapTitle');
+  if (mt) mt.textContent = t('店舗へのルート');
+  // History more button
+  var hm = document.getElementById('historyMoreBtn');
+  if (hm) tText(hm, 'もっと見る');
+  // Support tabs
+  document.querySelectorAll('.support-tab').forEach(function(el) {
+    var type = el.dataset.type;
+    if (type === 'question') el.textContent = t('質問');
+    else if (type === 'bug') el.textContent = t('バグ報告');
+    else if (type === 'improvement') el.textContent = t('改善提案');
+  });
+  // Support welcome
+  var sw = document.querySelector('.support-msg.welcome');
+  if (sw) sw.innerHTML = '<i class="fa-solid fa-robot"></i><br>' + t('質問・バグ報告・改善提案をお気軽にどうぞ');
+  // Support new button
+  var snb = document.getElementById('supportNewBtn');
+  if (snb) snb.textContent = t('+ 新しい会話');
+  // Logout link
+  var ll = document.querySelector('.logout-link');
+  if (ll) tText(ll, 'ログアウト');
+  // Reservation panel
+  var rt = document.getElementById('reservationTitle');
+  if (rt) rt.textContent = t('予約');
+  // Form labels
+  document.querySelectorAll('.rsv-label').forEach(function(el) {
+    var text = el.textContent.trim();
+    if (text.startsWith('日付')) el.textContent = t('日付') + ' *';
+    else if (text.startsWith('時間')) el.textContent = t('時間') + ' *';
+    else if (text.startsWith('人数')) el.textContent = t('人数') + ' *';
+    else if (text.includes('予約者名')) el.textContent = t('予約者名（ひらがな）') + ' *';
+    else if (text.includes('連絡先')) el.textContent = t('連絡先電話番号') + ' *';
+  });
+  // Flexible checkbox label
+  var fcl = document.querySelector('label[for="rsvFlexible"]');
+  if (fcl) fcl.textContent = t('指定時間が空いていない場合、前後の近い時間で予約を試みる');
+  // Before/After labels
+  document.querySelectorAll('#rsvFlexRange label').forEach(function(el) {
+    var text = el.textContent.trim();
+    if (text === '予約時間前') el.textContent = t('予約時間前');
+    else if (text === '予約時間後') el.textContent = t('予約時間後');
+  });
+  // Select options
+  var timeOpts = {'30':'30分','60':'1時間','90':'1時間30分','120':'2時間','150':'2時間30分','180':'3時間'};
+  document.querySelectorAll('#rsvFlexBefore option, #rsvFlexAfter option').forEach(function(el) {
+    if (timeOpts[el.value]) el.textContent = t(timeOpts[el.value]);
+  });
+  // Submit button
+  var rsb = document.getElementById('rsvSubmitBtn');
+  if (rsb) tText(rsb, '予約電話をかける');
+  // hiragana title attribute
+  var rsvNameEl = document.getElementById('rsvName');
+  if (rsvNameEl) rsvNameEl.title = t('ひらがなで入力してください');
+})();
+
 // DOM要素の取得
 const $ = (s) => document.querySelector(s);
 const nameEl = $('#name');
@@ -2217,19 +2835,19 @@ function showRecordingPlayer(url, duration) {
       const dur = parseInt(duration, 10);
       const min = Math.floor(dur / 60);
       const sec = dur % 60;
-      recordingDuration.textContent = `録音時間: ${min}分${sec.toString().padStart(2, '0')}秒`;
+      recordingDuration.textContent = t('録音時間: {0}分{1}秒', min, sec.toString().padStart(2, '0'));
     } else if (recordingAudio.duration && isFinite(recordingAudio.duration)) {
       const dur = Math.round(recordingAudio.duration);
       const min = Math.floor(dur / 60);
       const sec = dur % 60;
-      recordingDuration.textContent = `録音時間: ${min}分${sec.toString().padStart(2, '0')}秒`;
+      recordingDuration.textContent = t('録音時間: {0}分{1}秒', min, sec.toString().padStart(2, '0'));
     }
 
     recordingAudio.removeEventListener('canplay', onCanPlay);
   }, { once: true });
 
   recordingAudio.addEventListener('error', function onError() {
-    recordingLoading.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i> 録音データの読み込みに失敗しました';
+    recordingLoading.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i> ' + t('録音データの読み込みに失敗しました');
     recordingAudio.removeEventListener('error', onError);
   }, { once: true });
 
