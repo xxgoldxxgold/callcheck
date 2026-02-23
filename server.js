@@ -335,7 +335,7 @@ function buildReservationInstructionsKo(params) {
   const isFlexible = params.rsv_flexible === '1';
   const flexBefore = parseInt(params.rsv_flex_before || '60', 10);
   const flexAfter = parseInt(params.rsv_flex_after || '60', 10);
-  const rsvDate = params.rsv_date || '불명';
+  const rsvDate = formatDateForKorean(params.rsv_date) || '불명';
   const rsvPartySize = params.rsv_party_size || '불명';
   const rsvName = params.rsv_name || '불명';
 
@@ -405,6 +405,21 @@ ${flexStep}
 - 무응답 10초면 "여보세요?" → 추가 10초 무응답이면 no_response로 보고
 - 무슨 일이 있어도 report_reservation_result는 반드시 마지막에 호출해라
 - 결과는 반드시 한국어로 기록해라. 일본어나 영어로 쓰지 마라.`;
+}
+
+/* 日本語日付を韓国語に変換 ("2月22日(日)" → "2월 22일 일요일") */
+function formatDateForKorean(dateStr) {
+  if (!dateStr) return '불명';
+  const m = dateStr.match(/(\d{1,2})月(\d{1,2})日(?:\((.)\))?/);
+  if (!m) return dateStr;
+  const month = parseInt(m[1], 10);
+  const day = parseInt(m[2], 10);
+  const dowJa = m[3];
+  const dowMap = {'日':'일요일','月':'월요일','火':'화요일','水':'수요일',
+                  '木':'목요일','金':'금요일','土':'토요일'};
+  let result = `${month}월 ${day}일`;
+  if (dowJa && dowMap[dowJa]) result += ` ${dowMap[dowJa]}`;
+  return result;
 }
 
 /* 한국어 시간 포맷 */
@@ -558,6 +573,18 @@ function buildReservationInstructionsGeneric(lang, params) {
    If nothing is available in range, politely decline and say goodbye. Report as rejected.`
     : `4. If the requested time is unavailable, politely say "I understand, I'll try again another time. Thank you." in ${langName} and end the call. Report as rejected. Do NOT ask for alternative times.`;
 
+  /* 英語は12時間AM/PM必須、それ以外は各言語の自然な形式 */
+  const timeRules = lang === 'en'
+    ? `★★★ TIME FORMAT RULES ★★★
+- ALWAYS use 12-hour AM/PM format when speaking times (e.g., "8:30 PM", NOT "20:30").
+- When the other person says a time like "10 o'clock" or "ten", determine AM/PM from context (evening reservation → PM).
+- NEVER use 24-hour format (like "20:30" or "19:00") in conversation. Always say AM/PM.
+- Examples: 20:30 → "eight thirty PM", 19:00 → "seven PM", 21:00 → "nine PM"`
+    : `★★★ TIME RULES ★★★
+- Speak times naturally in ${langName}. The reservation time is ${rsvTime}.
+- When the other person mentions a time, understand AM/PM from context (evening reservation → evening/PM).
+- Be clear and unambiguous about the time. Use the most natural time format for ${langName}.`;
+
   return `You are an AI assistant calling a store to make a reservation by phone.
 ★★★ CRITICAL: You MUST speak ONLY in ${langName} throughout the ENTIRE call. NEVER use any other language. ★★★
 
@@ -569,18 +596,14 @@ Reservation details:
 - Phone: ${rsvPhone}
 - ${flexDesc}
 
-★★★ TIME FORMAT RULES ★★★
-- ALWAYS use 12-hour AM/PM format when speaking times (e.g., "8:30 PM", NOT "20:30").
-- When the other person says a time like "10 o'clock" or "ten", determine AM/PM from context (evening reservation → PM).
-- NEVER use 24-hour format (like "20:30" or "19:00") in conversation. Convert to 12-hour format.
-- Examples: 20:30 → "eight thirty PM", 19:00 → "seven PM", 21:00 → "nine PM"
+${timeRules}
 
 Conversation flow (★ At each step, say only ONE thing and wait for their response. NEVER say two pieces of info in the same utterance ★):
 1. Greet in ${langName} and say "I'd like to make a reservation." Wait for their response. Do NOT give details yet.
 2. When they respond, say: "I'd like a reservation for ${rsvPartySize} people on ${rsvDate} at ${rsvTime}. Is that available?" in ${langName}.
    [IMPORTANT] After asking this, do NOT call report_reservation_result. Wait for their answer.
 3. ★ Listen to their full response ★ Do NOT judge the result immediately after your question.
-   ★ If they mention a time (e.g., "10 o'clock"), understand it in context. For evening reservations, "10" means 10 PM.
+   ★ If they suggest a different time, understand AM/PM from context. For evening reservations, an ambiguous time like "10" means 10 PM, not 10 AM.
 ${flexStep}
 5. If reservation is OK:
    - Time unchanged → immediately say "The name is ${rsvName}" in ${langName}. Nothing else.
