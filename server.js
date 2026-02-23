@@ -118,6 +118,48 @@ function formatTimeNatural(timeStr) {
   return `${prefix}${h}時${minStr}`;
 }
 
+/* 時刻を12時間AM/PM表記に変換 ("20:30" → "8:30 PM") */
+function formatTime12h(timeStr) {
+  if (!timeStr) return 'unknown';
+  const m = timeStr.match(/^(\d{1,2}):(\d{2})$/);
+  if (!m) return timeStr;
+  let h = parseInt(m[1], 10);
+  const min = m[2];
+  const ampm = h >= 12 ? 'PM' : 'AM';
+  if (h > 12) h -= 12;
+  if (h === 0) h = 12;
+  return min === '00' ? `${h} ${ampm}` : `${h}:${min} ${ampm}`;
+}
+
+/* 分数を12時間AM/PM表記に変換 (1230 → "8:30 PM") */
+function formatMinutes12h(totalMin) {
+  const hh = Math.floor(((totalMin % 1440) + 1440) % 1440 / 60);
+  const mm = ((totalMin % 1440) + 1440) % 1440 % 60;
+  const ampm = hh >= 12 ? 'PM' : 'AM';
+  let h12 = hh > 12 ? hh - 12 : (hh === 0 ? 12 : hh);
+  return mm === 0 ? `${h12} ${ampm}` : `${h12}:${String(mm).padStart(2, '0')} ${ampm}`;
+}
+
+/* 日本語日付をEnglish日付に変換 ("2月22日(日)" → "February 22nd (Sunday)") */
+function formatDateFromJapanese(dateStr) {
+  if (!dateStr) return 'unknown';
+  const m = dateStr.match(/(\d{1,2})月(\d{1,2})日(?:\((.)\))?/);
+  if (!m) return dateStr;
+  const month = parseInt(m[1], 10);
+  const day = parseInt(m[2], 10);
+  const dowJa = m[3];
+  const months = ['January','February','March','April','May','June',
+                  'July','August','September','October','November','December'];
+  const dowMap = {'日':'Sunday','月':'Monday','火':'Tuesday','水':'Wednesday',
+                  '木':'Thursday','金':'Friday','土':'Saturday'};
+  const suffix = (day === 1 || day === 21 || day === 31) ? 'st' :
+                 (day === 2 || day === 22) ? 'nd' :
+                 (day === 3 || day === 23) ? 'rd' : 'th';
+  let result = `${months[month - 1]} ${day}${suffix}`;
+  if (dowJa && dowMap[dowJa]) result += ` (${dowMap[dowJa]})`;
+  return result;
+}
+
 /* 電話番号をハイフン区切りに変換 ("09075368115" → "090-7536-8115") */
 function formatPhoneReadable(phone) {
   if (!phone) return '不明';
@@ -484,8 +526,8 @@ Rules:
 /* === 汎用: 予約用プロンプト（ja/ko以外の全言語） === */
 function buildReservationInstructionsGeneric(lang, params) {
   const langName = getLangName(lang);
-  const rsvDate = params.rsv_date || 'unknown';
-  const rsvTime = params.rsv_time || 'unknown';
+  const rsvDateRaw = params.rsv_date || 'unknown';
+  const rsvTimeRaw = params.rsv_time || 'unknown';
   const rsvPartySize = params.rsv_party_size || 'unknown';
   const rsvName = params.rsv_name || 'unknown';
   const rsvPhone = params.rsv_phone || 'unknown';
@@ -493,17 +535,16 @@ function buildReservationInstructionsGeneric(lang, params) {
   const flexBefore = parseInt(params.rsv_flex_before || '60', 10);
   const flexAfter = parseInt(params.rsv_flex_after || '60', 10);
 
+  /* 日本語日付→英語変換、時刻→12時間AM/PM変換 */
+  const rsvDate = formatDateFromJapanese(rsvDateRaw);
+  const rsvTime = formatTime12h(rsvTimeRaw);
+
   let flexRangeDesc = '';
   if (isFlexible && params.rsv_time) {
     const tm = params.rsv_time.match(/^(\d{1,2}):(\d{2})$/);
     if (tm) {
       const baseMin = parseInt(tm[1], 10) * 60 + parseInt(tm[2], 10);
-      const fmtT = (m) => {
-        const hh = Math.floor(((m % 1440) + 1440) % 1440 / 60);
-        const mm = ((m % 1440) + 1440) % 1440 % 60;
-        return `${hh}:${String(mm).padStart(2, '0')}`;
-      };
-      flexRangeDesc = `${fmtT(baseMin - flexBefore)} ~ ${fmtT(baseMin + flexAfter)}`;
+      flexRangeDesc = `${formatMinutes12h(baseMin - flexBefore)} to ${formatMinutes12h(baseMin + flexAfter)}`;
     }
   }
 
@@ -528,11 +569,18 @@ Reservation details:
 - Phone: ${rsvPhone}
 - ${flexDesc}
 
+★★★ TIME FORMAT RULES ★★★
+- ALWAYS use 12-hour AM/PM format when speaking times (e.g., "8:30 PM", NOT "20:30").
+- When the other person says a time like "10 o'clock" or "ten", determine AM/PM from context (evening reservation → PM).
+- NEVER use 24-hour format (like "20:30" or "19:00") in conversation. Convert to 12-hour format.
+- Examples: 20:30 → "eight thirty PM", 19:00 → "seven PM", 21:00 → "nine PM"
+
 Conversation flow (★ At each step, say only ONE thing and wait for their response. NEVER say two pieces of info in the same utterance ★):
 1. Greet in ${langName} and say "I'd like to make a reservation." Wait for their response. Do NOT give details yet.
 2. When they respond, say: "I'd like a reservation for ${rsvPartySize} people on ${rsvDate} at ${rsvTime}. Is that available?" in ${langName}.
    [IMPORTANT] After asking this, do NOT call report_reservation_result. Wait for their answer.
 3. ★ Listen to their full response ★ Do NOT judge the result immediately after your question.
+   ★ If they mention a time (e.g., "10 o'clock"), understand it in context. For evening reservations, "10" means 10 PM.
 ${flexStep}
 5. If reservation is OK:
    - Time unchanged → immediately say "The name is ${rsvName}" in ${langName}. Nothing else.
