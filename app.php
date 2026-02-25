@@ -1190,7 +1190,7 @@ if (isset($_GET['logout'])) {
           </div>
           <div>
             <label class="rsv-label">予約者名（ひらがな / アルファベット） *</label>
-            <input type="text" id="rsvName" class="rsv-input" placeholder="やまだたろう / Yamada Taro" required pattern="[\u3040-\u309F\u30FC\uAC00-\uD7AF\u4E00-\u9FFFa-zA-Z\s　]+" title="ひらがなまたはアルファベットで入力してください">
+            <input type="text" id="rsvName" class="rsv-input" placeholder="やまだたろう / Yamada Taro" required>
           </div>
           <div>
             <label class="rsv-label">連絡先電話番号 *</label>
@@ -1332,9 +1332,6 @@ if (isset($_GET['logout'])) {
   // Submit button
   var rsb = document.getElementById('rsvSubmitBtn');
   if (rsb) tText(rsb, '予約電話をかける');
-  // hiragana title attribute
-  var rsvNameEl = document.getElementById('rsvName');
-  if (rsvNameEl) rsvNameEl.title = t('ひらがなまたはアルファベットで入力してください');
 })();
 
 // DOM要素の取得
