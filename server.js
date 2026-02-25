@@ -653,6 +653,19 @@ async function sendResultToHeteml(callSid, result, conversationLog, targetUrl) {
   }
 }
 
+/* === リアルタイム傍聴: リスナーマップ === */
+const listenerMap = new Map(); // callSid → Set<WebSocket>
+
+function broadcastToListeners(sid, channel, base64Payload) {
+  const set = listenerMap.get(sid);
+  if (!set || set.size === 0) return;
+  const msg = JSON.stringify({ ch: channel, audio: base64Payload });
+  for (const ws of set) {
+    if (ws.readyState === 1) ws.send(msg);
+    else set.delete(ws);
+  }
+}
+
 const app = Fastify({ logger: false });
 await app.register(fastifyWs);
 await app.register(fastifyFormBody);
@@ -678,6 +691,22 @@ app.all('/twiml', async (req, reply) => {
 });
 
 app.register(async function (fastify) {
+  /* === リアルタイム傍聴: /listen WebSocketルート === */
+  fastify.get('/listen', { websocket: true }, (socket, req) => {
+    const sid = req.query.sid;
+    if (!sid) { socket.close(4400, 'sid required'); return; }
+    if (!listenerMap.has(sid)) listenerMap.set(sid, new Set());
+    listenerMap.get(sid).add(socket);
+    console.log(`[Listen] Connected: ${sid} (${listenerMap.get(sid).size} listeners)`);
+    socket.on('close', () => {
+      const s = listenerMap.get(sid);
+      if (s) { s.delete(socket); if (s.size === 0) listenerMap.delete(sid); }
+      console.log(`[Listen] Disconnected: ${sid}`);
+    });
+    socket.on('error', () => {});
+    socket.on('message', () => {});
+  });
+
   fastify.get('/media-stream', { websocket: true }, (socket, req) => {
     console.log('[WS] Twilio connected');
     let streamSid = null, callSid = null, openaiWs = null;
@@ -857,6 +886,7 @@ app.register(async function (fastify) {
               console.log(`[TIMING] First audio delta: ${elapsed(connectTime)} from WS connect (+300ms pad)`);
             }
             socket.send(JSON.stringify({ event: 'media', streamSid, media: { payload: event.delta } }));
+            broadcastToListeners(callSid, 'ai', event.delta);
           }
           break;
 
@@ -1275,6 +1305,7 @@ app.register(async function (fastify) {
             connectOpenAI();
             break;
           case 'media':
+            broadcastToListeners(callSid, 'customer', msg.media.payload);
             if (openaiWs?.readyState === WebSocket.OPEN) {
               /* エコーゲート: AI発話中＋Twilio再生完了推定時刻まで音声を転送しない */
               if (aiSpeaking || (estimatedPlaybackEndTime > 0 && Date.now() < estimatedPlaybackEndTime)) {
@@ -1296,6 +1327,14 @@ app.register(async function (fastify) {
     });
 
     socket.on('close', () => {
+      /* リスナーに通話終了を通知 */
+      const listeners = listenerMap.get(callSid);
+      if (listeners) {
+        for (const ws of listeners) {
+          if (ws.readyState === 1) ws.send(JSON.stringify({ ch: 'end' }));
+        }
+        listenerMap.delete(callSid);
+      }
       console.log('[WS] Twilio disconnected');
       if (openaiWs?.readyState === WebSocket.OPEN) openaiWs.close();
       /* 予約モードで結果が送信されずに切断された場合、unknownとして報告 */

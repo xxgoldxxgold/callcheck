@@ -819,6 +819,11 @@ if (isset($_GET['logout'])) {
     .call-progress-header { display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 600; color: var(--primary); margin-bottom: 10px; }
     .call-progress-close { margin-left: auto; background: none; border: none; cursor: pointer; color: var(--muted); font-size: 14px; padding: 4px; }
     .call-progress-status { font-size: 13px; color: #333; margin-bottom: 8px; }
+    .listen-toggle { display:inline-flex; align-items:center; gap:6px; padding:6px 12px; border-radius:20px; border:1px solid var(--border); background:#f8f9fa; font-size:12px; cursor:pointer; margin-top:8px; }
+    .listen-toggle.active { background:#e8f5e9; border-color:#1e8e3e; color:#1e8e3e; }
+    .listen-toggle.active i { animation: audio-pulse 1s infinite; }
+    @keyframes audio-pulse { 0%,100%{opacity:1} 50%{opacity:.3} }
+    @keyframes pulse-ring { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.4;transform:scale(1.15)} }
     .call-progress-result { background: #e8f5e9; border-radius: 8px; padding: 10px 12px; margin-bottom: 8px; }
 
     /* 録音プレーヤー */
@@ -1068,6 +1073,9 @@ if (isset($_GET['logout'])) {
               <button id="callProgressClose" class="call-progress-close"><i class="fa-solid fa-times"></i></button>
             </div>
             <div id="status" class="call-progress-status"></div>
+            <button id="listenToggle" class="listen-toggle" style="display:none;">
+              <i class="fa-solid fa-headphones"></i> <span>傍聴する</span>
+            </button>
             <div id="resultCard" class="call-progress-result" style="display:none;"><div id="resultText"></div></div>
             <div id="recordingPlayer" class="recording-player">
               <div class="recording-player-header"><i class="fa-solid fa-circle-play"></i> ${t("通話録音")}</div>
@@ -2859,6 +2867,8 @@ const callProgressCard = $('#callProgressCard');
 const callProgressClose = $('#callProgressClose');
 
 function showCallProgress(label) {
+  stopListening();
+  listenToggle.style.display = 'none';
   const hdr = callProgressCard.querySelector('.call-progress-header');
   hdr.innerHTML = `<i class="fa-solid fa-phone-volume"></i> ${escapeHtml(label || t('営業確認中'))}<button id="callProgressClose" class="call-progress-close"><i class="fa-solid fa-times"></i></button>`;
   hdr.querySelector('.call-progress-close').addEventListener('click', hideCallProgress);
@@ -2875,7 +2885,92 @@ function showCallProgress(label) {
 
 function hideCallProgress() {
   callProgressCard.style.display = 'none';
+  stopListening();
 }
+
+/* === リアルタイム傍聴 === */
+const listenToggle = document.getElementById('listenToggle');
+let listenWs = null;
+let listenAudioCtx = null;
+let listenNextTime = 0;
+
+/* G.711 μ-law デコードテーブル */
+const MULAW_TABLE = new Int16Array(256);
+(function buildMulawTable() {
+  for (let i = 0; i < 256; i++) {
+    let mu = ~i & 0xFF;
+    let sign = mu & 0x80;
+    let exponent = (mu >> 4) & 0x07;
+    let mantissa = mu & 0x0F;
+    let sample = ((mantissa << 1) + 33) << (exponent + 2);
+    sample -= 0x84;
+    MULAW_TABLE[i] = sign ? -sample : sample;
+  }
+})();
+
+function startListening(callSid) {
+  if (listenWs) stopListening();
+  const wsUrl = 'wss://ws.denwa2.com/listen?sid=' + encodeURIComponent(callSid);
+  listenAudioCtx = new (window.AudioContext || window.webkitAudioContext)({ sampleRate: 8000 });
+  listenNextTime = 0;
+
+  /* チャンネルごとのゲイン */
+  const customerGain = listenAudioCtx.createGain();
+  customerGain.gain.value = 0.7;
+  customerGain.connect(listenAudioCtx.destination);
+  const aiGain = listenAudioCtx.createGain();
+  aiGain.gain.value = 1.0;
+  aiGain.connect(listenAudioCtx.destination);
+
+  listenWs = new WebSocket(wsUrl);
+  listenWs.onopen = () => {
+    listenToggle.classList.add('active');
+    listenToggle.querySelector('span').textContent = '傍聴中';
+    console.log('[Listen] Connected');
+  };
+  listenWs.onmessage = (ev) => {
+    try {
+      const d = JSON.parse(ev.data);
+      if (d.ch === 'end') { stopListening(); return; }
+      if (!d.audio) return;
+      const raw = atob(d.audio);
+      const len = raw.length;
+      const buf = listenAudioCtx.createBuffer(1, len, 8000);
+      const ch = buf.getChannelData(0);
+      for (let i = 0; i < len; i++) {
+        ch[i] = MULAW_TABLE[raw.charCodeAt(i) & 0xFF] / 32768;
+      }
+      const src = listenAudioCtx.createBufferSource();
+      src.buffer = buf;
+      const dest = d.ch === 'ai' ? aiGain : customerGain;
+      src.connect(dest);
+      const now = listenAudioCtx.currentTime;
+      if (listenNextTime < now + 0.05) listenNextTime = now + 0.05;
+      src.start(listenNextTime);
+      listenNextTime += buf.duration;
+    } catch(e) { console.error('[Listen] decode error:', e); }
+  };
+  listenWs.onclose = () => {
+    listenToggle.classList.remove('active');
+    listenToggle.querySelector('span').textContent = '傍聴する';
+    listenWs = null;
+  };
+  listenWs.onerror = () => {};
+}
+
+function stopListening() {
+  if (listenWs) { try { listenWs.close(); } catch(e){} listenWs = null; }
+  if (listenAudioCtx) { try { listenAudioCtx.close(); } catch(e){} listenAudioCtx = null; }
+  listenNextTime = 0;
+  listenToggle.classList.remove('active');
+  listenToggle.querySelector('span').textContent = '傍聴する';
+  listenToggle.style.display = 'none';
+}
+
+listenToggle.addEventListener('click', () => {
+  if (listenWs) { stopListening(); listenToggle.style.display = 'inline-flex'; }
+  else if (currentSid) startListening(currentSid);
+});
 
 // 録音プレーヤーをリセットする関数
 function resetRecordingPlayer() {
@@ -2946,6 +3041,20 @@ async function poll(){
     if(!res.ok){ throw new Error('結果取得に失敗'); }
     const j = await res.json();
 
+    // ★ 呼び出し中 / 通話中のステータス表示
+    const callLabel = nameEl.value || toEl.value || '';
+    const hdr = callProgressCard.querySelector('.call-progress-header');
+    if (!j.completed) {
+      if (j.status === 'ringing' || j.status === 'initiated') {
+        statusEl.innerHTML = '<i class="fa-solid fa-phone-volume" style="animation:pulse-ring 1.5s infinite"></i> ' + t('呼び出し中…');
+        if (hdr) hdr.innerHTML = `<i class="fa-solid fa-phone-volume" style="animation:pulse-ring 1.5s infinite"></i> ${escapeHtml(callLabel)} - ${t('呼び出し中')}<button class="call-progress-close" onclick="hideCallProgress()"><i class="fa-solid fa-times"></i></button>`;
+      } else if (j.status === 'answered' || j.status === 'in-progress') {
+        statusEl.innerHTML = '<i class="fa-solid fa-phone" style="color:#1e8e3e"></i> ' + t('通話中…');
+        if (hdr) hdr.innerHTML = `<i class="fa-solid fa-phone" style="color:#1e8e3e"></i> ${escapeHtml(callLabel)} - ${t('通話中')}<button class="call-progress-close" onclick="hideCallProgress()"><i class="fa-solid fa-times"></i></button>`;
+        if (listenToggle.style.display === 'none' && !listenWs) listenToggle.style.display = 'inline-flex';
+      }
+    }
+
     // ★ 状態メッセージを優先表示
     if (j.result_state === 'no_response') {
       statusEl.innerHTML = '<i class="fa-solid fa-microphone-slash"></i> ' + escapeHtml(j.message || t('無言で電話を切られました'));
@@ -2999,6 +3108,7 @@ async function poll(){
     }
 
     if(j.completed){
+      stopListening();
       if (j.result_state !== 'no_response' && !j.message) {
         statusEl.innerHTML = '<i class="fa-regular fa-circle-check"></i> ' + t('通話完了。結果を取得しました。');
       }
