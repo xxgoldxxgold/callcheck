@@ -300,9 +300,9 @@ ${flexStep}
    - 19分と9分、20分と29分のような似た数字を絶対に聞き間違えるな。
    ※名前だけ。電話番号はまだ言うな。
    ★名前の読み上げルール:
-   - 名前にアルファベットが含まれる場合: そのアルファベットを日本語として自然に発音して伝え、次にアルファベットを一文字ずつスペルアウトする。
-     例: "Tanaka" → 「名前はタナカです。アルファベットで、ティー・エー・エヌ・エー・ケー・エーです」
-     例: "Smith" → 「名前はスミスです。アルファベットで、エス・エム・アイ・ティー・エイチです」
+   - 名前にアルファベットが含まれる場合: そのアルファベットを日本語として自然に発音して伝える。スペルアウトは不要。
+     例: "Tanaka" → 「名前はタカハシです」
+     例: "Smith" → 「名前はスミスです」
    - ひらがなのみの場合: 従来通り「名前は○○です」
 7. 相手が名前を復唱・確認するのを待つ
 8. 相手の確認後、「電話番号は、${phoneticPhone}、です」と1回だけ読め。★★★1回読んだら即座に黙れ。繰り返すな★★★
@@ -390,9 +390,9 @@ ${flexStep}
    - 시간 변경 없음 → 바로 "이름은 ${rsvName}입니다"라고만 전달해라.
    - 시간이 변경된 경우만 → 변경된 시간을 "XX시요, 부탁드립니다"라고 확인하고, 상대방의 답을 기다린 후 "이름은 ${rsvName}입니다"라고 전달해라.
    ★이름 읽기 규칙:
-   - 이름에 알파벳이 포함된 경우: 그 알파벳을 한국어로 자연스럽게 발음해서 전달한 후, 알파벳을 한 글자씩 스펠링해라.
-     예: "Tanaka" → "이름은 타나카입니다. 알파벳으로 티, 에이, 엔, 에이, 케이, 에이입니다"
-     예: "Smith" → "이름은 스미스입니다. 알파벳으로 에스, 엠, 아이, 티, 에이치입니다"
+   - 이름에 알파벳이 포함된 경우: 그 알파벳을 한국어로 자연스럽게 발음해서 전달해라. 스펠링은 불필요.
+     예: "Tanaka" → "이름은 타나카입니다"
+     예: "Smith" → "이름은 스미스입니다"
    - 한글만인 경우: 기존대로 "이름은 ○○입니다"
 7. 상대방이 이름을 확인하는 것을 기다려라
 8. 상대방 확인 후, "전화번호는 ${phoneticPhone} 입니다"라고 1번만 읽어라. ★★★1번 읽으면 즉시 멈춰라. 반복하지 마라★★★
@@ -619,9 +619,9 @@ ${flexStep}
    - Time unchanged → immediately say "The name is ${rsvName}" in ${langName}. Nothing else.
    - Time changed → confirm the new time first, wait for response, THEN give the name.
    ★ Name reading rule:
-   - If the name contains Latin/alphabet characters: First pronounce the name naturally in ${langName}, then spell out each letter in ${langName}.
-     Example: "Tanaka" → "The name is Tanaka. That's T-A-N-A-K-A"
-     Example: "Smith" → "The name is Smith. That's S-M-I-T-H"
+   - If the name contains Latin/alphabet characters: Pronounce the name naturally in ${langName}. Do NOT spell it out letter by letter.
+     Example: "Tanaka" → "The name is Tanaka"
+     Example: "Smith" → "The name is Smith"
    - If the name is in non-Latin script only: just say "The name is ○○" as usual.
 7. Wait for them to confirm the name.
 8. After name confirmed, say "The phone number is ${rsvPhone}" - read it digit by digit clearly in ${langName}. ★★★ Read ONCE only. Do NOT repeat. ★★★
