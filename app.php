@@ -170,7 +170,7 @@ if (isset($_GET['logout'])) {
       'ルートの取得に失敗しました':'Failed to get route',
       'この電話番号は既に登録されています':'This phone number is already registered',
       '必須項目を入力してください。':'Please fill in all required fields.',
-      '予約者名はひらがなで入力してください。':'Please enter the name in hiragana.',
+      '予約者名はひらがなまたはアルファベットで入力してください。':'Please enter the name in the correct format.',
       '店舗の座標がありません':'Store coordinates not available',
       '録音データの読み込みに失敗しました':'Failed to load recording',
       '録音データが取得できませんでした（短い通話では録音されない場合があります）':'Recording not available (may not be recorded for short calls)',
@@ -193,7 +193,7 @@ if (isset($_GET['logout'])) {
       '電話番号を自動補完しました:':'Phone number auto-completed:',
       'よく確認する店舗を登録するとワンタップで発信できます':'Register stores for one-tap calling',
       '日付':'Date','時間':'Time','人数':'Party Size',
-      '予約者名（ひらがな）':'Guest Name (hiragana)','連絡先電話番号':'Contact Phone',
+      '予約者名（ひらがな / アルファベット）':'Guest Name','連絡先電話番号':'Contact Phone',
       '指定時間が空いていない場合、前後の近い時間で予約を試みる':'Try nearby times if specified time is unavailable',
       '予約時間前':'Before','予約時間後':'After',
       '30分':'30 min','1時間':'1 hour','1時間30分':'1.5 hours',
@@ -216,7 +216,7 @@ if (isset($_GET['logout'])) {
       '解決済み':'Resolved','店舗へのルート':'Route to Store',
       'データがありません':'No data available','詳細データがありません':'No detailed data',
       '読み込みエラー':'Load error','詳細を読み込み中...':'Loading details...',
-      'ひらがなで入力してください':'Please enter in hiragana',
+      'ひらがなまたはアルファベットで入力してください':'Please enter in the correct format',
       '{0}分前':'{0}m ago','{0}時間前':'{0}h ago','{0}日前':'{0}d ago',
       '{0}分{1}秒':'{0}m {1}s','{0}件の結果':'{0} results',
       '{0} へのルート':'Route to {0}','{0} - 予約':'{0} - Reservation',
@@ -241,7 +241,7 @@ if (isset($_GET['logout'])) {
       'ネットワークエラーが発生しました。接続を確認してください。':'Network error. Please check your connection.',
       '試行回数が多すぎます。しばらく待ってから再度お試しください。':'Too many attempts. Please wait and try again.',
       '登録できました。':'Registered successfully.','ログイン成功。':'Login successful.',
-      'やまだたろう':'yamada taro'
+      'やまだたろう':'Yamada Taro'
     };
     D.ko = {
       '営業時間確認コール':'영업시간 확인','ログアウト':'로그아웃','ログアウトしました':'로그아웃되었습니다',
@@ -263,7 +263,7 @@ if (isset($_GET['logout'])) {
       'ルートの取得に失敗しました':'경로를 가져오지 못했습니다',
       'この電話番号は既に登録されています':'이 전화번호는 이미 등록되어 있습니다',
       '必須項目を入力してください。':'필수 항목을 입력해 주세요.',
-      '予約者名はひらがなで入力してください。':'예약자명을 히라가나로 입력해 주세요.',
+      '予約者名はひらがなまたはアルファベットで入力してください。':'예약자명을 한글 또는 알파벳으로 입력해 주세요.',
       '店舗の座標がありません':'매장 좌표가 없습니다',
       '録音データの読み込みに失敗しました':'녹음 데이터 로딩 실패',
       '録音データが取得できませんでした（短い通話では録音されない場合があります）':'녹음을 가져올 수 없습니다 (짧은 통화는 녹음되지 않을 수 있습니다)',
@@ -284,7 +284,7 @@ if (isset($_GET['logout'])) {
       '電話番号を自動補完しました:':'전화번호가 자동 완성되었습니다:',
       'よく確認する店舗を登録するとワンタップで発信できます':'자주 확인하는 매장을 등록하면 원탭으로 전화할 수 있습니다',
       '日付':'날짜','時間':'시간','人数':'인원',
-      '予約者名（ひらがな）':'예약자명 (히라가나)','連絡先電話番号':'연락처',
+      '予約者名（ひらがな / アルファベット）':'예약자명 (한글 / 알파벳)','連絡先電話番号':'연락처',
       '指定時間が空いていない場合、前後の近い時間で予約を試みる':'지정 시간에 빈자리가 없으면 전후 시간으로 예약 시도',
       '予約時間前':'예약시간 전','予約時間後':'예약시간 후',
       '30分':'30분','1時間':'1시간','1時間30分':'1시간 30분',
@@ -306,7 +306,7 @@ if (isset($_GET['logout'])) {
       '一覧に戻る':'목록으로','読み込みに失敗しました':'로딩 실패','解決済み':'해결됨',
       '店舗へのルート':'매장 경로','データがありません':'데이터가 없습니다',
       '詳細データがありません':'상세 데이터가 없습니다','読み込みエラー':'로딩 오류',
-      '詳細を読み込み中...':'상세 정보 로딩 중...','ひらがなで入力してください':'히라가나로 입력해 주세요',
+      '詳細を読み込み中...':'상세 정보 로딩 중...','ひらがなまたはアルファベットで入力してください':'한글 또는 알파벳으로 입력해 주세요',
       '{0}分前':'{0}분 전','{0}時間前':'{0}시간 전','{0}日前':'{0}일 전',
       '{0}分{1}秒':'{0}분 {1}초','{0}件の結果':'{0}건의 결과',
       '{0} へのルート':'{0} 경로','{0} - 予約':'{0} - 예약',
@@ -330,7 +330,7 @@ if (isset($_GET['logout'])) {
       'ログイン画面が閉じられました。もう一度お試しください。':'로그인 창이 닫혔습니다. 다시 시도해 주세요.',
       'ネットワークエラーが発生しました。接続を確認してください。':'네트워크 오류가 발생했습니다. 연결을 확인해 주세요.',
       '試行回数が多すぎます。しばらく待ってから再度お試しください。':'시도 횟수가 너무 많습니다. 잠시 후 다시 시도해 주세요.',
-      '登録できました。':'등록되었습니다.','ログイン成功。':'로그인 성공.','やまだたろう':'yamada taro'
+      '登録できました。':'등록되었습니다.','ログイン成功。':'로그인 성공.','やまだたろう':'홍길동 / Hong Gildong'
     };
     D['zh-CN'] = {
       '営業時間確認コール':'营业时间确认','ログアウト':'退出登录','ログアウトしました':'已退出登录',
@@ -352,7 +352,7 @@ if (isset($_GET['logout'])) {
       'ルートの取得に失敗しました':'获取路线失败',
       'この電話番号は既に登録されています':'该电话号码已注册',
       '必須項目を入力してください。':'请填写必填项。',
-      '予約者名はひらがなで入力してください。':'请用平假名输入预约人姓名。',
+      '予約者名はひらがなまたはアルファベットで入力してください。':'请用中文或字母输入预约人姓名。',
       '店舗の座標がありません':'店铺坐标不可用',
       '録音データの読み込みに失敗しました':'加载录音失败',
       '録音データが取得できませんでした（短い通話では録音されない場合があります）':'无法获取录音（短时通话可能不会录音）',
@@ -372,7 +372,7 @@ if (isset($_GET['logout'])) {
       '電話番号を自動補完しました:':'电话号码已自动补全:',
       'よく確認する店舗を登録するとワンタップで発信できます':'注册常用店铺可一键拨打',
       '日付':'日期','時間':'时间','人数':'人数',
-      '予約者名（ひらがな）':'预约人姓名（平假名）','連絡先電話番号':'联系电话',
+      '予約者名（ひらがな / アルファベット）':'预约人姓名（中文 / 字母）','連絡先電話番号':'联系电话',
       '指定時間が空いていない場合、前後の近い時間で予約を試みる':'指定时间无空位时尝试前后相近的时间',
       '予約時間前':'预约时间前','予約時間後':'预约时间后',
       '30分':'30分钟','1時間':'1小时','1時間30分':'1.5小时',
@@ -394,7 +394,7 @@ if (isset($_GET['logout'])) {
       '一覧に戻る':'返回列表','読み込みに失敗しました':'加载失败','解決済み':'已解决',
       '店舗へのルート':'到店路线','データがありません':'没有数据',
       '詳細データがありません':'没有详细数据','読み込みエラー':'加载错误',
-      '詳細を読み込み中...':'加载详情中...','ひらがなで入力してください':'请用平假名输入',
+      '詳細を読み込み中...':'加载详情中...','ひらがなまたはアルファベットで入力してください':'请用中文或字母输入',
       '{0}分前':'{0}分钟前','{0}時間前':'{0}小时前','{0}日前':'{0}天前',
       '{0}分{1}秒':'{0}分{1}秒','{0}件の結果':'{0}个结果',
       '{0} へのルート':'到{0}的路线','{0} - 予約':'{0} - 预约',
@@ -418,7 +418,7 @@ if (isset($_GET['logout'])) {
       'ログイン画面が閉じられました。もう一度お試しください。':'登录窗口已关闭，请重试。',
       'ネットワークエラーが発生しました。接続を確認してください。':'网络错误，请检查连接。',
       '試行回数が多すぎます。しばらく待ってから再度お試しください。':'尝试次数过多，请稍后重试。',
-      '登録できました。':'注册成功。','ログイン成功。':'登录成功。','やまだたろう':'yamada taro'
+      '登録できました。':'注册成功。','ログイン成功。':'登录成功。','やまだたろう':'张三 / Zhang San'
     };
     D['zh-TW'] = {
       '営業時間確認コール':'營業時間確認','ログアウト':'登出','ログアウトしました':'已登出',
@@ -439,7 +439,7 @@ if (isset($_GET['logout'])) {
       '通話完了':'通話完成','営業時間:':'營業時間:','Twilioに発信依頼中…':'正在撥打電話…',
       '通話履歴がありません':'沒有通話記錄','予約履歴がありません':'沒有預約記錄',
       '日付':'日期','時間':'時間','人数':'人數',
-      '予約者名（ひらがな）':'預約人姓名（平假名）','連絡先電話番号':'聯絡電話',
+      '予約者名（ひらがな / アルファベット）':'預約人姓名（中文 / 字母）','連絡先電話番号':'聯絡電話',
       '予約電話を発信しました。AIが店舗と会話中です…':'預約電話已撥出，AI正在與店鋪通話…',
       '予約が確定しました！':'預約已確認！','予約できませんでした':'預約失敗',
       '理由:':'原因:','代替案:':'替代方案:',
@@ -454,7 +454,7 @@ if (isset($_GET['logout'])) {
       'パスワード（6文字以上）':'密碼（6位以上）','パスワード':'密碼',
       '登録する':'註冊','ログイン':'登入','ログイン中':'已登入',
       'AIが電話をかけて営業状況や営業時間を確認したり、予約をとったりします。':'AI撥打電話確認營業狀況、營業時間並進行預約。',
-      '登録できました。':'註冊成功。','ログイン成功。':'登入成功。','やまだたろう':'yamada taro'
+      '登録できました。':'註冊成功。','ログイン成功。':'登入成功。','やまだたろう':'張三 / Zhang San'
     };
     D.es = {
       '営業時間確認コール':'Consulta de Horarios','ログアウト':'Cerrar sesión','ログアウトしました':'Sesión cerrada',
@@ -475,7 +475,7 @@ if (isset($_GET['logout'])) {
       '通話完了':'Llamada completada','営業時間:':'Horario:','Twilioに発信依頼中…':'Realizando llamada…',
       '通話履歴がありません':'Sin historial de llamadas','予約履歴がありません':'Sin historial de reservas',
       '日付':'Fecha','時間':'Hora','人数':'Personas',
-      '予約者名（ひらがな）':'Nombre (hiragana)','連絡先電話番号':'Teléfono de contacto',
+      '予約者名（ひらがな / アルファベット）':'Nombre','連絡先電話番号':'Teléfono de contacto',
       '予約が確定しました！':'¡Reserva confirmada!','予約できませんでした':'Reserva fallida',
       '理由:':'Motivo:','代替案:':'Alternativa:',
       'たった今':'Ahora','予約一覧':'Reservas','通話履歴':'Historial',
@@ -489,7 +489,7 @@ if (isset($_GET['logout'])) {
       'パスワード（6文字以上）':'Contraseña (6+ caracteres)','パスワード':'Contraseña',
       '登録する':'Registrarse','ログイン':'Iniciar sesión',
       'AIが電話をかけて営業状況や営業時間を確認したり、予約をとったりします。':'La IA llama para verificar horarios y hacer reservas.',
-      '登録できました。':'Registrado.','ログイン成功。':'Sesión iniciada.','やまだたろう':'yamada taro'
+      '登録できました。':'Registrado.','ログイン成功。':'Sesión iniciada.','やまだたろう':'Yamada Taro'
     };
     D.fr = {
       '営業時間確認コール':'Vérification des horaires','ログアウト':'Déconnexion','ログアウトしました':'Déconnecté',
@@ -520,7 +520,7 @@ if (isset($_GET['logout'])) {
       'パスワード（6文字以上）':'Mot de passe (6+ caractères)','パスワード':'Mot de passe',
       '登録する':'S\'inscrire','ログイン':'Se connecter',
       'AIが電話をかけて営業状況や営業時間を確認したり、予約をとったりします。':'L\'IA appelle pour vérifier les horaires et effectuer des réservations.',
-      '登録できました。':'Inscrit.','ログイン成功。':'Connecté.','やまだたろう':'yamada taro'
+      '登録できました。':'Inscrit.','ログイン成功。':'Connecté.','やまだたろう':'Yamada Taro'
     };
     D.de = {
       '営業時間確認コール':'Öffnungszeiten-Check','ログアウト':'Abmelden','ログアウトしました':'Abgemeldet',
@@ -551,7 +551,7 @@ if (isset($_GET['logout'])) {
       'パスワード（6文字以上）':'Passwort (6+ Zeichen)','パスワード':'Passwort',
       '登録する':'Registrieren','ログイン':'Anmelden',
       'AIが電話をかけて営業状況や営業時間を確認したり、予約をとったりします。':'KI ruft an, um Öffnungszeiten zu prüfen und Reservierungen vorzunehmen.',
-      '登録できました。':'Registriert.','ログイン成功。':'Angemeldet.','やまだたろう':'yamada taro'
+      '登録できました。':'Registriert.','ログイン成功。':'Angemeldet.','やまだたろう':'Yamada Taro'
     };
     D.pt = {
       '営業時間確認コール':'Verificar Horários','ログアウト':'Sair','ログアウトしました':'Desconectado',
@@ -574,7 +574,7 @@ if (isset($_GET['logout'])) {
       'ソーシャルでログイン':'Login social','Googleでログイン':'Entrar com Google',
       'Appleでログイン':'Entrar com Apple','メールアドレス':'E-mail',
       'パスワード':'Senha','登録する':'Registrar','ログイン':'Entrar',
-      '登録できました。':'Registrado.','ログイン成功。':'Login efetuado.','やまだたろう':'yamada taro'
+      '登録できました。':'Registrado.','ログイン成功。':'Login efetuado.','やまだたろう':'Yamada Taro'
     };
     D.th = {
       '営業時間確認コール':'ตรวจสอบเวลาเปิดทำการ','ログアウト':'ออกจากระบบ','ログアウトしました':'ออกจากระบบแล้ว',
@@ -596,7 +596,7 @@ if (isset($_GET['logout'])) {
       '{0}件の結果':'{0} ผลลัพธ์','{0}名':'{0} คน',
       'Googleでログイン':'เข้าด้วย Google','Appleでログイン':'เข้าด้วย Apple',
       'メールアドレス':'อีเมล','パスワード':'รหัสผ่าน','登録する':'ลงทะเบียน','ログイン':'เข้าสู่ระบบ',
-      '登録できました。':'ลงทะเบียนสำเร็จ','ログイン成功。':'เข้าสู่ระบบสำเร็จ','やまだたろう':'yamada taro'
+      '登録できました。':'ลงทะเบียนสำเร็จ','ログイン成功。':'เข้าสู่ระบบสำเร็จ','やまだたろう':'Yamada Taro'
     };
     D.vi = {
       '営業時間確認コール':'Kiểm tra giờ mở cửa','ログアウト':'Đăng xuất','ログアウトしました':'Đã đăng xuất',
@@ -618,7 +618,7 @@ if (isset($_GET['logout'])) {
       '{0}件の結果':'{0} kết quả','{0}名':'{0} người',
       'Googleでログイン':'Đăng nhập Google','Appleでログイン':'Đăng nhập Apple',
       'メールアドレス':'Email','パスワード':'Mật khẩu','登録する':'Đăng ký','ログイン':'Đăng nhập',
-      '登録できました。':'Đã đăng ký.','ログイン成功。':'Đăng nhập thành công.','やまだたろう':'yamada taro'
+      '登録できました。':'Đã đăng ký.','ログイン成功。':'Đăng nhập thành công.','やまだたろう':'Yamada Taro'
     };
     D.id = {
       '営業時間確認コール':'Cek Jam Buka','ログアウト':'Keluar','ログアウトしました':'Sudah keluar',
@@ -640,7 +640,7 @@ if (isset($_GET['logout'])) {
       '{0}件の結果':'{0} hasil','{0}名':'{0} orang',
       'Googleでログイン':'Masuk dengan Google','Appleでログイン':'Masuk dengan Apple',
       'メールアドレス':'Email','パスワード':'Kata sandi','登録する':'Daftar','ログイン':'Masuk',
-      '登録できました。':'Terdaftar.','ログイン成功。':'Login berhasil.','やまだたろう':'yamada taro'
+      '登録できました。':'Terdaftar.','ログイン成功。':'Login berhasil.','やまだたろう':'Yamada Taro'
     };
     window._i18n = D;
 
@@ -1180,8 +1180,8 @@ if (isset($_GET['logout'])) {
             <input type="number" id="rsvPartySize" class="rsv-input" min="1" max="99" value="2" required>
           </div>
           <div>
-            <label class="rsv-label">予約者名（ひらがな） *</label>
-            <input type="text" id="rsvName" class="rsv-input" placeholder="やまだたろう" required pattern="[\u3040-\u309F\u30FC\s　]+" title="ひらがなで入力してください">
+            <label class="rsv-label">予約者名（ひらがな / アルファベット） *</label>
+            <input type="text" id="rsvName" class="rsv-input" placeholder="やまだたろう / Yamada Taro" required pattern="[\u3040-\u309F\u30FC\uAC00-\uD7AF\u4E00-\u9FFFa-zA-Z\s　]+" title="ひらがなまたはアルファベットで入力してください">
           </div>
           <div>
             <label class="rsv-label">連絡先電話番号 *</label>
@@ -1303,7 +1303,7 @@ if (isset($_GET['logout'])) {
     if (text.startsWith('日付')) el.textContent = t('日付') + ' *';
     else if (text.startsWith('時間')) el.textContent = t('時間') + ' *';
     else if (text.startsWith('人数')) el.textContent = t('人数') + ' *';
-    else if (text.includes('予約者名')) el.textContent = t('予約者名（ひらがな）') + ' *';
+    else if (text.includes('予約者名')) el.textContent = t('予約者名（ひらがな / アルファベット）') + ' *';
     else if (text.includes('連絡先')) el.textContent = t('連絡先電話番号') + ' *';
   });
   // Flexible checkbox label
@@ -1325,7 +1325,7 @@ if (isset($_GET['logout'])) {
   if (rsb) tText(rsb, '予約電話をかける');
   // hiragana title attribute
   var rsvNameEl = document.getElementById('rsvName');
-  if (rsvNameEl) rsvNameEl.title = t('ひらがなで入力してください');
+  if (rsvNameEl) rsvNameEl.title = t('ひらがなまたはアルファベットで入力してください');
 })();
 
 // DOM要素の取得
@@ -3742,8 +3742,14 @@ reservationForm.addEventListener('submit', async (e) => {
     alert(t('必須項目を入力してください。'));
     return;
   }
-  if (!/^[\u3040-\u309F\u30FC\s\u3000]+$/.test(rsvNameInput.value.trim())) {
-    alert(t('予約者名はひらがなで入力してください。'));
+  const _lang = window._lang || 'ja';
+  let _namePattern;
+  if (_lang === 'ja') _namePattern = /^[\u3040-\u309F\u30FCa-zA-Z\s\u3000]+$/;
+  else if (_lang === 'ko') _namePattern = /^[\uAC00-\uD7AFa-zA-Z\s\u3000]+$/;
+  else if (_lang.startsWith('zh')) _namePattern = /^[\u4E00-\u9FFFa-zA-Z\s\u3000]+$/;
+  else _namePattern = /^[a-zA-Z\s\u3000]+$/;
+  if (!_namePattern.test(rsvNameInput.value.trim())) {
+    alert(t('予約者名はひらがなまたはアルファベットで入力してください。'));
     rsvNameInput.focus();
     return;
   }

@@ -299,6 +299,10 @@ ${flexStep}
    - 相手が言った時刻を正確に聞き取って、必ずそのまま復唱しろ。
    - 19分と9分、20分と29分のような似た数字を絶対に聞き間違えるな。
    ※名前だけ。電話番号はまだ言うな。
+   ★名前の読み上げルール:
+   - 名前にアルファベットが含まれる場合: まず日本語読みで伝え、次に「アルファベットで○○○」とスペルも伝える。
+     例: "Tanaka" → 「名前はタナカ、アルファベットでT-A-N-A-K-Aです」
+   - ひらがなのみの場合: 従来通り「名前は○○です」
 7. 相手が名前を復唱・確認するのを待つ
 8. 相手の確認後、「電話番号は、${phoneticPhone}、です」と1回だけ読め。★★★1回読んだら即座に黙れ。繰り返すな★★★
 9. 電話番号を言い終わったら黙って相手の反応を待て
@@ -384,6 +388,10 @@ ${flexStep}
 5. 예약 OK인 경우:
    - 시간 변경 없음 → 바로 "이름은 ${rsvName}입니다"라고만 전달해라.
    - 시간이 변경된 경우만 → 변경된 시간을 "XX시요, 부탁드립니다"라고 확인하고, 상대방의 답을 기다린 후 "이름은 ${rsvName}입니다"라고 전달해라.
+   ★이름 읽기 규칙:
+   - 이름에 알파벳이 포함된 경우: 한국어 발음으로 전달한 후, "알파벳으로 ○○○"라고 스펠링도 전달해라.
+     예: "Tanaka" → "이름은 타나카, 알파벳으로 T-A-N-A-K-A입니다"
+   - 한글만인 경우: 기존대로 "이름은 ○○입니다"
 7. 상대방이 이름을 확인하는 것을 기다려라
 8. 상대방 확인 후, "전화번호는 ${phoneticPhone} 입니다"라고 1번만 읽어라. ★★★1번 읽으면 즉시 멈춰라. 반복하지 마라★★★
 9. 전화번호를 말한 후 조용히 상대방의 반응을 기다려라
@@ -608,6 +616,10 @@ ${flexStep}
 5. If reservation is OK:
    - Time unchanged → immediately say "The name is ${rsvName}" in ${langName}. Nothing else.
    - Time changed → confirm the new time first, wait for response, THEN give the name.
+   ★ Name reading rule:
+   - If the name contains Latin/alphabet characters: First say the name naturally, then spell it out letter by letter.
+     Example: "Tanaka" → "The name is Tanaka, spelled T-A-N-A-K-A"
+   - If the name is in non-Latin script only: just say "The name is ○○" as usual.
 7. Wait for them to confirm the name.
 8. After name confirmed, say "The phone number is ${rsvPhone}" - read it digit by digit clearly in ${langName}. ★★★ Read ONCE only. Do NOT repeat. ★★★
 9. After giving the phone number, wait silently for their response.
@@ -908,7 +920,7 @@ app.register(async function (fastify) {
             /* 予約モード: 名前・電話番号の発話を検出 */
             if (callMode === 'reservation') {
               const t = event.transcript;
-              if (rsvParams.rsv_name && t.includes(rsvParams.rsv_name)) {
+              if (rsvParams.rsv_name && (t.includes(rsvParams.rsv_name) || t.toLowerCase().includes(rsvParams.rsv_name.toLowerCase()))) {
                 nameDelivered = true;
                 console.log(`[STEP] Name delivered: ${rsvParams.rsv_name}`);
               }
