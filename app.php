@@ -112,21 +112,30 @@ if (isset($_GET['logout'])) {
   // Maps API読み込み前に位置情報取得を開始 + localStorageキャッシュで即座に表示
   (function(){
     var cached = null;
-    try { cached = JSON.parse(localStorage.getItem('_pos')); } catch(e) {}
+    try {
+      var stored = JSON.parse(localStorage.getItem('_pos'));
+      // キャッシュは1時間で期限切れ（海外移動時に古い位置が残らないように）
+      if (stored && stored.ts && (Date.now() - stored.ts < 3600000)) {
+        cached = { lat: stored.lat, lng: stored.lng };
+      } else {
+        localStorage.removeItem('_pos');
+      }
+    } catch(e) {}
     window.__earlyPos = cached;
     window.__earlyGeo = new Promise(function(resolve) {
       if (!navigator.geolocation) { resolve(cached); return; }
       var done = false;
-      var timer = setTimeout(function() { if (!done) { done = true; resolve(cached); } }, 1500);
+      // PCではIP位置取得に時間がかかるため5秒待つ。キャッシュがあれば先に表示される
+      var timer = setTimeout(function() { if (!done) { done = true; resolve(cached); } }, 5000);
       navigator.geolocation.getCurrentPosition(function(p) {
         if (done) return;
         done = true; clearTimeout(timer);
         var loc = { lat: p.coords.latitude, lng: p.coords.longitude };
-        try { localStorage.setItem('_pos', JSON.stringify(loc)); } catch(e) {}
+        try { localStorage.setItem('_pos', JSON.stringify({ lat: loc.lat, lng: loc.lng, ts: Date.now() })); } catch(e) {}
         resolve(loc);
       }, function() {
         if (!done) { done = true; clearTimeout(timer); resolve(cached); }
-      }, { enableHighAccuracy: false, timeout: 1500, maximumAge: 600000 });
+      }, { enableHighAccuracy: true, timeout: 5000, maximumAge: 0 });
     });
   })();
   </script>
@@ -2292,7 +2301,7 @@ function getUserLocation() {
           lat: position.coords.latitude,
           lng: position.coords.longitude
         };
-        try { localStorage.setItem('_pos', JSON.stringify(userLocation)); } catch(e) {}
+        try { localStorage.setItem('_pos', JSON.stringify({ lat: userLocation.lat, lng: userLocation.lng, ts: Date.now() })); } catch(e) {}
         console.log(`[GPS] 取得成功: ${userLocation.lat}, ${userLocation.lng} (精度: ${Math.round(position.coords.accuracy)}m)`);
         resolve(userLocation);
       },
@@ -2305,12 +2314,12 @@ function getUserLocation() {
               lat: position.coords.latitude,
               lng: position.coords.longitude
             };
-            try { localStorage.setItem('_pos', JSON.stringify(userLocation)); } catch(e) {}
+            try { localStorage.setItem('_pos', JSON.stringify({ lat: userLocation.lat, lng: userLocation.lng, ts: Date.now() })); } catch(e) {}
             console.log(`[GPS] 低精度で取得: ${userLocation.lat}, ${userLocation.lng} (精度: ${Math.round(position.coords.accuracy)}m)`);
             resolve(userLocation);
           },
           (err) => reject(err),
-          { enableHighAccuracy: false, timeout: 5000, maximumAge: 600000 }
+          { enableHighAccuracy: false, timeout: 5000, maximumAge: 0 }
         );
       },
       {
