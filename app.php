@@ -2927,7 +2927,9 @@ function setListenBtnState(btn, active) {
 function startListening(callSid, btn) {
   if (listenWs) stopListening();
   activeListenBtn = btn || listenToggle;
-  const wsUrl = 'wss://ws.denwa2.com/listen?sid=' + encodeURIComponent(callSid);
+  const wsHost = location.hostname === 'denwa2.com' ? 'ws.denwa2.com' : 'ws.callcheck.mom';
+  const wsUrl = 'wss://' + wsHost + '/listen?sid=' + encodeURIComponent(callSid);
+  console.log('[Listen] wsHost=' + wsHost + ', callSid=' + callSid);
   listenAudioCtx = new (window.AudioContext || window.webkitAudioContext)({ sampleRate: 8000 });
   listenNextTime = 0;
 
@@ -2939,6 +2941,7 @@ function startListening(callSid, btn) {
   aiGain.gain.value = 1.0;
   aiGain.connect(listenAudioCtx.destination);
 
+  console.log('[Listen] Creating WebSocket:', wsUrl);
   listenWs = new WebSocket(wsUrl);
   listenWs.onopen = () => {
     setListenBtnState(activeListenBtn, true);
@@ -2966,31 +2969,36 @@ function startListening(callSid, btn) {
       listenNextTime += buf.duration;
     } catch(e) { console.error('[Listen] decode error:', e); }
   };
-  listenWs.onclose = () => {
+  listenWs.onclose = (ev) => {
+    console.log('[Listen] WS closed:', ev.code, ev.reason);
     setListenBtnState(activeListenBtn, false);
     listenWs = null;
   };
-  listenWs.onerror = () => {};
+  listenWs.onerror = (e) => { console.error('[Listen] WS error:', e); };
 }
 
-function stopListening() {
+function stopListening(hideBtn) {
   if (listenWs) { try { listenWs.close(); } catch(e){} listenWs = null; }
   if (listenAudioCtx) { try { listenAudioCtx.close(); } catch(e){} listenAudioCtx = null; }
   listenNextTime = 0;
   setListenBtnState(listenToggle, false);
   setListenBtnState(rsvListenToggle, false);
-  listenToggle.style.display = 'none';
-  rsvListenToggle.style.display = 'none';
+  if (hideBtn !== false) {
+    listenToggle.style.display = 'none';
+    rsvListenToggle.style.display = 'none';
+  }
   activeListenBtn = null;
 }
 
 listenToggle.addEventListener('click', () => {
-  if (listenWs) { stopListening(); listenToggle.style.display = 'inline-flex'; }
+  console.log('[Listen] check btn clicked, currentSid=', currentSid, 'listenWs=', !!listenWs);
+  if (listenWs) { stopListening(false); }
   else if (currentSid) startListening(currentSid, listenToggle);
 });
 
 rsvListenToggle.addEventListener('click', () => {
-  if (listenWs) { stopListening(); rsvListenToggle.style.display = 'inline-flex'; }
+  console.log('[Listen] rsv btn clicked, rsvSid=', rsvSid, 'listenWs=', !!listenWs);
+  if (listenWs) { stopListening(false); }
   else if (rsvSid) startListening(rsvSid, rsvListenToggle);
 });
 
@@ -3042,6 +3050,7 @@ btn.addEventListener('click', async ()=>{
     currentSid = j.sid;
     statusEl.innerHTML = '<i class="fa-solid fa-phone-volume"></i> ' + t('発信しました（CallSid: {0}）。相手の応答を待っています…', currentSid);
     listenToggle.style.display = 'inline-flex';
+    startListening(currentSid, listenToggle);
     actionsEl.style.display = 'flex';
     viewLink.href = j.view_url;
     twimlLink.href = j.twiml_url;
@@ -3914,6 +3923,7 @@ reservationForm.addEventListener('submit', async (e) => {
     rsvSid = j.sid;
     rsvStatus.innerHTML = '<i class="fa-solid fa-phone-volume"></i> ' + t('予約電話を発信しました。AIが店舗と会話中です…');
     rsvListenToggle.style.display = 'inline-flex';
+    startListening(rsvSid, rsvListenToggle);
 
     // ポーリング開始
     if (rsvPollTimer) clearInterval(rsvPollTimer);
