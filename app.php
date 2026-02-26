@@ -1228,6 +1228,9 @@ if (isset($_GET['logout'])) {
           </button>
         </form>
         <div id="rsvStatus" class="status" style="display:none;margin-top:12px;"></div>
+        <button id="rsvListenToggle" class="listen-toggle" style="display:none;margin-top:8px;">
+          <i class="fa-solid fa-headphones"></i> <span>傍聴する</span>
+        </button>
         <div id="rsvResultCard" class="rsv-result-card" style="display:none;"></div>
         <div id="rsvRecordingPlayer" class="recording-player" style="margin-top:12px;">
           <div class="recording-player-header"><i class="fa-solid fa-circle-play"></i> 通話録音</div>
@@ -2890,9 +2893,11 @@ function hideCallProgress() {
 
 /* === リアルタイム傍聴 === */
 const listenToggle = document.getElementById('listenToggle');
+const rsvListenToggle = document.getElementById('rsvListenToggle');
 let listenWs = null;
 let listenAudioCtx = null;
 let listenNextTime = 0;
+let activeListenBtn = null; // どちらのボタンから起動されたか
 
 /* G.711 μ-law デコードテーブル */
 const MULAW_TABLE = new Int16Array(256);
@@ -2908,8 +2913,20 @@ const MULAW_TABLE = new Int16Array(256);
   }
 })();
 
-function startListening(callSid) {
+function setListenBtnState(btn, active) {
+  if (!btn) return;
+  if (active) {
+    btn.classList.add('active');
+    btn.querySelector('span').textContent = '傍聴中';
+  } else {
+    btn.classList.remove('active');
+    btn.querySelector('span').textContent = '傍聴する';
+  }
+}
+
+function startListening(callSid, btn) {
   if (listenWs) stopListening();
+  activeListenBtn = btn || listenToggle;
   const wsUrl = 'wss://ws.denwa2.com/listen?sid=' + encodeURIComponent(callSid);
   listenAudioCtx = new (window.AudioContext || window.webkitAudioContext)({ sampleRate: 8000 });
   listenNextTime = 0;
@@ -2924,8 +2941,7 @@ function startListening(callSid) {
 
   listenWs = new WebSocket(wsUrl);
   listenWs.onopen = () => {
-    listenToggle.classList.add('active');
-    listenToggle.querySelector('span').textContent = '傍聴中';
+    setListenBtnState(activeListenBtn, true);
     console.log('[Listen] Connected');
   };
   listenWs.onmessage = (ev) => {
@@ -2951,8 +2967,7 @@ function startListening(callSid) {
     } catch(e) { console.error('[Listen] decode error:', e); }
   };
   listenWs.onclose = () => {
-    listenToggle.classList.remove('active');
-    listenToggle.querySelector('span').textContent = '傍聴する';
+    setListenBtnState(activeListenBtn, false);
     listenWs = null;
   };
   listenWs.onerror = () => {};
@@ -2962,14 +2977,21 @@ function stopListening() {
   if (listenWs) { try { listenWs.close(); } catch(e){} listenWs = null; }
   if (listenAudioCtx) { try { listenAudioCtx.close(); } catch(e){} listenAudioCtx = null; }
   listenNextTime = 0;
-  listenToggle.classList.remove('active');
-  listenToggle.querySelector('span').textContent = '傍聴する';
+  setListenBtnState(listenToggle, false);
+  setListenBtnState(rsvListenToggle, false);
   listenToggle.style.display = 'none';
+  rsvListenToggle.style.display = 'none';
+  activeListenBtn = null;
 }
 
 listenToggle.addEventListener('click', () => {
   if (listenWs) { stopListening(); listenToggle.style.display = 'inline-flex'; }
-  else if (currentSid) startListening(currentSid);
+  else if (currentSid) startListening(currentSid, listenToggle);
+});
+
+rsvListenToggle.addEventListener('click', () => {
+  if (listenWs) { stopListening(); rsvListenToggle.style.display = 'inline-flex'; }
+  else if (rsvSid) startListening(rsvSid, rsvListenToggle);
 });
 
 // 録音プレーヤーをリセットする関数
@@ -3890,6 +3912,7 @@ reservationForm.addEventListener('submit', async (e) => {
     incrementUsageCount();
     rsvSid = j.sid;
     rsvStatus.innerHTML = '<i class="fa-solid fa-phone-volume"></i> ' + t('予約電話を発信しました。AIが店舗と会話中です…');
+    rsvListenToggle.style.display = 'inline-flex';
 
     // ポーリング開始
     if (rsvPollTimer) clearInterval(rsvPollTimer);
@@ -3932,6 +3955,8 @@ async function pollReservation() {
     }
 
     if (j.completed) {
+      stopListening();
+      rsvListenToggle.style.display = 'none';
       clearInterval(rsvPollTimer);
       rsvPollTimer = null;
 
