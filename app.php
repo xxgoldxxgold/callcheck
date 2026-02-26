@@ -3041,6 +3041,7 @@ btn.addEventListener('click', async ()=>{
     
     currentSid = j.sid;
     statusEl.innerHTML = '<i class="fa-solid fa-phone-volume"></i> ' + t('発信しました（CallSid: {0}）。相手の応答を待っています…', currentSid);
+    listenToggle.style.display = 'inline-flex';
     actionsEl.style.display = 'flex';
     viewLink.href = j.view_url;
     twimlLink.href = j.twiml_url;
