@@ -1871,6 +1871,12 @@ function updateBgMapMarkers(stores, append = false) {
   if (!bgMap._pinClickRegistered) {
     bgMap._pinClickRegistered = true;
     bgMap.addListener('click', (e) => {
+      // Google Maps POI（店舗アイコン）クリック → アプリ内で詳細表示
+      if (e.placeId) {
+        e.stop();
+        openPoiDetail(e.placeId, e.latLng);
+        return;
+      }
       const clickLat = e.latLng.lat();
       const clickLng = e.latLng.lng();
       let best = null, bestDist = Infinity;
@@ -1952,6 +1958,43 @@ if (placeDetailDrag) {
 }
 
 let detailRequestId = 0;
+
+// Google Maps POIクリック → place_detailで情報取得してアプリ内表示
+function openPoiDetail(placeId, latLng) {
+  const reqId = ++detailRequestId;
+  placeDetailTitle.textContent = t('読み込み中…');
+  placeDetailBody.innerHTML = '<div style="color:var(--muted);font-size:13px;padding:16px 0;"><i class="fa-solid fa-spinner fa-spin"></i> ' + t('詳細を読み込み中...') + '</div>';
+  showPlaceDetail();
+  if (latLng) bgMap.panTo(latLng);
+
+  fetch('place_detail?place_id=' + encodeURIComponent(placeId))
+    .then(r => r.json())
+    .then(data => {
+      if (reqId !== detailRequestId) return;
+      if (data.success && data.detail) {
+        const d = data.detail;
+        const store = {
+          name: d.name || '',
+          phone_number: d.phone || '',
+          address: d.address || '',
+          place_id: placeId,
+          lat: d.lat || (latLng ? latLng.lat() : 0),
+          lng: d.lng || (latLng ? latLng.lng() : 0)
+        };
+        currentPinStore = store;
+        placeDetailTitle.textContent = store.name;
+        placeDetailBody.innerHTML = buildDetailContent(d, store);
+      } else {
+        placeDetailTitle.textContent = t('詳細');
+        placeDetailBody.innerHTML = '<div style="color:var(--muted);padding:16px;">' + t('情報を取得できませんでした') + '</div>';
+      }
+    })
+    .catch(() => {
+      if (reqId !== detailRequestId) return;
+      placeDetailTitle.textContent = t('エラー');
+      placeDetailBody.innerHTML = '<div style="color:var(--muted);padding:16px;">' + t('情報を取得できませんでした') + '</div>';
+    });
+}
 
 function openStoreInfoWindow(marker, store) {
   currentPinStore = store;
