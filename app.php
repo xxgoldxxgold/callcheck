@@ -1173,8 +1173,11 @@ if (isset($_GET['logout'])) {
       </div>
       <div class="place-detail-body" id="reservationBody">
         <div class="pd-name" id="rsvStoreName"></div>
-        <div class="pd-meta" id="rsvStorePhone" style="margin-bottom:8px;"></div>
         <form id="reservationForm" style="display:flex;flex-direction:column;gap:12px;">
+          <div>
+            <label class="rsv-label">発信先電話番号 *</label>
+            <input type="tel" id="rsvStorePhone" class="rsv-input" required>
+          </div>
           <div>
             <label class="rsv-label">日付 *</label>
             <input type="date" id="rsvDate" class="rsv-input" required>
@@ -3903,7 +3906,7 @@ if (homeSheet && homeSheetDrag) {
 function showReservationPanel(phone, name, store) {
   currentRsvStore = { phone, name, store };
   rsvStoreName.textContent = name;
-  rsvStorePhone.textContent = phone;
+  rsvStorePhone.value = phone;
   reservationTitle.textContent = t('{0} - 予約', name);
 
   // フォームリセット
@@ -3915,6 +3918,7 @@ function showReservationPanel(phone, name, store) {
   rsvRecordingPlayer.classList.remove('show');
   reservationForm.style.display = 'flex';
   rsvRecordingShown = false;
+  rsvLangSelect.value = 'auto';
   rsvFlexible.checked = true;
   rsvFlexRange.style.display = 'flex';
   if (rsvPollTimer) { clearInterval(rsvPollTimer); rsvPollTimer = null; }
@@ -3970,11 +3974,11 @@ reservationForm.addEventListener('submit', async (e) => {
   e.preventDefault();
   if (!currentRsvStore) return;
 
-  const phone = currentRsvStore.phone;
+  const phone = rsvStorePhone.value.trim();
   const name = currentRsvStore.name;
 
   // バリデーション
-  if (!rsvDate.value || !rsvTime.value || !rsvPartySize.value || !rsvNameInput.value.trim() || !rsvPhoneInput.value.trim()) {
+  if (!phone || !rsvDate.value || !rsvTime.value || !rsvPartySize.value || !rsvNameInput.value.trim() || !rsvPhoneInput.value.trim()) {
     alert(t('必須項目を入力してください。'));
     return;
   }
