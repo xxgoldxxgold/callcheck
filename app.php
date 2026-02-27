@@ -2,6 +2,14 @@
 session_start();
 header('Cache-Control: no-cache, no-store, must-revalidate');
 header('Pragma: no-cache');
+// バージョンが変わったらリダイレクトでブラウザキャッシュを破棄
+$_APP_V = '20260227a';
+if (!isset($_GET['logout']) && ($_GET['v'] ?? '') !== $_APP_V) {
+    $qs = $_GET;
+    $qs['v'] = $_APP_V;
+    header('Location: ' . strtok($_SERVER['REQUEST_URI'], '?') . '?' . http_build_query($qs));
+    exit;
+}
 
 /**
  * ログアウト処理
