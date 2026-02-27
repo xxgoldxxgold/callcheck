@@ -2104,11 +2104,7 @@ function buildDetailContent(d, store) {
     webHtml = `<div class="pd-info-row"><i class="fa-solid fa-globe"></i><a href="${s(d.website)}" target="_blank">${s(domain)}</a></div>`;
   }
 
-  // Google マップリンク
   let gmapHtml = '';
-  if (d.google_url) {
-    gmapHtml = `<div class="pd-info-row"><i class="fa-solid fa-map"></i><a href="${s(d.google_url)}" target="_blank">${t('Google マップで見る')}</a></div>`;
-  }
 
   // レビュー
   let reviewsHtml = '';
