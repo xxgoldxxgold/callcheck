@@ -111,7 +111,7 @@ if (isset($_GET['logout'])) {
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
-  <title>営業時間確認コール</title>
+  <title>denwa2.com</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="preconnect" href="https://maps.googleapis.com">
@@ -1325,7 +1325,7 @@ if (isset($_GET['logout'])) {
 // === i18n: 静的HTML翻訳 ===
 (function(){
   if (window._lang === 'ja') return;
-  document.title = t('営業時間確認コール');
+  document.title = 'denwa2.com';
   // placeholders
   var ph = {'name':'店名か電話番号を入力して検索','favName':'店名','favPhone':'電話番号','historySearch':'検索…','supportInput':'メッセージを入力…','rsvName':'やまだたろう','rsvPhone':0};
   for (var id in ph) { var el = document.getElementById(id); if (el && ph[id]) el.placeholder = t(ph[id]); }
