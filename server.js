@@ -290,7 +290,10 @@ function buildReservationInstructions(params) {
 2. 相手が「はい、どうぞ」「何名様ですか」等と応じたら、「${rsvDate}の${readableTime}から${rsvPartySize}名で予約をお願いしたいんですけど、空いてますか？」と聞く。
    ★日付の読み方: 日付をそのまま自然に読め。ひらがな部分はそのまま読めばよい。
    【重要】この質問をした後、絶対にreport_reservation_resultを呼ぶな。相手の返事を待て。
-3. ★相手の返答を最後まで聞く★ 自分が質問した直後に結果を判断するな。相手が「空いてます」「空いてません」等と答えるのを必ず待て。相手が確認中なら黙って待つ（30秒以上でも待つ）
+3. ★相手の返答を最後まで聞く★ 自分が質問した直後に結果を判断するな。
+   ★「はい」「空いてます」「大丈夫です」等、肯定の返事 → その時刻で予約OK。ステップ5へ進め。
+   ★相手が「空いてません」「無理です」等と明確に断った場合のみ → ステップ4へ。
+   ★相手が確認中なら黙って待つ（30秒以上でも待つ）
 ${flexStep}
 5. 予約OKの場合:
    - ★時刻変更なし（こちらが希望した時刻のまま）→ 時刻復唱をスキップし、すぐに「名前は${rsvName}です」とだけ伝える。「では」等の接続詞を付けるな。いきなり「名前は」から始めろ。
@@ -300,8 +303,9 @@ ${flexStep}
    - 19分と9分、20分と29分のような似た数字を絶対に聞き間違えるな。
    ※名前だけ。電話番号はまだ言うな。
 7. 相手が名前を復唱・確認するのを待つ
-8. 相手の確認後、「電話番号は、${phoneticPhone}、です」と1回だけ読め。★★★1回読んだら即座に黙れ。繰り返すな★★★
-9. 電話番号を言い終わったら黙って相手の反応を待て
+8. 相手の確認後、「電話番号は、${phoneticPhone}、です」と読め。
+9. 電話番号を言い終わったら黙って相手の反応を待て。
+   ★相手が「もう一回」「もう一度」「聞き取れない」等と言ったら、電話番号をもう一度読め。さよならを言うな。
 10. 相手が復唱・確認したら「よろしくお願いします」と言え。★電話番号と同じ発話で言うな。別の発話で言え★
 11. 相手が「承りました」「大丈夫です」「お待ちしてます」など最終確認の言葉を言ったら、予約完了。ここで初めてreport_reservation_resultをconfirmedで呼べ
 12. report_reservation_result呼び出し後、「ありがとうございました。失礼します」で終了
@@ -603,15 +607,18 @@ Conversation flow (★ At each step, say only ONE thing and wait for their respo
 2. When they respond, say: "I'd like a reservation for ${rsvPartySize} people on ${rsvDate} at ${rsvTime}. Is that available?" in ${langName}.
    [IMPORTANT] After asking this, do NOT call report_reservation_result. Wait for their answer.
 3. ★ Listen to their full response ★ Do NOT judge the result immediately after your question.
+   ★ If they say "yes", "yep", "sure", "OK", or anything affirmative → the original time IS available. Go directly to step 5.
    ★ If they suggest a different time, understand AM/PM from context. For evening reservations, an ambiguous time like "10" means 10 PM, not 10 AM.
+   ★ ONLY if they explicitly say the time is NOT available (e.g. "no", "sorry, that time is taken", "we're full at that time") → go to step 4.
 ${flexStep}
 5. If reservation is OK:
    - Time unchanged → immediately say "The name is ${rsvName}" in ${langName}. Nothing else.
    - Time changed → confirm the new time first, wait for response, THEN give the name.
 7. Wait for them to confirm the name.
-8. After name confirmed, say "The phone number is ${rsvPhone}" - read it digit by digit clearly in ${langName}. ★★★ Read ONCE only. Do NOT repeat. ★★★
+8. After name confirmed, say "The phone number is ${rsvPhone}" - read it digit by digit clearly in ${langName}.
 9. After giving the phone number, wait silently for their response.
-10. When they confirm, say "Thank you" in ${langName}. ★ Do NOT say this in the same utterance as the phone number ★
+   ★ If they ask you to repeat (e.g. "say it again", "one more time", "repeat", "sorry?"), repeat the phone number clearly. Do NOT say goodbye or end the call.
+10. When they confirm (e.g. "OK", "got it", "thank you"), say "Thank you" in ${langName}. ★ Do NOT say this in the same utterance as the phone number ★
 11. After they give final confirmation, THEN and ONLY then call report_reservation_result with status "confirmed".
 12. After calling report_reservation_result, say a polite goodbye in ${langName}.
 
@@ -656,12 +663,19 @@ async function sendResultToHeteml(callSid, result, conversationLog, targetUrl) {
 /* === リアルタイム傍聴: リスナーマップ === */
 const listenerMap = new Map(); // callSid → Set<WebSocket>
 
+let broadcastCount = 0;
 function broadcastToListeners(sid, channel, base64Payload) {
   const set = listenerMap.get(sid);
   if (!set || set.size === 0) return;
   const msg = JSON.stringify({ ch: channel, audio: base64Payload });
   for (const ws of set) {
-    if (ws.readyState === 1) ws.send(msg);
+    if (ws.readyState === 1) {
+      ws.send(msg);
+      broadcastCount++;
+      if (broadcastCount === 1 || broadcastCount % 500 === 0) {
+        console.log(`[Listen] Broadcast #${broadcastCount} ch=${channel} to ${set.size} listeners (${base64Payload.length} bytes)`);
+      }
+    }
     else set.delete(ws);
   }
 }
@@ -766,7 +780,7 @@ app.register(async function (fastify) {
         /* VAD設定: エコーゲート改善済みのため1500msに短縮 */
         const vadConfig = isReservation ? {
           type: 'server_vad',
-          threshold: 0.6,
+          threshold: 0.4,
           prefix_padding_ms: 300,
           silence_duration_ms: 1500,
         } : {
@@ -938,7 +952,7 @@ app.register(async function (fastify) {
             /* 予約モード: 名前・電話番号の発話を検出 */
             if (callMode === 'reservation') {
               const t = event.transcript;
-              if (rsvParams.rsv_name && t.includes(rsvParams.rsv_name)) {
+              if (rsvParams.rsv_name && t.toLowerCase().includes(rsvParams.rsv_name.toLowerCase())) {
                 nameDelivered = true;
                 console.log(`[STEP] Name delivered: ${rsvParams.rsv_name}`);
               }
@@ -1064,7 +1078,9 @@ app.register(async function (fastify) {
             openaiWs.send(JSON.stringify({ type: 'input_audio_buffer.clear' }));
             openaiWs.send(JSON.stringify({
               type: 'session.update',
-              session: { turn_detection: { type: 'server_vad', threshold: 0.6, prefix_padding_ms: 300, silence_duration_ms: 1500 } }
+              session: { turn_detection: callMode === 'reservation'
+                ? { type: 'server_vad', threshold: 0.4, prefix_padding_ms: 300, silence_duration_ms: 1500 }
+                : { type: 'server_vad', threshold: 0.5, prefix_padding_ms: 250, silence_duration_ms: 800 } }
             }));
             /* 挨拶後のプロアクティブ: エコーゲート終了+3秒でspeechがなければ自動で会話を促す */
             {
@@ -1267,7 +1283,7 @@ app.register(async function (fastify) {
           let farewellInstr;
           if (callLang === 'ja') farewellInstr = '早口で次のセリフだけ言え:「ありがとうございました。しつれいいたします」。一字一句このまま。それ以外何も言うな。';
           else if (callLang === 'ko') farewellInstr = '빠르게 다음 대사만 말해라: "감사합니다. 수고하세요". 한 글자도 빠짐없이 그대로. 그 외에는 아무것도 말하지 마라.';
-          else farewellInstr = `Speak ONLY in ${getLangName(callLang)}. Say a quick, polite goodbye (like "Thank you, goodbye.") in ${getLangName(callLang)}. Nothing else.`;
+          else farewellInstr = `Speak ONLY in ${getLangName(callLang)}. Say only "Goodbye." in ${getLangName(callLang)}. Do NOT say "thank you" — you already said it. Just say goodbye. Nothing else.`;
           openaiWs.send(JSON.stringify({
             type: 'response.create',
             response: {

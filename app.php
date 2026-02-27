@@ -2873,7 +2873,7 @@ function showCallProgress(label) {
   stopListening();
   listenToggle.style.display = 'none';
   const hdr = callProgressCard.querySelector('.call-progress-header');
-  hdr.innerHTML = `<i class="fa-solid fa-phone-volume"></i> ${escapeHtml(label || t('営業確認中'))}<button id="callProgressClose" class="call-progress-close"><i class="fa-solid fa-times"></i></button>`;
+  hdr.innerHTML = `<i class="fa-solid fa-phone-volume fa-beat-fade"></i> ${escapeHtml(label || t('営業確認中'))} - ${t('発信中')}<button id="callProgressClose" class="call-progress-close"><i class="fa-solid fa-times"></i></button>`;
   hdr.querySelector('.call-progress-close').addEventListener('click', hideCallProgress);
   callProgressCard.style.display = 'block';
   const rc = document.getElementById('resultCard');
@@ -2924,13 +2924,18 @@ function setListenBtnState(btn, active) {
   }
 }
 
-function startListening(callSid, btn) {
-  if (listenWs) stopListening();
+function startListening(callSid, btn, existingCtx) {
+  if (listenWs) stopListening(false);
   activeListenBtn = btn || listenToggle;
   const wsHost = location.hostname === 'denwa2.com' ? 'ws.denwa2.com' : 'ws.callcheck.mom';
   const wsUrl = 'wss://' + wsHost + '/listen?sid=' + encodeURIComponent(callSid);
   console.log('[Listen] wsHost=' + wsHost + ', callSid=' + callSid);
-  listenAudioCtx = new (window.AudioContext || window.webkitAudioContext)({ sampleRate: 8000 });
+  if (existingCtx) {
+    listenAudioCtx = existingCtx;
+    if (listenAudioCtx.state === 'suspended') listenAudioCtx.resume();
+  } else {
+    listenAudioCtx = new (window.AudioContext || window.webkitAudioContext)({ sampleRate: 8000 });
+  }
   listenNextTime = 0;
 
   /* チャンネルごとのゲイン */
@@ -2941,13 +2946,16 @@ function startListening(callSid, btn) {
   aiGain.gain.value = 1.0;
   aiGain.connect(listenAudioCtx.destination);
 
-  console.log('[Listen] Creating WebSocket:', wsUrl);
+  console.log('[Listen] Creating WebSocket:', wsUrl, 'audioCtx.state=' + listenAudioCtx.state);
   listenWs = new WebSocket(wsUrl);
   listenWs.onopen = () => {
     setListenBtnState(activeListenBtn, true);
-    console.log('[Listen] Connected');
+    console.log('[Listen] Connected, audioCtx.state=' + listenAudioCtx.state);
   };
+  let listenMsgCount = 0;
   listenWs.onmessage = (ev) => {
+    listenMsgCount++;
+    if (listenMsgCount <= 3) console.log('[Listen] msg#' + listenMsgCount + ' len=' + ev.data.length + ' ctxState=' + listenAudioCtx.state);
     try {
       const d = JSON.parse(ev.data);
       if (d.ch === 'end') { stopListening(); return; }
@@ -2975,6 +2983,13 @@ function startListening(callSid, btn) {
     listenWs = null;
   };
   listenWs.onerror = (e) => { console.error('[Listen] WS error:', e); };
+  /* 2秒後にWS状態をチェック */
+  const _checkWs = listenWs;
+  setTimeout(() => {
+    if (_checkWs) {
+      console.log('[Listen] WS state after 2s: readyState=' + _checkWs.readyState + ' (0=CONNECTING,1=OPEN,2=CLOSING,3=CLOSED)');
+    }
+  }, 2000);
 }
 
 function stopListening(hideBtn) {
@@ -3024,6 +3039,8 @@ btn.addEventListener('click', async ()=>{
   const to = toEl.value.trim();
   const name = nameEl.value.trim();
   if(!to){ return; }
+  /* AudioContextをawait前に作成（ユーザージェスチャー内で作らないとsuspendedになる） */
+  const preAudioCtx = new (window.AudioContext || window.webkitAudioContext)({ sampleRate: 8000 });
   toActive(false);
   btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> ' + t('通信中…');
   btn.style.background = '#e53e3e';
@@ -3048,9 +3065,11 @@ btn.addEventListener('click', async ()=>{
     incrementUsageCount();
     
     currentSid = j.sid;
-    statusEl.innerHTML = '<i class="fa-solid fa-phone-volume"></i> ' + t('発信しました（CallSid: {0}）。相手の応答を待っています…', currentSid);
+    statusEl.innerHTML = '<i class="fa-solid fa-phone-volume fa-beat-fade"></i> ' + t('発信中…相手の応答を待っています');
     listenToggle.style.display = 'inline-flex';
-    startListening(currentSid, listenToggle);
+    console.log('[Listen] CHECK: calling startListening sid=' + currentSid + ' ctxState=' + preAudioCtx.state);
+    startListening(currentSid, listenToggle, preAudioCtx);
+    console.log('[Listen] CHECK: startListening returned, listenWs=' + !!listenWs);
     actionsEl.style.display = 'flex';
     viewLink.href = j.view_url;
     twimlLink.href = j.twiml_url;
@@ -3062,6 +3081,7 @@ btn.addEventListener('click', async ()=>{
     statusEl.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i> ' + t('エラー:') + ' ' + escapeHtml(e.message);
     toActive(true);
     resetCallBtn();
+    try { preAudioCtx.close(); } catch(ignored){}
   }
 });
 
@@ -3069,7 +3089,14 @@ async function poll(){
   if(!currentSid) return;
   try{
     const res = await fetch('call?json=1&sid='+encodeURIComponent(currentSid));
-    if(res.status===204){ return; } // まだ
+    if(res.status===204){
+      /* データ未着 = まだ呼び出し中 */
+      const hdr = callProgressCard.querySelector('.call-progress-header');
+      const callLabel = nameEl.value || toEl.value || '';
+      statusEl.innerHTML = '<i class="fa-solid fa-phone-volume fa-beat-fade"></i> ' + t('呼び出し中…');
+      if (hdr) hdr.innerHTML = `<i class="fa-solid fa-phone-volume fa-beat-fade"></i> ${escapeHtml(callLabel)} - ${t('呼び出し中')}<button class="call-progress-close" onclick="hideCallProgress()"><i class="fa-solid fa-times"></i></button>`;
+      return;
+    }
     if(!res.ok){ throw new Error('結果取得に失敗'); }
     const j = await res.json();
 
@@ -3084,6 +3111,11 @@ async function poll(){
         statusEl.innerHTML = '<i class="fa-solid fa-phone" style="color:#1e8e3e"></i> ' + t('通話中…');
         if (hdr) hdr.innerHTML = `<i class="fa-solid fa-phone" style="color:#1e8e3e"></i> ${escapeHtml(callLabel)} - ${t('通話中')}<button class="call-progress-close" onclick="hideCallProgress()"><i class="fa-solid fa-times"></i></button>`;
         if (listenToggle.style.display === 'none' && !listenWs) listenToggle.style.display = 'inline-flex';
+        /* 傍聴リトライ */
+        if (!listenWs && currentSid) {
+          console.log('[Listen] CHECK poll retry: listenWs is null, retrying startListening');
+          startListening(currentSid, listenToggle);
+        }
       }
     }
 
@@ -3890,6 +3922,8 @@ reservationForm.addEventListener('submit', async (e) => {
     return;
   }
 
+  /* AudioContextをawait前に作成（ユーザージェスチャー内） */
+  const preRsvAudioCtx = new (window.AudioContext || window.webkitAudioContext)({ sampleRate: 8000 });
   rsvSubmitBtn.disabled = true;
   rsvSubmitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> ' + t('発信中…');
   rsvSubmitBtn.style.background = '#e53e3e';
@@ -3921,9 +3955,11 @@ reservationForm.addEventListener('submit', async (e) => {
 
     incrementUsageCount();
     rsvSid = j.sid;
-    rsvStatus.innerHTML = '<i class="fa-solid fa-phone-volume"></i> ' + t('予約電話を発信しました。AIが店舗と会話中です…');
+    rsvStatus.innerHTML = '<i class="fa-solid fa-phone-volume fa-beat-fade"></i> ' + t('発信中…相手の応答を待っています');
     rsvListenToggle.style.display = 'inline-flex';
-    startListening(rsvSid, rsvListenToggle);
+    console.log('[Listen] RSV: calling startListening sid=' + rsvSid + ' ctxState=' + preRsvAudioCtx.state);
+    startListening(rsvSid, rsvListenToggle, preRsvAudioCtx);
+    console.log('[Listen] RSV: startListening returned, listenWs=' + !!listenWs);
 
     // ポーリング開始
     if (rsvPollTimer) clearInterval(rsvPollTimer);
@@ -3935,6 +3971,7 @@ reservationForm.addEventListener('submit', async (e) => {
     rsvSubmitBtn.disabled = false;
     rsvSubmitBtn.innerHTML = '<i class="fa-solid fa-phone-volume"></i> ' + t('予約電話をかける');
     rsvSubmitBtn.style.background = '#e67e22';
+    try { preRsvAudioCtx.close(); } catch(ignored){}
   }
 });
 
@@ -3943,12 +3980,24 @@ async function pollReservation() {
   rsvPollCount++;
   try {
     const res = await fetch('call?json=1&sid=' + encodeURIComponent(rsvSid));
-    if (res.status === 204) return;
+    if (res.status === 204) {
+      rsvStatus.innerHTML = '<i class="fa-solid fa-phone-volume fa-beat-fade"></i> ' + t('発信中…相手の応答を待っています');
+      return;
+    }
     if (!res.ok) throw new Error('結果取得に失敗');
     const j = await res.json();
 
-    // ステータス表示
-    if (j.message) {
+    // 通話状態表示
+    if (j.status === 'initiated' || j.status === 'queued' || j.status === 'ringing') {
+      rsvStatus.innerHTML = '<i class="fa-solid fa-phone-volume fa-beat-fade"></i> ' + t('発信中…相手の応答を待っています');
+    } else if (j.status === 'answered' || j.status === 'in-progress') {
+      rsvStatus.innerHTML = '<i class="fa-solid fa-comments"></i> ' + t('通話中…AIが店舗と会話しています');
+      /* 傍聴リトライ: WSが切れていたら再接続 */
+      if (!listenWs && rsvSid) {
+        console.log('[Listen] RSV poll retry: listenWs is null, retrying startListening');
+        startListening(rsvSid, rsvListenToggle);
+      }
+    } else if (j.message) {
       rsvStatus.innerHTML = '<i class="fa-regular fa-message"></i> ' + escapeHtml(j.message);
     }
 
