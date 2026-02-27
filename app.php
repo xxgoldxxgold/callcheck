@@ -1546,6 +1546,7 @@ let bgMapStoreMarkers = []; // 検索結果マーカー
 const bgMapEl = document.getElementById('bgMap');
 bgMapEl.style.visibility = 'hidden'; // 位置確定までマップ非表示
 
+var detailRequestId = 0;
 function initBgMap(center) {
   if (bgMap) return;
 
@@ -1556,9 +1557,54 @@ function initBgMap(center) {
     disableDefaultUI: true,
     zoomControl: false,
     gestureHandling: 'greedy',
-    clickableIcons: false
+    clickableIcons: true
   });
   bgMapEl.style.visibility = '';
+
+  // POIクリック: Googleマップの情報ウィンドウを抑制しアプリ内で詳細表示
+  bgMap.addListener('click', (e) => {
+    if (e.placeId) {
+      e.stop();
+      const reqId = ++detailRequestId;
+      placeDetailTitle.textContent = t('読み込み中…');
+      placeDetailBody.innerHTML = '<div style="color:var(--muted);font-size:13px;padding:16px 0;"><i class="fa-solid fa-spinner fa-spin"></i> ' + t('詳細を読み込み中...') + '</div>';
+      showPlaceDetail();
+      if (e.latLng) bgMap.panTo(e.latLng);
+      fetch('place_detail?place_id=' + encodeURIComponent(e.placeId))
+        .then(r => r.json())
+        .then(data => {
+          if (reqId !== detailRequestId) return;
+          if (data.success && data.detail) {
+            const d = data.detail;
+            const store = { name: d.name || '', phone_number: d.phone || '', address: d.address || '', place_id: e.placeId, lat: d.lat || 0, lng: d.lng || 0 };
+            currentPinStore = store;
+            placeDetailTitle.textContent = store.name;
+            placeDetailBody.innerHTML = buildDetailContent(d, store);
+          } else {
+            placeDetailTitle.textContent = t('詳細');
+            placeDetailBody.innerHTML = '<div style="color:var(--muted);padding:16px;">' + t('情報を取得できませんでした') + '</div>';
+          }
+        })
+        .catch(() => {
+          if (reqId !== detailRequestId) return;
+          placeDetailTitle.textContent = t('エラー');
+          placeDetailBody.innerHTML = '<div style="color:var(--muted);padding:16px;">' + t('情報を取得できませんでした') + '</div>';
+        });
+      return;
+    }
+    // 自前マーカーの近くをクリックした場合
+    let best = null, bestDist = Infinity;
+    bgMapStoreMarkers.forEach(m => {
+      const p = m.getPosition();
+      const d = google.maps.geometry.spherical.computeDistanceBetween(e.latLng, p);
+      if (d < bestDist) { bestDist = d; best = m; }
+    });
+    const zoom = bgMap.getZoom();
+    const threshold = 40000 / Math.pow(2, zoom);
+    if (best && bestDist < Math.max(threshold, 50)) {
+      openStoreInfoWindow(best, best.storeData);
+    }
+  });
 
   // カスタムズーム＋現在地ボタン（スロットルで連打による画面崩れ防止）
   let zoomThrottle = 0;
@@ -1867,24 +1913,7 @@ function updateBgMapMarkers(stores, append = false) {
   });
   console.log('[MARKERS] total: ' + bgMapStoreMarkers.length);
 
-  // ★ マーカークリック: 個別listenerではなくマップクリックで最寄りマーカーを特定
-  if (!bgMap._pinClickRegistered) {
-    bgMap._pinClickRegistered = true;
-    bgMap.addListener('click', (e) => {
-      // 自前マーカーの近くをクリックした場合
-      let best = null, bestDist = Infinity;
-      bgMapStoreMarkers.forEach(m => {
-        const p = m.getPosition();
-        const d = google.maps.geometry.spherical.computeDistanceBetween(e.latLng, p);
-        if (d < bestDist) { bestDist = d; best = m; }
-      });
-      const zoom = bgMap.getZoom();
-      const threshold = 40000 / Math.pow(2, zoom);
-      if (best && bestDist < Math.max(threshold, 50)) {
-        openStoreInfoWindow(best, best.storeData);
-      }
-    });
-  }
+  // マーカークリックはinitBgMap内のclickリスナーで処理
   // 既存マーカー（append時）もboundsに含める
   if (append) {
     bgMapStoreMarkers.forEach(m => bounds.extend(m.getPosition()));
@@ -1947,8 +1976,6 @@ if (placeDetailDrag) {
     }
   });
 }
-
-let detailRequestId = 0;
 
 function openStoreInfoWindow(marker, store) {
   currentPinStore = store;
