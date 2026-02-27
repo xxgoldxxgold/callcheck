@@ -396,15 +396,7 @@ if (isset($_GET['rt_cb'])) {
     }
     
     error_log("Realtime callback: SID=$callSid, status=$openStatus, summary=" . ($result['summary'] ?? ''));
-
-    // === Post-call analysis (fire-and-forget) ===
-    if (!empty($conversationLog) && count($conversationLog) >= 2) {
-        $aUrl = base_url() . '/analyze.php?run=1&sid=' . urlencode($callSid);
-        $aC = curl_init($aUrl);
-        curl_setopt_array($aC, [CURLOPT_RETURNTRANSFER=>true, CURLOPT_TIMEOUT_MS=>800, CURLOPT_CONNECTTIMEOUT_MS=>500]);
-        @curl_exec($aC); curl_close($aC);
-    }
-
+    
     json_res(['ok' => true, 'saved' => $callSid]);
 }
 
@@ -1023,8 +1015,10 @@ function handle_dial() {
         $to = '+81' . substr($to, 1);
     }
 
-    // 国番号から言語を自動判定
-    $lang = detect_lang_from_phone($to);
+    // 言語判定: rsv_lang指定があれば優先、なければ電話番号から自動判定
+    $lang = (!empty($_POST['rsv_lang']) && ($_POST['mode'] ?? '') === 'reservation')
+        ? preg_replace('/[^a-z]/', '', $_POST['rsv_lang'])
+        : detect_lang_from_phone($to);
 
     $sid = env_first(['TWILIO_ACCOUNT_SID', 'ACCOUNT_SID']);
     $token = env_first(['TWILIO_AUTH_TOKEN', 'AUTH_TOKEN']);

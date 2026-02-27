@@ -1195,6 +1195,67 @@ if (isset($_GET['logout'])) {
             <label class="rsv-label">連絡先電話番号 *</label>
             <input type="tel" id="rsvPhone" class="rsv-input" placeholder="090-1234-5678" required>
           </div>
+          <div>
+            <label class="rsv-label">通話言語</label>
+            <select id="rsvLang" class="rsv-input" style="padding:8px;">
+              <option value="auto">自動（電話番号から判定）</option>
+              <option value="ja">日本語</option>
+              <option value="en">English</option>
+              <option value="ko">한국어</option>
+              <option value="zh">中文（普通话）</option>
+              <option value="yue">廣東話</option>
+              <option value="es">Español</option>
+              <option value="fr">Français</option>
+              <option value="de">Deutsch</option>
+              <option value="it">Italiano</option>
+              <option value="pt">Português</option>
+              <option value="nl">Nederlands</option>
+              <option value="ru">Русский</option>
+              <option value="ar">العربية</option>
+              <option value="hi">हिन्दी</option>
+              <option value="th">ไทย</option>
+              <option value="vi">Tiếng Việt</option>
+              <option value="id">Bahasa Indonesia</option>
+              <option value="ms">Bahasa Melayu</option>
+              <option value="tr">Türkçe</option>
+              <option value="pl">Polski</option>
+              <option value="uk">Українська</option>
+              <option value="cs">Čeština</option>
+              <option value="sv">Svenska</option>
+              <option value="da">Dansk</option>
+              <option value="no">Norsk</option>
+              <option value="fi">Suomi</option>
+              <option value="el">Ελληνικά</option>
+              <option value="ro">Română</option>
+              <option value="hu">Magyar</option>
+              <option value="he">עברית</option>
+              <option value="tl">Filipino</option>
+              <option value="bn">বাংলা</option>
+              <option value="ur">اردو</option>
+              <option value="fa">فارسی</option>
+              <option value="sw">Kiswahili</option>
+              <option value="mn">Монгол</option>
+              <option value="km">ភាសាខ្មែរ</option>
+              <option value="lo">ລາວ</option>
+              <option value="ne">नेपाली</option>
+              <option value="ka">ქართული</option>
+              <option value="hy">Հայերեն</option>
+              <option value="az">Azərbaycan</option>
+              <option value="uz">Oʻzbek</option>
+              <option value="bg">Български</option>
+              <option value="hr">Hrvatski</option>
+              <option value="sr">Српски</option>
+              <option value="sl">Slovenščina</option>
+              <option value="sk">Slovenčina</option>
+              <option value="lt">Lietuvių</option>
+              <option value="lv">Latviešu</option>
+              <option value="et">Eesti</option>
+              <option value="sq">Shqip</option>
+              <option value="is">Íslenska</option>
+              <option value="my">မြန်မာ</option>
+              <option value="si">සිංහල</option>
+            </select>
+          </div>
           <div style="display:flex;align-items:center;gap:8px;padding:4px 0;">
             <input type="checkbox" id="rsvFlexible" checked style="width:18px;height:18px;flex-shrink:0;accent-color:var(--primary);cursor:pointer;">
             <label for="rsvFlexible" style="font-size:13px;color:var(--text);cursor:pointer;line-height:1.4;">指定時間が空いていない場合、前後の近い時間で予約を試みる</label>
@@ -3768,6 +3829,7 @@ const rsvTime = document.getElementById('rsvTime');
 const rsvPartySize = document.getElementById('rsvPartySize');
 const rsvNameInput = document.getElementById('rsvName');
 const rsvPhoneInput = document.getElementById('rsvPhone');
+const rsvLangSelect = document.getElementById('rsvLang');
 const rsvFlexible = document.getElementById('rsvFlexible');
 const rsvFlexRange = document.getElementById('rsvFlexRange');
 const rsvFlexBefore = document.getElementById('rsvFlexBefore');
@@ -3942,6 +4004,7 @@ reservationForm.addEventListener('submit', async (e) => {
     fd.append('rsv_party_size', rsvPartySize.value);
     fd.append('rsv_name', rsvNameInput.value.trim());
     fd.append('rsv_phone', rsvPhoneInput.value.trim());
+    if (rsvLangSelect.value !== 'auto') fd.append('rsv_lang', rsvLangSelect.value);
     fd.append('rsv_flexible', rsvFlexible.checked ? '1' : '0');
     if (rsvFlexible.checked) {
       fd.append('rsv_flex_before', rsvFlexBefore.value);
