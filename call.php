@@ -396,7 +396,15 @@ if (isset($_GET['rt_cb'])) {
     }
     
     error_log("Realtime callback: SID=$callSid, status=$openStatus, summary=" . ($result['summary'] ?? ''));
-    
+
+    // === Post-call analysis (fire-and-forget) ===
+    if (!empty($conversationLog) && count($conversationLog) >= 2) {
+        $aUrl = base_url() . '/analyze.php?run=1&sid=' . urlencode($callSid);
+        $aC = curl_init($aUrl);
+        curl_setopt_array($aC, [CURLOPT_RETURNTRANSFER=>true, CURLOPT_TIMEOUT_MS=>800, CURLOPT_CONNECTTIMEOUT_MS=>500]);
+        @curl_exec($aC); curl_close($aC);
+    }
+
     json_res(['ok' => true, 'saved' => $callSid]);
 }
 
