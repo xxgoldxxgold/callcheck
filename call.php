@@ -873,6 +873,7 @@ if (isset($_GET['status'])) {
 if (isset($_GET['history'])) {
     $limit = min(100, max(1, intval($_GET['limit'] ?? 50)));
     $search = trim($_GET['search'] ?? '');
+    $uid = preg_replace('/[^a-zA-Z0-9]/', '', $_COOKIE['uid'] ?? '');
     
     $dir = logs_dir();
     $files = glob($dir . '/*.json');
@@ -892,7 +893,10 @@ if (isset($_GET['history'])) {
         if (!$j) continue;
         $d = json_decode($j, true);
         if (!$d) continue;
-        
+
+        // uidフィルタ: 自分の通話のみ表示
+        if ($uid !== '' && ($d['uid'] ?? '') !== $uid) continue;
+
         // 検索フィルタ
         if ($search !== '') {
             // 電話番号の正規化（検索文字列を+81形式にも変換してマッチ）
@@ -1093,7 +1097,8 @@ function handle_dial() {
 
     $callSid = $j['sid'];
     $name = $_POST['name'] ?? '';
-    store_merge($callSid, ['created_at' => date('c'), 'status' => 'initiated', 'to' => $to, 'name' => $name, 'realtime_mode' => true, 'call_mode' => $mode, 'reservation_params' => $rsvParams]);
+    $callUid = preg_replace('/[^a-zA-Z0-9]/', '', $_COOKIE['uid'] ?? '');
+    store_merge($callSid, ['created_at' => date('c'), 'status' => 'initiated', 'to' => $to, 'name' => $name, 'realtime_mode' => true, 'call_mode' => $mode, 'reservation_params' => $rsvParams, 'uid' => $callUid]);
     store_append($callSid, 'raw', '[dial] to=' . $to . ' name=' . $name);
     
     json_res([
