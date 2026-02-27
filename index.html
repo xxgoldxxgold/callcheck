@@ -3,22 +3,19 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>denwa2.com ログイン</title>
+  <title>denwa2.com - AI電話予約サービス</title>
 
   <!-- Font Awesome -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
 
   <style>
-    /* CSS変数定義 */
     :root {
-      /* スペーシングスケール */
       --space-2: 8px;
       --space-3: 12px;
       --space-4: 16px;
       --space-6: 24px;
       --space-8: 32px;
 
-      /* カラーパレット */
       --bg: #f5f7fb;
       --card: #fff;
       --muted: #697386;
@@ -27,19 +24,14 @@
       --primary: #007AFF;
       --primary-h: #0062D6;
 
-      /* デザイン要素 */
       --radius: 14px;
       --shadow: 0 10px 28px rgba(16, 24, 40, .06);
       --shadow-hover: 0 14px 36px rgba(16, 24, 40, .10);
       --ring: 0 0 0 3px rgba(0, 122, 255, .17);
     }
 
-    /* リセット */
-    * {
-      box-sizing: border-box;
-    }
+    * { box-sizing: border-box; }
 
-    /* 基本レイアウト */
     body {
       margin: 0;
       background: var(--bg);
@@ -49,55 +41,114 @@
       line-height: 1.6;
     }
 
+    /* ===== Hero Section ===== */
+    .hero {
+      background: linear-gradient(135deg, #007AFF 0%, #5856D6 100%);
+      color: #fff;
+      padding: 48px 20px 56px;
+      text-align: center;
+    }
+
+    .hero-inner {
+      max-width: 640px;
+      margin: 0 auto;
+    }
+
+    .hero-icon {
+      font-size: 48px;
+      margin-bottom: 12px;
+      opacity: 0.95;
+    }
+
+    .hero h1 {
+      margin: 0 0 8px;
+      font-size: 28px;
+      font-weight: 800;
+      letter-spacing: .3px;
+    }
+
+    .hero-tagline {
+      font-size: 15px;
+      opacity: 0.9;
+      margin: 0 0 24px;
+      line-height: 1.7;
+    }
+
+    .hero-desc {
+      font-size: 15px;
+      opacity: 0.85;
+      margin: 0;
+      line-height: 1.8;
+      text-align: left;
+    }
+
+    /* ===== Features ===== */
+    .features {
+      max-width: 820px;
+      margin: -28px auto 0;
+      padding: 0 16px;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      position: relative;
+      z-index: 1;
+    }
+
+    @media (max-width: 600px) {
+      .features {
+        grid-template-columns: 1fr;
+        margin-top: -20px;
+      }
+    }
+
+    .feature-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 24px 20px;
+      text-align: center;
+    }
+
+    .feature-card:hover {
+      box-shadow: var(--shadow-hover);
+    }
+
+    .feature-icon {
+      font-size: 28px;
+      color: var(--primary);
+      margin-bottom: 12px;
+    }
+
+    .feature-title {
+      font-size: 15px;
+      font-weight: 800;
+      margin: 0 0 8px;
+    }
+
+    .feature-text {
+      font-size: 13px;
+      color: var(--muted);
+      margin: 0;
+      line-height: 1.6;
+    }
+
+    /* ===== Main Content ===== */
     main {
       max-width: 820px;
       margin: var(--space-8) auto;
       padding: 0 var(--space-4);
     }
 
-    /* タイポグラフィ */
-    h1 {
-      margin: 0 0 var(--space-2);
-      font-size: 24px;
-      font-weight: 800;
-      letter-spacing: .2px;
-    }
-
-    .ruby-text {
-      margin: 0 0 var(--space-2);
-      font-size: 14px;
-      color: var(--muted);
-      text-align: center;
-    }
-
-    .ruby-text ruby {
-      font-size: 16px;
-      font-weight: 600;
-    }
-
-    .lead {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      color: var(--muted);
-      margin: 0 0 var(--space-6);
-      font-size: 15px;
-    }
-
-    /* スペーシングユーティリティ */
     .stack > * + * {
       margin-top: var(--space-6);
-    }
-
-    .tight > * + * {
-      margin-top: var(--space-3);
     }
 
     .loose > * + * {
       margin-top: var(--space-4);
     }
 
-    /* カード */
+    /* ===== Cards & Forms ===== */
     .card {
       background: var(--card);
       border: 1px solid var(--border);
@@ -120,7 +171,6 @@
       color: #0b1220;
     }
 
-    /* ソーシャルプロバイダー */
     .provider-row {
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -176,7 +226,6 @@
       background: #000;
     }
 
-    /* メールフォーム */
     .input-row {
       display: flex;
       align-items: center;
@@ -230,14 +279,13 @@
       font-size: 12px;
     }
 
-    /* フォームメッセージ */
     .msg {
       margin-top: var(--space-3);
       padding: 10px 12px;
       background: #fff;
       border: 1px solid var(--border);
       border-radius: 12px;
-      color: #b91c1c; /* 赤系で注意喚起 */
+      color: #b91c1c;
       display: none;
       gap: 8px;
       align-items: flex-start;
@@ -249,9 +297,26 @@
       display: flex;
     }
 
-    /* サインイン状態のブロック（デフォルトで非表示） */
     #signed-in {
       display: none;
+    }
+
+    /* ===== Login Section Header ===== */
+    .login-header {
+      text-align: center;
+      margin-bottom: 8px;
+    }
+
+    .login-header h2 {
+      font-size: 20px;
+      font-weight: 800;
+      margin: 0 0 4px;
+    }
+
+    .login-header p {
+      color: var(--muted);
+      font-size: 14px;
+      margin: 0;
     }
   </style>
 
@@ -275,6 +340,16 @@
     if (lang !== 'ja') document.documentElement.lang = lang;
     var D = {};
     D.en = {
+      'hero-tagline':'AI makes phone calls on your behalf',
+      'hero-desc':'A service where AI calls stores to check business hours and make reservations for you. Supports 50 languages and automatically speaks in the local language of the destination. Perfect for making reservations when traveling abroad and you don\'t speak the language. Of course, it also works in Japanese for when you simply can\'t make a call yourself.',
+      'feat-lang-title':'50 Languages',
+      'feat-lang-text':'Automatically detects the destination\'s language and makes the call in that language.',
+      'feat-reserve-title':'Easy Reservations',
+      'feat-reserve-text':'Make restaurant and store reservations with just a few taps.',
+      'feat-check-title':'Business Hours Check',
+      'feat-check-text':'Instantly find out if a store is open and its business hours.',
+      'login-section-title':'Get Started',
+      'login-section-sub':'Sign in to start using the service',
       'ソーシャルでログイン':'Social Login','Googleでログイン':'Sign in with Google',
       'Appleでログイン':'Sign in with Apple','新規登録（メール）':'Sign Up (Email)',
       'ログイン（メール）':'Log In (Email)','メールアドレス':'Email',
@@ -282,7 +357,6 @@
       '登録する':'Sign Up','ログイン':'Log In','ログイン中':'Signed In',
       'ログアウト':'Logout',
       'この画面は稀に表示されることがありますが、通常は自動でアプリ画面へ遷移します。':'This screen rarely appears; you will be automatically redirected.',
-      'AIが電話をかけて営業状況や営業時間を確認したり、予約をとったりします。':'AI calls stores to check business hours and make reservations.',
       'このメールアドレスは既に登録されています。':'This email is already registered.',
       'メールアドレスの形式が正しくありません。':'Invalid email format.',
       'パスワードは6文字以上にしてください。':'Password must be at least 6 characters.',
@@ -295,13 +369,18 @@
       '登録できました。':'Registered successfully.','ログイン成功。':'Login successful.'
     };
     D.ko = {
+      'hero-tagline':'AI가 대신 전화를 걸어드립니다',
+      'hero-desc':'AI가 매장에 전화를 걸어 영업 상황과 영업시간을 확인하고 예약까지 해주는 서비스입니다. 50개 언어를 지원하며, 통화 상대의 언어에 맞춰 자동으로 해당 국가의 언어로 예약합니다. 여행지에서 말이 통하지 않을 때 가게 예약이 가능합니다. 물론 한국어도 지원합니다.',
+      'feat-lang-title':'50개 언어','feat-lang-text':'통화 상대의 언어를 자동 감지하여 해당 언어로 전화합니다.',
+      'feat-reserve-title':'간편 예약','feat-reserve-text':'몇 번의 터치만으로 레스토랑과 매장을 예약할 수 있습니다.',
+      'feat-check-title':'영업 확인','feat-check-text':'매장의 영업 여부와 영업시간을 즉시 확인합니다.',
+      'login-section-title':'시작하기','login-section-sub':'로그인하여 서비스를 이용하세요',
       'ソーシャルでログイン':'소셜 로그인','Googleでログイン':'Google로 로그인',
       'Appleでログイン':'Apple로 로그인','新規登録（メール）':'회원가입 (이메일)',
       'ログイン（メール）':'로그인 (이메일)','メールアドレス':'이메일',
       'パスワード（6文字以上）':'비밀번호 (6자 이상)','パスワード':'비밀번호',
       '登録する':'가입하기','ログイン':'로그인','ログイン中':'로그인 중','ログアウト':'로그아웃',
       'この画面は稀に表示されることがありますが、通常は自動でアプリ画面へ遷移します。':'이 화면은 드물게 표시되며, 보통 자동으로 앱 화면으로 이동합니다.',
-      'AIが電話をかけて営業状況や営業時間を確認したり、予約をとったりします。':'AI가 전화를 걸어 영업 상황과 영업시간을 확인하고 예약을 합니다.',
       'このメールアドレスは既に登録されています。':'이 이메일은 이미 등록되어 있습니다.',
       'メールアドレスの形式が正しくありません。':'이메일 형식이 올바르지 않습니다.',
       'パスワードは6文字以上にしてください。':'비밀번호는 6자 이상이어야 합니다.',
@@ -314,13 +393,18 @@
       '登録できました。':'등록되었습니다.','ログイン成功。':'로그인 성공.'
     };
     D['zh-CN'] = {
+      'hero-tagline':'AI代您拨打电话',
+      'hero-desc':'AI代您致电商家，确认营业状况、营业时间，并帮您预约。支持50种语言，根据通话对象自动切换语言进行预约。出国旅行不懂当地语言时也能轻松预订餐厅。当然也支持中文。',
+      'feat-lang-title':'50种语言','feat-lang-text':'自动识别对方语言，用对应语言进行通话。',
+      'feat-reserve-title':'轻松预约','feat-reserve-text':'只需几步操作即可预订餐厅和商家。',
+      'feat-check-title':'营业确认','feat-check-text':'即时了解商家是否营业及营业时间。',
+      'login-section-title':'开始使用','login-section-sub':'登录即可开始使用服务',
       'ソーシャルでログイン':'社交账号登录','Googleでログイン':'Google登录',
       'Appleでログイン':'Apple登录','新規登録（メール）':'注册（邮箱）',
       'ログイン（メール）':'登录（邮箱）','メールアドレス':'邮箱地址',
       'パスワード（6文字以上）':'密码（6位以上）','パスワード':'密码',
       '登録する':'注册','ログイン':'登录','ログイン中':'已登录','ログアウト':'退出登录',
       'この画面は稀に表示されることがありますが、通常は自動でアプリ画面へ遷移します。':'此页面很少显示，通常会自动跳转到应用。',
-      'AIが電話をかけて営業状況や営業時間を確認したり、予約をとったりします。':'AI拨打电话确认营业状况、营业时间并进行预约。',
       'このメールアドレスは既に登録されています。':'该邮箱已注册。',
       'メールアドレスの形式が正しくありません。':'邮箱格式不正确。',
       'パスワードは6文字以上にしてください。':'密码至少需要6位。',
@@ -333,57 +417,101 @@
       '登録できました。':'注册成功。','ログイン成功。':'登录成功。'
     };
     D['zh-TW'] = {
+      'hero-tagline':'AI代您撥打電話',
+      'hero-desc':'AI代您致電商家，確認營業狀況、營業時間，並幫您預約。支援50種語言，根據通話對象自動切換語言進行預約。出國旅行不懂當地語言時也能輕鬆預訂餐廳。',
+      'feat-lang-title':'50種語言','feat-lang-text':'自動辨識對方語言，用對應語言進行通話。',
+      'feat-reserve-title':'輕鬆預約','feat-reserve-text':'只需幾步操作即可預訂餐廳和商家。',
+      'feat-check-title':'營業確認','feat-check-text':'即時了解商家是否營業及營業時間。',
+      'login-section-title':'開始使用','login-section-sub':'登入即可開始使用服務',
       'ソーシャルでログイン':'社群帳號登入','Googleでログイン':'Google登入',
       'Appleでログイン':'Apple登入','新規登録（メール）':'註冊（電子郵件）',
       'ログイン（メール）':'登入（電子郵件）','メールアドレス':'電子郵件',
       'パスワード（6文字以上）':'密碼（6位以上）','パスワード':'密碼',
       '登録する':'註冊','ログイン':'登入','ログイン中':'已登入','ログアウト':'登出',
-      'AIが電話をかけて営業状況や営業時間を確認したり、予約をとったりします。':'AI撥打電話確認營業狀況、營業時間並進行預約。',
       '登録できました。':'註冊成功。','ログイン成功。':'登入成功。'
     };
     D.es = {
+      'hero-tagline':'La IA llama por ti',
+      'hero-desc':'Un servicio donde la IA llama a los establecimientos para verificar horarios y hacer reservas por ti. Compatible con 50 idiomas, detecta automáticamente el idioma del destino. Perfecto para reservar cuando viajas y no hablas el idioma local.',
+      'feat-lang-title':'50 idiomas','feat-lang-text':'Detecta automáticamente el idioma y realiza la llamada en ese idioma.',
+      'feat-reserve-title':'Reservas fáciles','feat-reserve-text':'Reserva restaurantes y tiendas con solo unos toques.',
+      'feat-check-title':'Verificar horarios','feat-check-text':'Confirma al instante si un establecimiento está abierto.',
+      'login-section-title':'Comenzar','login-section-sub':'Inicia sesión para usar el servicio',
       'ソーシャルでログイン':'Inicio social','Googleでログイン':'Iniciar con Google',
       'Appleでログイン':'Iniciar con Apple','新規登録（メール）':'Registro (email)',
       'ログイン（メール）':'Iniciar sesión (email)','メールアドレス':'Correo electrónico',
       'パスワード（6文字以上）':'Contraseña (6+ caracteres)','パスワード':'Contraseña',
       '登録する':'Registrarse','ログイン':'Iniciar sesión','ログイン中':'Sesión iniciada','ログアウト':'Cerrar sesión',
-      'AIが電話をかけて営業状況や営業時間を確認したり、予約をとったりします。':'La IA llama para verificar horarios y hacer reservas.',
       '登録できました。':'Registrado.','ログイン成功。':'Sesión iniciada.'
     };
     D.fr = {
+      'hero-tagline':'L\'IA appelle pour vous',
+      'hero-desc':'Un service où l\'IA appelle les établissements pour vérifier les horaires et effectuer des réservations à votre place. Compatible avec 50 langues, détecte automatiquement la langue de la destination. Idéal pour réserver en voyage à l\'étranger.',
+      'feat-lang-title':'50 langues','feat-lang-text':'Détecte automatiquement la langue et passe l\'appel dans cette langue.',
+      'feat-reserve-title':'Réservation facile','feat-reserve-text':'Réservez restaurants et commerces en quelques clics.',
+      'feat-check-title':'Vérifier les horaires','feat-check-text':'Vérifiez instantanément si un établissement est ouvert.',
+      'login-section-title':'Commencer','login-section-sub':'Connectez-vous pour utiliser le service',
       'ソーシャルでログイン':'Connexion sociale','Googleでログイン':'Se connecter avec Google',
       'Appleでログイン':'Se connecter avec Apple','新規登録（メール）':'Inscription (email)',
       'ログイン（メール）':'Connexion (email)','メールアドレス':'Adresse e-mail',
       'パスワード（6文字以上）':'Mot de passe (6+ caractères)','パスワード':'Mot de passe',
       '登録する':'S\'inscrire','ログイン':'Se connecter','ログイン中':'Connecté','ログアウト':'Déconnexion',
-      'AIが電話をかけて営業状況や営業時間を確認したり、予約をとったりします。':'L\'IA appelle pour vérifier les horaires et effectuer des réservations.',
       '登録できました。':'Inscrit.','ログイン成功。':'Connecté.'
     };
     D.de = {
+      'hero-tagline':'KI telefoniert für Sie',
+      'hero-desc':'Ein Service, bei dem KI Geschäfte anruft, um Öffnungszeiten zu prüfen und Reservierungen vorzunehmen. Unterstützt 50 Sprachen und erkennt automatisch die Sprache des Gesprächspartners. Perfekt für Reservierungen auf Reisen im Ausland.',
+      'feat-lang-title':'50 Sprachen','feat-lang-text':'Erkennt automatisch die Sprache und telefoniert in dieser Sprache.',
+      'feat-reserve-title':'Einfach reservieren','feat-reserve-text':'Reservieren Sie Restaurants und Geschäfte mit wenigen Klicks.',
+      'feat-check-title':'Öffnungszeiten','feat-check-text':'Sofort erfahren, ob ein Geschäft geöffnet ist.',
+      'login-section-title':'Loslegen','login-section-sub':'Melden Sie sich an, um den Service zu nutzen',
       'ソーシャルでログイン':'Soziale Anmeldung','Googleでログイン':'Mit Google anmelden',
       'Appleでログイン':'Mit Apple anmelden','新規登録（メール）':'Registrierung (E-Mail)',
       'ログイン（メール）':'Anmelden (E-Mail)','メールアドレス':'E-Mail-Adresse',
       'パスワード（6文字以上）':'Passwort (6+ Zeichen)','パスワード':'Passwort',
       '登録する':'Registrieren','ログイン':'Anmelden','ログイン中':'Angemeldet','ログアウト':'Abmelden',
-      'AIが電話をかけて営業状況や営業時間を確認したり、予約をとったりします。':'KI ruft an, um Öffnungszeiten zu prüfen und Reservierungen vorzunehmen.',
       '登録できました。':'Registriert.','ログイン成功。':'Angemeldet.'
     };
     D.pt = {
+      'hero-tagline':'A IA liga por si',
+      'hero-desc':'Um serviço onde a IA liga para estabelecimentos, verifica horários e faz reservas por si. Suporta 50 idiomas e detecta automaticamente o idioma do destino.',
+      'feat-lang-title':'50 idiomas','feat-lang-text':'Detecta automaticamente o idioma e faz a chamada nesse idioma.',
+      'feat-reserve-title':'Reservas fáceis','feat-reserve-text':'Reserve restaurantes e lojas com poucos toques.',
+      'feat-check-title':'Verificar horários','feat-check-text':'Saiba instantaneamente se o estabelecimento está aberto.',
+      'login-section-title':'Começar','login-section-sub':'Entre para usar o serviço',
       'Googleでログイン':'Entrar com Google','Appleでログイン':'Entrar com Apple',
       'メールアドレス':'E-mail','パスワード':'Senha','登録する':'Registrar','ログイン':'Entrar',
       'ログアウト':'Sair','登録できました。':'Registrado.','ログイン成功。':'Login efetuado.'
     };
     D.th = {
+      'hero-tagline':'AI โทรแทนคุณ',
+      'hero-desc':'บริการที่ AI โทรไปยังร้านค้าเพื่อตรวจสอบเวลาทำการและจองให้คุณ รองรับ 50 ภาษา ตรวจจับภาษาปลายทางโดยอัตโนมัติ',
+      'feat-lang-title':'50 ภาษา','feat-lang-text':'ตรวจจับภาษาอัตโนมัติและโทรในภาษานั้น',
+      'feat-reserve-title':'จองง่าย','feat-reserve-text':'จองร้านอาหารด้วยการแตะไม่กี่ครั้ง',
+      'feat-check-title':'ตรวจสอบเวลา','feat-check-text':'ทราบทันทีว่าร้านเปิดหรือไม่',
+      'login-section-title':'เริ่มใช้งาน','login-section-sub':'เข้าสู่ระบบเพื่อเริ่มใช้บริการ',
       'Googleでログイン':'เข้าด้วย Google','Appleでログイン':'เข้าด้วย Apple',
       'メールアドレス':'อีเมล','パスワード':'รหัสผ่าน','登録する':'ลงทะเบียน','ログイン':'เข้าสู่ระบบ',
       'ログアウト':'ออกจากระบบ','登録できました。':'ลงทะเบียนสำเร็จ','ログイン成功。':'เข้าสู่ระบบสำเร็จ'
     };
     D.vi = {
+      'hero-tagline':'AI gọi điện thay bạn',
+      'hero-desc':'Dịch vụ AI gọi điện đến cửa hàng để kiểm tra giờ mở cửa và đặt chỗ cho bạn. Hỗ trợ 50 ngôn ngữ, tự động phát hiện ngôn ngữ điểm đến.',
+      'feat-lang-title':'50 ngôn ngữ','feat-lang-text':'Tự động phát hiện ngôn ngữ và gọi bằng ngôn ngữ đó.',
+      'feat-reserve-title':'Đặt chỗ dễ dàng','feat-reserve-text':'Đặt nhà hàng chỉ với vài thao tác.',
+      'feat-check-title':'Kiểm tra giờ mở','feat-check-text':'Biết ngay cửa hàng có đang mở không.',
+      'login-section-title':'Bắt đầu','login-section-sub':'Đăng nhập để sử dụng dịch vụ',
       'Googleでログイン':'Đăng nhập Google','Appleでログイン':'Đăng nhập Apple',
       'メールアドレス':'Email','パスワード':'Mật khẩu','登録する':'Đăng ký','ログイン':'Đăng nhập',
       'ログアウト':'Đăng xuất','登録できました。':'Đã đăng ký.','ログイン成功。':'Đăng nhập thành công.'
     };
     D.id = {
+      'hero-tagline':'AI menelepon untuk Anda',
+      'hero-desc':'Layanan di mana AI menelepon toko untuk memeriksa jam buka dan membuat reservasi untuk Anda. Mendukung 50 bahasa dan otomatis mendeteksi bahasa tujuan.',
+      'feat-lang-title':'50 bahasa','feat-lang-text':'Otomatis mendeteksi bahasa dan menelepon dalam bahasa tersebut.',
+      'feat-reserve-title':'Reservasi mudah','feat-reserve-text':'Pesan restoran hanya dengan beberapa ketukan.',
+      'feat-check-title':'Cek jam buka','feat-check-text':'Ketahui langsung apakah toko sedang buka.',
+      'login-section-title':'Mulai','login-section-sub':'Masuk untuk menggunakan layanan',
       'Googleでログイン':'Masuk dengan Google','Appleでログイン':'Masuk dengan Apple',
       'メールアドレス':'Email','パスワード':'Kata sandi','登録する':'Daftar','ログイン':'Masuk',
       'ログアウト':'Keluar','登録できました。':'Terdaftar.','ログイン成功。':'Login berhasil.'
@@ -399,10 +527,23 @@
     // Translate static HTML
     if (lang !== 'ja') {
       document.addEventListener('DOMContentLoaded', function() {
-        document.title = 'denwa2.com ' + t('ログイン');
+        document.title = 'denwa2.com - ' + t('hero-tagline');
+        function tEl(sel, key) { var el = document.querySelector(sel); if (el) el.textContent = t(key); }
         function tText(el, key) { var nodes = el.childNodes; for (var i = nodes.length - 1; i >= 0; i--) { if (nodes[i].nodeType === 3 && nodes[i].textContent.trim()) { nodes[i].textContent = ' ' + t(key); return; } } }
-        var lead = document.querySelector('.lead');
-        if (lead) tText(lead, 'AIが電話をかけて営業状況や営業時間を確認したり、予約をとったりします。');
+        tEl('.hero-tagline', 'hero-tagline');
+        tEl('.hero-desc', 'hero-desc');
+        // Features
+        var ftitles = document.querySelectorAll('.feature-title');
+        var ftexts = document.querySelectorAll('.feature-text');
+        var fkeys = ['feat-lang', 'feat-reserve', 'feat-check'];
+        for (var i = 0; i < fkeys.length && i < ftitles.length; i++) {
+          ftitles[i].textContent = t(fkeys[i] + '-title');
+          ftexts[i].textContent = t(fkeys[i] + '-text');
+        }
+        // Login section header
+        tEl('.login-header h2', 'login-section-title');
+        tEl('.login-header p', 'login-section-sub');
+        // Section titles
         document.querySelectorAll('.section-title').forEach(function(el) {
           var text = el.textContent.trim();
           if (text.includes('ソーシャル')) tText(el, 'ソーシャルでログイン');
@@ -596,11 +737,42 @@
   </script>
 </head>
 <body>
+
+  <!-- ===== Hero ===== -->
+  <div class="hero">
+    <div class="hero-inner">
+      <div class="hero-icon"><i class="fa-solid fa-phone-volume"></i></div>
+      <h1>denwa2.com</h1>
+      <p class="hero-tagline">AIがあなたの代わりに電話をかけます</p>
+      <p class="hero-desc">AIがあなたの代わりに電話をかけて営業状況や営業時間を確認したり、予約をとったりしてくれるサービスです。50言語に対応し、それぞれの通話先の言語によって自動的にその国の言葉で予約してくれます。旅行先で言葉が分からない時にお店の予約ができます。もちろん日本語にも対応しているので、電話をかけられないときなどでも簡単にお店を予約できます。</p>
+    </div>
+  </div>
+
+  <!-- ===== Features ===== -->
+  <div class="features">
+    <div class="feature-card">
+      <div class="feature-icon"><i class="fa-solid fa-earth-americas"></i></div>
+      <p class="feature-title">50言語対応</p>
+      <p class="feature-text">通話先の言語を自動検出し、その国の言葉で電話をかけます。</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon"><i class="fa-solid fa-utensils"></i></div>
+      <p class="feature-title">かんたん予約</p>
+      <p class="feature-text">数タップでレストランやお店の予約が完了します。</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon"><i class="fa-solid fa-clock"></i></div>
+      <p class="feature-title">営業時間確認</p>
+      <p class="feature-text">お店が営業中かどうか、営業時間をすぐに確認できます。</p>
+    </div>
+  </div>
+
+  <!-- ===== Login ===== -->
   <main class="stack">
-    <header>
-      <h1><i class="fa-solid fa-robot"></i> denwa2.com</h1>
-      <p class="lead"><i class="fa-solid fa-phone-volume"></i> AIが電話をかけて営業状況や営業時間を確認したり、予約をとったりします。</p>
-    </header>
+    <div class="login-header">
+      <h2>はじめる</h2>
+      <p>ログインしてサービスを利用する</p>
+    </div>
 
     <!-- サインアウト状態のビュー -->
     <section id="signed-out" class="stack" style="display:none">
@@ -630,7 +802,6 @@
             <input id="su-pass" type="password" placeholder="パスワード（6文字以上）" required />
           </div>
           <button type="submit" class="btn"><i class="fa-solid fa-paper-plane"></i> 登録する</button>
-          <!-- 登録ボタン直下のメッセージ -->
           <div id="signup-msg" class="msg" role="status" aria-live="polite"></div>
         </form>
       </div>
@@ -648,7 +819,6 @@
             <input id="li-pass" type="password" placeholder="パスワード" required />
           </div>
           <button type="submit" class="btn"><i class="fa-solid fa-right-to-bracket"></i> ログイン</button>
-          <!-- ログインボタン直下のメッセージ -->
           <div id="login-msg" class="msg" role="status" aria-live="polite"></div>
         </form>
       </div>
