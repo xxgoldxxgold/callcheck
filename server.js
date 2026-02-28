@@ -286,7 +286,7 @@ function buildReservationInstructions(params) {
 - 時間変更: ${flexDesc}
 
 会話の流れ（★各ステップで必ず1つだけ伝えて相手の返事を待て。2つ以上を同じ発言で言うな★）:
-1. 「すみません、予約をお願いしたいのですが」とだけ言って、相手の反応を待つ。ここで予約の詳細を言うな。
+1. 「すみません、予約専用のAIアシスタントが連絡させていただいております、大変恐縮です。予約をお願いしたいのですが」とだけ言って、相手の反応を待つ。ここで予約の詳細を言うな。
 2. 相手が「はい、どうぞ」「何名様ですか」等と応じたら、「${rsvDate}の${readableTime}から${rsvPartySize}名で予約をお願いしたいんですけど、空いてますか？」と聞く。
    ★日付の読み方: 日付をそのまま自然に読め。ひらがな部分はそのまま読めばよい。
    【重要】この質問をした後、絶対にreport_reservation_resultを呼ぶな。相手の返事を待て。
@@ -380,7 +380,7 @@ function buildReservationInstructionsKo(params) {
 - 시간 변경: ${flexDesc}
 
 대화 흐름 (★각 단계에서 반드시 하나만 전달하고 상대방의 답을 기다려라. 2개 이상을 같은 발화에서 말하지 마라★):
-1. "안녕하세요, 예약을 하고 싶은데요"라고만 말하고 상대방의 반응을 기다려라. 여기서 예약 상세를 말하지 마라.
+1. "안녕하세요, 예약 전용 AI 어시스턴트가 연락드립니다. 대단히 죄송합니다. 예약을 하고 싶은데요"라고만 말하고 상대방의 반응을 기다려라. 여기서 예약 상세를 말하지 마라.
 2. 상대방이 "네, 말씀하세요" 등으로 응하면, "${rsvDate} ${readableTime}에 ${rsvPartySize}명 예약 가능한가요?"라고 물어라.
    【중요】이 질문을 한 후, 절대로 report_reservation_result를 호출하지 마라. 상대방의 답을 기다려라.
 3. ★상대방의 답을 끝까지 들어라★ 자신이 질문한 직후에 결과를 판단하지 마라.
@@ -603,7 +603,7 @@ Reservation details:
 ${timeRules}
 
 Conversation flow (★ At each step, say only ONE thing and wait for their response. NEVER say two pieces of info in the same utterance ★):
-1. Greet in ${langName} and say "I'd like to make a reservation." Wait for their response. Do NOT give details yet.
+1. Greet in ${langName} and say "This is an AI assistant dedicated to reservations calling on behalf of a customer. I apologize for the unusual contact method. I'd like to make a reservation." Wait for their response. Do NOT give details yet.
 2. When they respond, say: "I'd like a reservation for ${rsvPartySize} people on ${rsvDate} at ${rsvTime}. Is that available?" in ${langName}.
    [IMPORTANT] After asking this, do NOT call report_reservation_result. Wait for their answer.
 3. ★ Listen to their full response ★ Do NOT judge the result immediately after your question.
@@ -814,16 +814,16 @@ app.register(async function (fastify) {
           let instr;
           if (callLang === 'ja') {
             instr = isReservation
-              ? '次のセリフだけ話せ: あの、すみません、予約をお願いしたいのですが。 ― 一字一句このまま話せ。省略するな。追加するな。'
+              ? '次のセリフだけ話せ: すみません、予約専用のAIアシスタントが連絡させていただいております、大変恐縮です。予約をお願いしたいのですが。 ― 一字一句このまま話せ。省略するな。追加するな。'
               : '極めて早口で「あの、すみません。今営業されてますか？」とだけ言え。余計な前置き不要。間を空けるな。一切の遅延なく話し始めろ。';
           } else if (callLang === 'ko') {
             instr = isReservation
-              ? '다음 대사만 말해라: 안녕하세요, 예약을 하고 싶은데요. ― 한 글자도 빠짐없이 그대로 말해라. 생략하지 마라. 추가하지 마라.'
+              ? '다음 대사만 말해라: 안녕하세요, 예약 전용 AI 어시스턴트가 연락드립니다. 대단히 죄송합니다. 예약을 하고 싶은데요. ― 한 글자도 빠짐없이 그대로 말해라. 생략하지 마라. 추가하지 마라.'
               : '매우 빠르게 "안녕하세요, 지금 영업 중이신가요?"라고만 말해라. 불필요한 서두 없이. 즉시 말하기 시작해라.';
           } else {
             const ln = getLangName(callLang);
             instr = isReservation
-              ? `Speak ONLY in ${ln}. Say this very quickly and naturally: Greet politely and say "I'd like to make a reservation." Nothing else. Do not give any details yet.`
+              ? `Speak ONLY in ${ln}. Say this very quickly and naturally: "Hello, this is an AI assistant dedicated to reservations calling on behalf of a customer. I apologize for the unusual contact. I'd like to make a reservation." Nothing else. Do not give any details yet.`
               : `Speak ONLY in ${ln}. Say this very quickly and naturally: Greet politely and ask "Are you open right now?" Nothing else. No preamble. Start speaking immediately.`;
           }
           console.log(`[GREETING] Sending greeting (mode=${callMode})`);
@@ -1060,9 +1060,9 @@ app.register(async function (fastify) {
               setTimeout(() => {
                 if (openaiWs?.readyState !== WebSocket.OPEN) return;
                 let retryInstr;
-                if (callLang === 'ja') retryInstr = '次のセリフだけ話せ: あの、すみません、予約をお願いしたいのですが。 ― 一字一句このまま話せ。省略するな。追加するな。';
-                else if (callLang === 'ko') retryInstr = '다음 대사만 말해라: 안녕하세요, 예약을 하고 싶은데요. ― 한 글자도 빠짐없이 그대로 말해라. 생략하지 마라. 추가하지 마라.';
-                else retryInstr = `Speak ONLY in ${getLangName(callLang)}. Greet politely and say "I'd like to make a reservation." Nothing else.`;
+                if (callLang === 'ja') retryInstr = '次のセリフだけ話せ: すみません、予約専用のAIアシスタントが連絡させていただいております、大変恐縮です。予約をお願いしたいのですが。 ― 一字一句このまま話せ。省略するな。追加するな。';
+                else if (callLang === 'ko') retryInstr = '다음 대사만 말해라: 안녕하세요, 예약 전용 AI 어시스턴트가 연락드립니다. 대단히 죄송합니다. 예약을 하고 싶은데요. ― 한 글자도 빠짐없이 그대로 말해라. 생략하지 마라. 추가하지 마라.';
+                else retryInstr = `Speak ONLY in ${getLangName(callLang)}. Say: "Hello, this is an AI assistant dedicated to reservations calling on behalf of a customer. I apologize for the unusual contact. I'd like to make a reservation." Nothing else.`;
                 openaiWs.send(JSON.stringify({
                   type: 'response.create',
                   response: {
