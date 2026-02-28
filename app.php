@@ -70,28 +70,19 @@ if (isset($_GET['logout'])) {
             }
         </style>
 
+        <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
         <script type="module">
-            import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
-            import { getAuth, signOut } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
+            const sb = window.supabase.createClient(
+                'https://vylwpbbwkmuxrfzmgvkj.supabase.co',
+                'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZ5bHdwYmJ3a211eHJmem1ndmtqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTkwMzE5MDgsImV4cCI6MjA3NDYwNzkwOH0.oDxf3R0X-PWLp5ZP4ERu9Co7GehAwxYLORY9bF8zeBw'
+            );
 
-            const firebaseConfig = {
-                apiKey: "AIzaSyBAXIQkeLvBTMHlHgyoJDQur21FEy3J2yQ",
-                authDomain: "bscqi7k64u7dbn7i6pfyy5ht4uom5d.firebaseapp.com",
-                projectId: "bscqi7k64u7dbn7i6pfyy5ht4uom5d",
-                storageBucket: "bscqi7k64u7dbn7i6pfyy5ht4uom5d.firebasestorage.app",
-                messagingSenderId: "919638810052",
-                appId: "1:919638810052:web:94546541333d026598d891"
-            };
-            
-            const app = initializeApp(firebaseConfig);
-            const auth = getAuth(app);
-            
             try {
-                await signOut(auth);
+                await sb.auth.signOut();
             } catch (e) {
-                console.warn('Firebase logout error:', e);
+                console.warn('Supabase logout error:', e);
             }
-            
+
             document.cookie = "php_logged_out=1; Max-Age=60; path=/";
         </script>
     </head>

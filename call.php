@@ -873,7 +873,7 @@ if (isset($_GET['status'])) {
 if (isset($_GET['history'])) {
     $limit = min(100, max(1, intval($_GET['limit'] ?? 50)));
     $search = trim($_GET['search'] ?? '');
-    $uid = preg_replace('/[^a-zA-Z0-9]/', '', $_COOKIE['uid'] ?? '');
+    $uid = preg_replace('/[^a-zA-Z0-9\-]/', '', $_COOKIE['uid'] ?? '');
     
     $dir = logs_dir();
     $files = glob($dir . '/*.json');
@@ -1097,7 +1097,7 @@ function handle_dial() {
 
     $callSid = $j['sid'];
     $name = $_POST['name'] ?? '';
-    $callUid = preg_replace('/[^a-zA-Z0-9]/', '', $_COOKIE['uid'] ?? '');
+    $callUid = preg_replace('/[^a-zA-Z0-9\-]/', '', $_COOKIE['uid'] ?? '');
     store_merge($callSid, ['created_at' => date('c'), 'status' => 'initiated', 'to' => $to, 'name' => $name, 'realtime_mode' => true, 'call_mode' => $mode, 'reservation_params' => $rsvParams, 'uid' => $callUid]);
     store_append($callSid, 'raw', '[dial] to=' . $to . ' name=' . $name);
     

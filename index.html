@@ -686,35 +686,12 @@
   })();
   </script>
 
-  <!-- ====== Firebase & Auth ====== -->
+  <!-- ====== Supabase Auth ====== -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
-    import {
-      getAuth,
-      onAuthStateChanged,
-      createUserWithEmailAndPassword,
-      signInWithEmailAndPassword,
-      signOut,
-      GoogleAuthProvider,
-      OAuthProvider,
-      signInWithPopup,
-      signInWithRedirect,
-      getRedirectResult
-    } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
-
-    const firebaseConfig = {
-      apiKey: "AIzaSyBAXIQkeLvBTMHlHgyoJDQur21FEy3J2yQ",
-      authDomain: "bscqi7k64u7dbn7i6pfyy5ht4uom5d.firebaseapp.com",
-      projectId: "bscqi7k64u7dbn7i6pfyy5ht4uom5d",
-      storageBucket: "bscqi7k64u7dbn7i6pfyy5ht4uom5d.firebasestorage.app",
-      messagingSenderId: "919638810052",
-      appId: "1:919638810052:web:94546541333d026598d891"
-    };
-
-    const app  = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-
-    getRedirectResult(auth).catch((err) => console.warn("Redirect login error:", err));
+    const SUPABASE_URL = 'https://vylwpbbwkmuxrfzmgvkj.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZ5bHdwYmJ3a211eHJmem1ndmtqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTkwMzE5MDgsImV4cCI6MjA3NDYwNzkwOH0.oDxf3R0X-PWLp5ZP4ERu9Co7GehAwxYLORY9bF8zeBw';
+    const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
     function showMsg(targetId, html) {
       const el = document.getElementById(targetId);
@@ -730,43 +707,41 @@
       el.innerHTML = "";
     }
 
-    function translateError(code) {
-      switch (code) {
-        case "auth/email-already-in-use": return t("このメールアドレスは既に登録されています。");
-        case "auth/invalid-email": return t("メールアドレスの形式が正しくありません。");
-        case "auth/weak-password": return t("パスワードは6文字以上にしてください。");
-        case "auth/user-not-found": return t("このメールアドレスは登録されていません。");
-        case "auth/wrong-password": return t("パスワードが正しくありません。");
-        case "auth/popup-closed-by-user": return t("ログイン画面が閉じられました。もう一度お試しください。");
-        case "auth/network-request-failed": return t("ネットワークエラーが発生しました。接続を確認してください。");
-        case "auth/too-many-requests": return t("試行回数が多すぎます。しばらく待ってから再度お試しください。");
-        default: return t("エラーが発生しました。もう一度お試しください。");
-      }
+    function translateError(msg) {
+      if (msg.includes('already registered')) return t("このメールアドレスは既に登録されています。");
+      if (msg.includes('Invalid login')) return t("メールアドレスまたはパスワードが正しくありません。");
+      if (msg.includes('Email not confirmed')) return t("メールアドレスの確認が完了していません。");
+      if (msg.includes('Password should be')) return t("パスワードは6文字以上にしてください。");
+      if (msg.includes('rate limit')) return t("試行回数が多すぎます。しばらく待ってから再度お試しください。");
+      return t("エラーが発生しました。もう一度お試しください。");
     }
 
     if (document.cookie.includes("php_logged_out=")) {
-      try { await signOut(auth); } catch(e) {}
+      try { await sb.auth.signOut(); } catch(e) {}
       document.cookie = "php_logged_out=; Max-Age=0; path=/";
     }
 
-    onAuthStateChanged(auth, (user) => {
-      if (user) {
+    sb.auth.onAuthStateChange((event, session) => {
+      if (session && (event === 'SIGNED_IN' || event === 'INITIAL_SESSION')) {
+        const user = session.user;
         fetch('track_user', {
           method: 'POST',
           headers: {'Content-Type': 'application/json'},
           body: JSON.stringify({
-            uid: user.uid,
+            uid: user.id,
             email: user.email || '',
-            displayName: user.displayName || '',
-            provider: user.providerData?.[0]?.providerId || '',
-            createdAt: user.metadata?.creationTime || ''
+            displayName: user.user_metadata?.full_name || user.user_metadata?.name || '',
+            provider: user.app_metadata?.provider || '',
+            createdAt: user.created_at || ''
           })
         }).catch(() => {});
-        document.cookie = "uid=" + encodeURIComponent(user.uid) + "; path=/; max-age=31536000; SameSite=Lax; Secure";
+        document.cookie = "uid=" + encodeURIComponent(user.id) + "; path=/; max-age=31536000; SameSite=Lax; Secure";
         window.location.href = "app";
-      } else {
-        document.getElementById("signed-out").style.display = "block";
-        document.getElementById("signed-in").style.display  = "none";
+      } else if (event === 'SIGNED_OUT' || !session) {
+        const signedOut = document.getElementById("signed-out");
+        const signedIn = document.getElementById("signed-in");
+        if (signedOut) signedOut.style.display = "block";
+        if (signedIn) signedIn.style.display = "none";
       }
     });
 
@@ -774,11 +749,11 @@
       e.preventDefault(); clearMsg("signup-msg");
       const email = document.getElementById("su-email").value.trim();
       const pass  = document.getElementById("su-pass").value;
-      try {
-        await createUserWithEmailAndPassword(auth, email, pass);
-        showMsg("signup-msg", '<i class="fa-solid fa-circle-check"></i> ' + t('登録できました。'));
-      } catch (err) {
-        showMsg("signup-msg", `<i class="fa-solid fa-circle-exclamation"></i> ${translateError(err.code)}`);
+      const { error } = await sb.auth.signUp({ email, password: pass });
+      if (error) {
+        showMsg("signup-msg", `<i class="fa-solid fa-circle-exclamation"></i> ${translateError(error.message)}`);
+      } else {
+        showMsg("signup-msg", '<i class="fa-solid fa-circle-check"></i> ' + t('確認メールを送信しました。メールを確認してください。'));
       }
     });
 
@@ -786,50 +761,37 @@
       e.preventDefault(); clearMsg("login-msg");
       const email = document.getElementById("li-email").value.trim();
       const pass  = document.getElementById("li-pass").value;
-      try {
-        await signInWithEmailAndPassword(auth, email, pass);
+      const { error } = await sb.auth.signInWithPassword({ email, password: pass });
+      if (error) {
+        showMsg("login-msg", `<i class="fa-solid fa-circle-exclamation"></i> ${translateError(error.message)}`);
+      } else {
         showMsg("login-msg", '<i class="fa-solid fa-circle-check"></i> ' + t('ログイン成功。'));
-      } catch (err) {
-        showMsg("login-msg", `<i class="fa-solid fa-circle-exclamation"></i> ${translateError(err.code)}`);
       }
     });
 
-    const googleProvider = new GoogleAuthProvider();
-    googleProvider.setCustomParameters({ prompt: "select_account" });
     async function googleLogin() {
       clearMsg("login-msg"); clearMsg("signup-msg");
-      try {
-        await signInWithPopup(auth, googleProvider);
-      } catch (err) {
-        if (err?.code === "auth/popup-blocked" || err?.code === "auth/popup-closed-by-user") {
-          await signInWithRedirect(auth, googleProvider);
-          return;
-        }
-        showMsg("login-msg", `<i class="fa-solid fa-circle-exclamation"></i> ${translateError(err.code)}`);
-      }
+      const { error } = await sb.auth.signInWithOAuth({
+        provider: 'google',
+        options: { redirectTo: window.location.origin + '/app' }
+      });
+      if (error) showMsg("login-msg", `<i class="fa-solid fa-circle-exclamation"></i> ${translateError(error.message)}`);
     }
     document.getElementById("google-btn").addEventListener("click", googleLogin);
 
-    const appleProvider = new OAuthProvider('apple.com');
-    appleProvider.addScope('email');
-    appleProvider.addScope('name');
     async function appleLogin() {
       clearMsg("login-msg"); clearMsg("signup-msg");
-      try {
-        await signInWithPopup(auth, appleProvider);
-      } catch (err) {
-        if (err?.code === "auth/popup-blocked" || err?.code === "auth/popup-closed-by-user") {
-          await signInWithRedirect(auth, appleProvider);
-          return;
-        }
-        showMsg("login-msg", `<i class="fa-solid fa-circle-exclamation"></i> ${translateError(err.code)}`);
-      }
+      const { error } = await sb.auth.signInWithOAuth({
+        provider: 'apple',
+        options: { redirectTo: window.location.origin + '/app' }
+      });
+      if (error) showMsg("login-msg", `<i class="fa-solid fa-circle-exclamation"></i> ${translateError(error.message)}`);
     }
     document.getElementById("apple-btn").addEventListener("click", appleLogin);
 
     document.getElementById("logout-btn").addEventListener("click", async () => {
       clearMsg("login-msg"); clearMsg("signup-msg");
-      await signOut(auth);
+      await sb.auth.signOut();
     });
   </script>
 </head>
