@@ -45,7 +45,7 @@ if ($isNew) {
         'email' => $email,
         'name' => $name,
         'provider' => $provider,
-        'firebase_created' => $createdAt,
+        'auth_created' => $createdAt,
         'first_seen' => $now,
         'last_seen' => $now,
         'login_count' => 1,
