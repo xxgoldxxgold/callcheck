@@ -32,7 +32,7 @@ if (isset($_GET['logout'])) {
     }
     session_destroy();
 
-    // Firebase からもログアウト（フロントで実行）
+    // Supabase からもログアウト（フロントで実行）
     ?>
     <!doctype html>
     <html lang="ja">
