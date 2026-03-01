@@ -192,7 +192,7 @@ PROMPT;
     }
 
     $payload = [
-        'model' => 'gpt-4o-mini',
+        'model' => 'gpt-5-mini',
         'messages' => [
             ['role' => 'system', 'content' => 'あなたはAI音声通話システムの品質管理者です。JSON形式で回答してください。'],
             ['role' => 'user', 'content' => $analysisPrompt],

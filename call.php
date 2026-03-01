@@ -275,7 +275,7 @@ if (isset($_GET['diag'])) {
         'TWILIO_FROM_effective_var' => $from_src,
         'OPENAI_key_candidates' => $openai_presence,
         'OPENAI_key_effective_var' => $openai_src,
-        'OPENAI_MODEL' => getenv('OPENAI_MODEL') ?: 'gpt-4o-mini',
+        'OPENAI_MODEL' => getenv('OPENAI_MODEL') ?: 'gpt-5-mini',
         'php_curl' => function_exists('curl_version'),
         'mode' => 'realtime',
         'WS_PORT' => getenv('WS_PORT') ?: '8080',
@@ -459,7 +459,7 @@ function gpt_open_status($text) {
         return ['error' => 'no_api_key', 'result' => fallback_open_status($text)];
     }
     
-    $model = envv('OPENAI_MODEL', 'gpt-4o-mini');
+    $model = envv('OPENAI_MODEL', 'gpt-5-mini');
     $now = new DateTime('now', new DateTimeZone('Asia/Tokyo'));
     $now_s = $now->format('Y-m-d H:i');
     

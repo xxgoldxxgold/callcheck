@@ -132,7 +132,7 @@ PROMPT;
             CURLOPT_TIMEOUT        => 15,
             CURLOPT_HTTPHEADER     => ['Content-Type: application/json', 'Authorization: Bearer ' . $apiKey],
             CURLOPT_POSTFIELDS     => json_encode([
-                'model'       => 'gpt-4o-mini',
+                'model'       => 'gpt-5-mini',
                 'messages'    => $messages,
                 'max_tokens'  => 300,
                 'temperature' => 0.7,
@@ -162,7 +162,7 @@ PROMPT;
             CURLOPT_TIMEOUT        => 10,
             CURLOPT_HTTPHEADER     => ['Content-Type: application/json', 'Authorization: Bearer ' . $apiKey],
             CURLOPT_POSTFIELDS     => json_encode([
-                'model'       => 'gpt-4o-mini',
+                'model'       => 'gpt-5-mini',
                 'messages'    => [
                     ['role' => 'system', 'content' => "以下のサポート会話（種別: {$typeLabel}）を20文字以内で要約してください。要点だけ。"],
                     ['role' => 'user', 'content' => $allText],
