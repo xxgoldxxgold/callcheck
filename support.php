@@ -86,7 +86,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !isset($_GET['resolve'])) {
 
     if ($apiKey) {
         $systemPrompt = <<<'PROMPT'
-あなたは「電話確認くん」のカスタマーサポートAIです。
+あなたは「denwa2」のカスタマーサポートAIです。
 
 サービス概要:
 - AIが店舗に自動電話をかけて営業中かどうか・営業時間を確認するWebアプリ
