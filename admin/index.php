@@ -123,7 +123,7 @@ PROMPT;
         ],
         'response_format' => ['type' => 'json_object'],
         'temperature' => 0.3,
-        'max_tokens' => 4000,
+        'max_completion_tokens' => 4000,
     ];
 
     $ch = curl_init('https://api.openai.com/v1/chat/completions');

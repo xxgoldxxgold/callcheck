@@ -134,7 +134,7 @@ PROMPT;
             CURLOPT_POSTFIELDS     => json_encode([
                 'model'       => 'gpt-5-mini',
                 'messages'    => $messages,
-                'max_tokens'  => 300,
+                'max_completion_tokens'  => 300,
                 'temperature' => 0.7,
             ]),
         ]);
@@ -167,7 +167,7 @@ PROMPT;
                     ['role' => 'system', 'content' => "以下のサポート会話（種別: {$typeLabel}）を20文字以内で要約してください。要点だけ。"],
                     ['role' => 'user', 'content' => $allText],
                 ],
-                'max_tokens'  => 40,
+                'max_completion_tokens'  => 40,
                 'temperature' => 0.2,
             ]),
         ]);
