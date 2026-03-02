@@ -135,7 +135,6 @@ PROMPT;
                 'model'       => 'gpt-5-mini',
                 'messages'    => $messages,
                 'max_completion_tokens'  => 300,
-                'temperature' => 0.7,
             ]),
         ]);
         $res = curl_exec($ch);
@@ -168,7 +167,6 @@ PROMPT;
                     ['role' => 'user', 'content' => $allText],
                 ],
                 'max_completion_tokens'  => 40,
-                'temperature' => 0.2,
             ]),
         ]);
         $res = curl_exec($ch);
