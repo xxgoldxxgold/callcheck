@@ -1128,7 +1128,7 @@ if (isset($_GET['logout'])) {
                 </div>
               </div>
             </details>
-            <details class="card collapse-card" id="supportCard" style="display:none;">
+            <details class="card collapse-card" id="supportCard">
               <summary class="collapse-header"><i class="fa-solid fa-headset"></i> サポート</summary>
               <div class="collapse-body">
                 <div class="support-tabs">
