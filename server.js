@@ -13,7 +13,7 @@ const CALLBACK_SECRET = process.env.CALLBACK_SECRET;
 const OPENAI_VOICE = process.env.OPENAI_VOICE || 'shimmer';
 
 /* 営業確認用: miniモデルで高速応答 */
-const OPENAI_MODEL = process.env.OPENAI_MODEL || 'gpt-4o-mini-realtime-preview-2024-12-17';
+const OPENAI_MODEL = process.env.OPENAI_MODEL || 'gpt-realtime-mini';
 
 /* 予約用: フルモデルで正確な会話・丁寧なやり取りが必要 */
 const OPENAI_MODEL_FULL = 'gpt-4o-realtime-preview-2024-12-17';
