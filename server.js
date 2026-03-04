@@ -231,8 +231,15 @@ function buildReservationInstructions(params) {
     const tm = params.rsv_time.match(/^(\d{1,2}):(\d{2})$/);
     if (tm) {
       const baseMin = parseInt(tm[1], 10) * 60 + parseInt(tm[2], 10);
-      const startMin = baseMin - flexBefore;
+      let startMin = baseMin - flexBefore;
       const endMin = baseMin + flexAfter;
+      /* 当日予約の場合、フレックス開始を現在時刻でクリップ（過去の時間を候補にしない） */
+      const nowJST = new Date(Date.now() + 9 * 3600000);
+      const todayDate = `${nowJST.getUTCMonth() + 1}月${nowJST.getUTCDate()}日`;
+      if (rsvDateRaw.includes(todayDate)) {
+        const nowMin = nowJST.getUTCHours() * 60 + nowJST.getUTCMinutes();
+        if (startMin < nowMin) startMin = nowMin;
+      }
       const fmtTime = (m) => {
         const hh = Math.floor(((m % 1440) + 1440) % 1440 / 60);
         const mm = ((m % 1440) + 1440) % 1440 % 60;
@@ -365,7 +372,15 @@ function buildReservationInstructionsKo(params) {
         const mm = ((m % 1440) + 1440) % 1440 % 60;
         return `${hh}시${mm > 0 ? ' ' + mm + '분' : ''}`;
       };
-      flexRangeStart = fmtTimeKoShort(baseMin - flexBefore);
+      let koStartMin = baseMin - flexBefore;
+      /* 当日予約の場合、フレックス開始を現在時刻でクリップ */
+      const nowJSTko = new Date(Date.now() + 9 * 3600000);
+      const todayDateKo = `${nowJSTko.getUTCMonth() + 1}월 ${nowJSTko.getUTCDate()}일`;
+      if ((params.rsv_date || '').includes(`${nowJSTko.getUTCMonth() + 1}月${nowJSTko.getUTCDate()}日`)) {
+        const nowMinKo = nowJSTko.getUTCHours() * 60 + nowJSTko.getUTCMinutes();
+        if (koStartMin < nowMinKo) koStartMin = nowMinKo;
+      }
+      flexRangeStart = fmtTimeKoShort(koStartMin);
       flexRangeEnd = fmtTimeKoShort(baseMin + flexAfter);
     }
   }
@@ -578,7 +593,14 @@ function buildReservationInstructionsGeneric(lang, params) {
     const tm = params.rsv_time.match(/^(\d{1,2}):(\d{2})$/);
     if (tm) {
       const baseMin = parseInt(tm[1], 10) * 60 + parseInt(tm[2], 10);
-      flexRangeDesc = `${formatMinutes12h(baseMin - flexBefore)} to ${formatMinutes12h(baseMin + flexAfter)}`;
+      let genStartMin = baseMin - flexBefore;
+      /* 当日予約の場合、フレックス開始を現在時刻でクリップ */
+      const nowJSTgen = new Date(Date.now() + 9 * 3600000);
+      if ((params.rsv_date || '').includes(`${nowJSTgen.getUTCMonth() + 1}月${nowJSTgen.getUTCDate()}日`)) {
+        const nowMinGen = nowJSTgen.getUTCHours() * 60 + nowJSTgen.getUTCMinutes();
+        if (genStartMin < nowMinGen) genStartMin = nowMinGen;
+      }
+      flexRangeDesc = `${formatMinutes12h(genStartMin)} to ${formatMinutes12h(baseMin + flexAfter)}`;
     }
   }
 
