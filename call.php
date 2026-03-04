@@ -718,7 +718,7 @@ if (isset($_GET['start'])) {
       <Parameter name="callback_url" value="<?php echo htmlspecialchars(base_url() . '/call?rt_cb=1', ENT_QUOTES, 'UTF-8'); ?>"/>
 <?php
     if ($mode === 'reservation') {
-        foreach (['rsv_date', 'rsv_time', 'rsv_party_size', 'rsv_name', 'rsv_phone', 'rsv_flexible', 'rsv_flex_before', 'rsv_flex_after'] as $key) {
+        foreach (['rsv_date', 'rsv_time', 'rsv_party_size', 'rsv_name', 'rsv_last_name', 'rsv_first_name', 'rsv_phone', 'rsv_flexible', 'rsv_flex_before', 'rsv_flex_after'] as $key) {
             $val = $_GET[$key] ?? '';
             if ($val !== '') {
                 echo '      <Parameter name="' . htmlspecialchars($key, ENT_QUOTES, 'UTF-8') . '" value="' . htmlspecialchars($val, ENT_QUOTES, 'UTF-8') . '"/>' . "\n";
@@ -1051,7 +1051,7 @@ function handle_dial() {
     // 予約パラメータをTwiML URLに追加
     $rsvParams = [];
     if ($mode === 'reservation') {
-        foreach (['rsv_date', 'rsv_time', 'rsv_party_size', 'rsv_name', 'rsv_phone', 'rsv_flexible', 'rsv_flex_before', 'rsv_flex_after'] as $key) {
+        foreach (['rsv_date', 'rsv_time', 'rsv_party_size', 'rsv_name', 'rsv_last_name', 'rsv_first_name', 'rsv_phone', 'rsv_flexible', 'rsv_flex_before', 'rsv_flex_after'] as $key) {
             $val = $_POST[$key] ?? '';
             if ($val !== '') {
                 $rsvParams[$key] = $val;

@@ -218,6 +218,9 @@ function buildReservationInstructions(params) {
   }
   const rsvPartySize = params.rsv_party_size || '不明';
   const rsvName = params.rsv_name || '不明';
+  const rsvLastName = params.rsv_last_name || '';
+  const rsvFirstName = params.rsv_first_name || '';
+  const hasFullName = rsvLastName && rsvFirstName;
 
   /* フレックス範囲の具体的な時刻を計算 */
   let flexRangeStart = '';
@@ -280,7 +283,7 @@ function buildReservationInstructions(params) {
 予約情報:
 - 日時: ${rsvDate} ${readableTime}
 - 人数: ${rsvPartySize}名
-- 予約名: ${rsvName}
+- 予約名: ${rsvName}${hasFullName ? `（姓: ${rsvLastName}、名: ${rsvFirstName}）` : ''}
 - 連絡先（数字）: ${readablePhone}
 - 連絡先（読み上げ用）: ${phoneticPhone}
 - 時間変更: ${flexDesc}
@@ -296,12 +299,17 @@ function buildReservationInstructions(params) {
    ★相手が確認中なら黙って待つ（30秒以上でも待つ）
 ${flexStep}
 5. 予約OKの場合:
-   - ★時刻変更なし（こちらが希望した時刻のまま）→ 時刻復唱をスキップし、すぐに「名前は${rsvName}です」とだけ伝える。「では」等の接続詞を付けるな。いきなり「名前は」から始めろ。
-   - 時刻が変更された場合のみ → 変更後の時刻を「XX時ですね、お願いします」と復唱確認し、相手の返事を待ってから「名前は${rsvName}です」と伝える。
+   - ★時刻変更なし（こちらが希望した時刻のまま）→ 時刻復唱をスキップし、すぐに「名前は${hasFullName ? rsvLastName : rsvName}です」とだけ伝える。「では」等の接続詞を付けるな。いきなり「名前は」から始めろ。
+   - 時刻が変更された場合のみ → 変更後の時刻を「XX時ですね、お願いします」と復唱確認し、相手の返事を待ってから「名前は${hasFullName ? rsvLastName : rsvName}です」と伝える。
    ★★★時刻変更時の復唱ルール:
    - 相手が言った時刻を正確に聞き取って、必ずそのまま復唱しろ。
    - 19分と9分、20分と29分のような似た数字を絶対に聞き間違えるな。
-   ※名前だけ。電話番号はまだ言うな。
+   ※名前だけ。電話番号はまだ言うな。${hasFullName ? `
+   ★名前の伝え方ルール:
+   - 最初は姓（${rsvLastName}）だけ伝えろ。「名前は${rsvLastName}です」
+   - 相手が「フルネームを」「下の名前も」「名前は？」等とフルネームや名を聞いてきたら「${rsvLastName}${rsvFirstName}です」と答えろ。
+   - 相手が「漢字は？」と聞いたら「ひらがなで${rsvLastName}${rsvFirstName}です」と答えろ。
+   - 姓と名を別々に聞かれたら: 姓は「${rsvLastName}」、名は「${rsvFirstName}」と答えろ。` : ''}
 7. 相手が名前を復唱・確認するのを待つ
 8. 相手の確認後、「電話番号は、${phoneticPhone}、です」と読め。
 9. 電話番号を言い終わったら黙って相手の反応を待て。
@@ -342,6 +350,9 @@ function buildReservationInstructionsKo(params) {
   const rsvDate = formatDateForKorean(params.rsv_date) || '불명';
   const rsvPartySize = params.rsv_party_size || '불명';
   const rsvName = params.rsv_name || '불명';
+  const rsvLastName = params.rsv_last_name || '';
+  const rsvFirstName = params.rsv_first_name || '';
+  const hasFullName = rsvLastName && rsvFirstName;
 
   let flexRangeStart = '';
   let flexRangeEnd = '';
@@ -374,7 +385,7 @@ function buildReservationInstructionsKo(params) {
 예약 정보:
 - 일시: ${rsvDate} ${readableTime}
 - 인원: ${rsvPartySize}명
-- 예약자 이름: ${rsvName}
+- 예약자 이름: ${rsvName}${hasFullName ? ` (성: ${rsvLastName}, 이름: ${rsvFirstName})` : ''}
 - 연락처 (숫자): ${readablePhone}
 - 연락처 (읽기용): ${phoneticPhone}
 - 시간 변경: ${flexDesc}
@@ -386,8 +397,9 @@ function buildReservationInstructionsKo(params) {
 3. ★상대방의 답을 끝까지 들어라★ 자신이 질문한 직후에 결과를 판단하지 마라.
 ${flexStep}
 5. 예약 OK인 경우:
-   - 시간 변경 없음 → 바로 "이름은 ${rsvName}입니다"라고만 전달해라.
-   - 시간이 변경된 경우만 → 변경된 시간을 "XX시요, 부탁드립니다"라고 확인하고, 상대방의 답을 기다린 후 "이름은 ${rsvName}입니다"라고 전달해라.
+   - 시간 변경 없음 → 바로 "이름은 ${hasFullName ? rsvLastName : rsvName}입니다"라고만 전달해라.
+   - 시간이 변경된 경우만 → 변경된 시간을 "XX시요, 부탁드립니다"라고 확인하고, 상대방의 답을 기다린 후 "이름은 ${hasFullName ? rsvLastName : rsvName}입니다"라고 전달해라.${hasFullName ? `
+   ★ 이름 전달 규칙: 먼저 성(${rsvLastName})만 전달. 상대방이 전체 이름을 물으면 "${rsvLastName}${rsvFirstName}"이라고 답해라. 성과 이름을 따로 물으면 각각 답해라.` : ''}
 7. 상대방이 이름을 확인하는 것을 기다려라
 8. 상대방 확인 후, "전화번호는 ${phoneticPhone} 입니다"라고 1번만 읽어라. ★★★1번 읽으면 즉시 멈춰라. 반복하지 마라★★★
 9. 전화번호를 말한 후 조용히 상대방의 반응을 기다려라
@@ -549,6 +561,9 @@ function buildReservationInstructionsGeneric(lang, params) {
   const rsvTimeRaw = params.rsv_time || 'unknown';
   const rsvPartySize = params.rsv_party_size || 'unknown';
   const rsvName = params.rsv_name || 'unknown';
+  const rsvLastName = params.rsv_last_name || '';
+  const rsvFirstName = params.rsv_first_name || '';
+  const hasFullName = rsvLastName && rsvFirstName;
   const rsvPhone = params.rsv_phone || 'unknown';
   const isFlexible = params.rsv_flexible === '1';
   const flexBefore = parseInt(params.rsv_flex_before || '60', 10);
@@ -596,7 +611,7 @@ Reservation details:
 - Date: ${rsvDate}
 - Time: ${rsvTime}
 - Party size: ${rsvPartySize}
-- Name: ${rsvName}
+- Name: ${rsvName}${hasFullName ? ` (Last name: ${rsvLastName}, First name: ${rsvFirstName})` : ''}
 - Phone: ${rsvPhone}
 - ${flexDesc}
 
@@ -612,8 +627,9 @@ Conversation flow (★ At each step, say only ONE thing and wait for their respo
    ★ ONLY if they explicitly say the time is NOT available (e.g. "no", "sorry, that time is taken", "we're full at that time") → go to step 4.
 ${flexStep}
 5. If reservation is OK:
-   - Time unchanged → immediately say "The name is ${rsvName}" in ${langName}. Nothing else.
-   - Time changed → confirm the new time first, wait for response, THEN give the name.
+   - Time unchanged → immediately say "The name is ${hasFullName ? rsvLastName : rsvName}" in ${langName}. Nothing else.
+   - Time changed → confirm the new time first, wait for response, THEN give the name.${hasFullName ? `
+   ★ Name rules: First give only the last name (${rsvLastName}). If they ask for the full name or first name, say "${rsvLastName} ${rsvFirstName}". If asked for last and first separately, answer each.` : ''}
 7. Wait for them to confirm the name.
 8. After name confirmed, say "The phone number is ${rsvPhone}" - read it digit by digit clearly in ${langName}.
 9. After giving the phone number, wait silently for their response.
@@ -952,9 +968,10 @@ app.register(async function (fastify) {
             /* 予約モード: 名前・電話番号の発話を検出 */
             if (callMode === 'reservation') {
               const t = event.transcript;
-              if (rsvParams.rsv_name && t.toLowerCase().includes(rsvParams.rsv_name.toLowerCase())) {
+              const nameToCheck = rsvParams.rsv_last_name || rsvParams.rsv_name;
+              if (nameToCheck && t.toLowerCase().includes(nameToCheck.toLowerCase())) {
                 nameDelivered = true;
-                console.log(`[STEP] Name delivered: ${rsvParams.rsv_name}`);
+                console.log(`[STEP] Name delivered: ${nameToCheck}`);
               }
               if (rsvParams.rsv_phone && !phoneDelivered) {
                 const isPhoneMention =
@@ -1225,9 +1242,9 @@ app.register(async function (fastify) {
           let reason = '';
           if (!nameDelivered) {
             blocked = true;
-            if (callLang === 'ja') reason = `まだ予約者の名前を相手に伝えていない。「名前は${rsvParams.rsv_name}です」と相手に伝えろ。相手に名前を聞くな。こちらから名乗れ。`;
-            else if (callLang === 'ko') reason = `아직 예약자 이름을 상대방에게 전달하지 않았다. "이름은 ${rsvParams.rsv_name}입니다"라고 상대방에게 전달해라.`;
-            else reason = `You have not told them the name yet. Tell them "The name is ${rsvParams.rsv_name}" in ${getLangName(callLang)}. Do not ask for their name. Give YOUR name.`;
+            if (callLang === 'ja') reason = `まだ予約者の名前を相手に伝えていない。「名前は${rsvParams.rsv_last_name || rsvParams.rsv_name}です」と相手に伝えろ。相手に名前を聞くな。こちらから名乗れ。`;
+            else if (callLang === 'ko') reason = `아직 예약자 이름을 상대방에게 전달하지 않았다. "이름은 ${rsvParams.rsv_last_name || rsvParams.rsv_name}입니다"라고 상대방에게 전달해라.`;
+            else reason = `You have not told them the name yet. Tell them "The name is ${rsvParams.rsv_last_name || rsvParams.rsv_name}" in ${getLangName(callLang)}. Do not ask for their name. Give YOUR name.`;
           } else if (!phoneDelivered) {
             blocked = true;
             if (callLang === 'ja') reason = 'まだ電話番号を相手に伝えていない。手順通りに電話番号を読み上げろ。';
@@ -1311,6 +1328,8 @@ app.register(async function (fastify) {
               rsv_time: cp.rsv_time || '',
               rsv_party_size: cp.rsv_party_size || '',
               rsv_name: cp.rsv_name || '',
+              rsv_last_name: cp.rsv_last_name || '',
+              rsv_first_name: cp.rsv_first_name || '',
               rsv_phone: cp.rsv_phone || '',
               rsv_flexible: cp.rsv_flexible || '0',
               rsv_flex_before: cp.rsv_flex_before || '60',

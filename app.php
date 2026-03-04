@@ -1193,7 +1193,10 @@ if (isset($_GET['logout'])) {
           </div>
           <div>
             <label class="rsv-label">予約者名（ひらがな・アルファベット） *</label>
-            <input type="text" id="rsvName" class="rsv-input" placeholder="やまだたろう" required pattern="[\u3040-\u309F\u30FCa-zA-Z\s　]+" title="ひらがなまたはアルファベットで入力してください">
+            <div style="display:flex;gap:8px;">
+              <input type="text" id="rsvLastName" class="rsv-input" placeholder="やまだ" required pattern="[\u3040-\u309F\u30FCa-zA-Z\s　]+" title="ひらがなまたはアルファベットで入力してください" style="flex:1;">
+              <input type="text" id="rsvFirstName" class="rsv-input" placeholder="たろう" required pattern="[\u3040-\u309F\u30FCa-zA-Z\s　]+" title="ひらがなまたはアルファベットで入力してください" style="flex:1;">
+            </div>
           </div>
           <div>
             <label class="rsv-label">連絡先電話番号 *</label>
@@ -3851,7 +3854,8 @@ const rsvStorePhone = document.getElementById('rsvStorePhone');
 const rsvDate = document.getElementById('rsvDate');
 const rsvTime = document.getElementById('rsvTime');
 const rsvPartySize = document.getElementById('rsvPartySize');
-const rsvNameInput = document.getElementById('rsvName');
+const rsvLastNameInput = document.getElementById('rsvLastName');
+const rsvFirstNameInput = document.getElementById('rsvFirstName');
 const rsvPhoneInput = document.getElementById('rsvPhone');
 const rsvLangSelect = document.getElementById('rsvLang');
 const rsvFlexible = document.getElementById('rsvFlexible');
@@ -3999,13 +4003,14 @@ reservationForm.addEventListener('submit', async (e) => {
   const name = currentRsvStore.name;
 
   // バリデーション
-  if (!phone || !rsvDate.value || !rsvTime.value || !rsvPartySize.value || !rsvNameInput.value.trim() || !rsvPhoneInput.value.trim()) {
+  if (!phone || !rsvDate.value || !rsvTime.value || !rsvPartySize.value || !rsvLastNameInput.value.trim() || !rsvFirstNameInput.value.trim() || !rsvPhoneInput.value.trim()) {
     alert(t('必須項目を入力してください。'));
     return;
   }
-  if (!/^[\u3040-\u309F\u30FCa-zA-Z\s\u3000]+$/.test(rsvNameInput.value.trim())) {
+  const namePattern = /^[\u3040-\u309F\u30FCa-zA-Z\s\u3000]+$/;
+  if (!namePattern.test(rsvLastNameInput.value.trim()) || !namePattern.test(rsvFirstNameInput.value.trim())) {
     alert(t('予約者名はひらがなまたはアルファベットで入力してください。'));
-    rsvNameInput.focus();
+    rsvLastNameInput.focus();
     return;
   }
 
@@ -4027,7 +4032,9 @@ reservationForm.addEventListener('submit', async (e) => {
     fd.append('rsv_date', formatRsvDate(rsvDate.value));
     fd.append('rsv_time', rsvTime.value);
     fd.append('rsv_party_size', rsvPartySize.value);
-    fd.append('rsv_name', rsvNameInput.value.trim());
+    fd.append('rsv_last_name', rsvLastNameInput.value.trim());
+    fd.append('rsv_first_name', rsvFirstNameInput.value.trim());
+    fd.append('rsv_name', rsvLastNameInput.value.trim() + rsvFirstNameInput.value.trim());
     fd.append('rsv_phone', rsvPhoneInput.value.trim());
     if (rsvLangSelect.value !== 'auto') fd.append('rsv_lang', rsvLangSelect.value);
     fd.append('rsv_flexible', rsvFlexible.checked ? '1' : '0');
@@ -4117,7 +4124,7 @@ async function pollReservation() {
           sid: rsvSid || '', storeName: currentRsvStore ? currentRsvStore.name : '',
           storePhone: currentRsvStore ? currentRsvStore.phone : '',
           rsvDate: rsvDate.value, rsvTime: rsvTime.value, partySize: rsvPartySize.value,
-          rsvName: rsvNameInput.value.trim(), status: 'failed',
+          rsvName: rsvLastNameInput.value.trim() + rsvFirstNameInput.value.trim(), status: 'failed',
           summary: t('通話が確立できませんでした'),
           recordingUrl: rsvRecordingShown && rsvRecordingAudio.src ? rsvRecordingAudio.src : '',
           createdAt: new Date().toISOString()
@@ -4128,7 +4135,7 @@ async function pollReservation() {
           sid: rsvSid || '', storeName: currentRsvStore ? currentRsvStore.name : '',
           storePhone: currentRsvStore ? currentRsvStore.phone : '',
           rsvDate: rsvDate.value, rsvTime: rsvTime.value, partySize: rsvPartySize.value,
-          rsvName: rsvNameInput.value.trim(), status: 'failed',
+          rsvName: rsvLastNameInput.value.trim() + rsvFirstNameInput.value.trim(), status: 'failed',
           summary: t('無応答でした'),
           recordingUrl: rsvRecordingShown && rsvRecordingAudio.src ? rsvRecordingAudio.src : '',
           createdAt: new Date().toISOString()
@@ -4211,7 +4218,7 @@ function showReservationResult(result) {
     rsvDate: rsvDate.value,
     rsvTime: rsvTime.value,
     partySize: rsvPartySize.value,
-    rsvName: rsvNameInput.value.trim(),
+    rsvName: rsvLastNameInput.value.trim() + rsvFirstNameInput.value.trim(),
     status: status,
     confirmation: result.confirmation || '',
     summary: result.summary || '',
