@@ -65,7 +65,7 @@ function json_res($a) {
 function logs_dir() {
     $d = __DIR__ . '/logs';
     if (!is_dir($d)) {
-        @mkdir($d, 0777, true);
+        @mkdir($d, 0750, true);
     }
     return $d;
 }
@@ -254,6 +254,15 @@ function parse_hours_text($text) {
  * 診断機能
  */
 if (isset($_GET['diag'])) {
+    // Basic Auth必須
+    $authUser = $_SERVER['PHP_AUTH_USER'] ?? '';
+    $authPass = $_SERVER['PHP_AUTH_PW'] ?? '';
+    if ($authUser !== 'riyo' || $authPass !== (getenv('ADMIN_PASSWORD') ?: 'aTiZKDTLwrIop0Lc9JlwStn4')) {
+        header('WWW-Authenticate: Basic realm="Diag"');
+        http_response_code(401);
+        echo 'Unauthorized';
+        exit;
+    }
     header('Content-Type: application/json; charset=utf-8');
     $FROM_CAND = ['TWILIO_FROM', 'TWILIO_FROM_NUMBER', 'TWILIO_NUMBER', 'TWILIO_CALL_FROM', 'TWILIO_CALLER', 'CALL_FROM'];
     $OPENAI_CAND = ['OPENAI_API_KEY', 'CHATGPT_API_KEY', 'OPENAI_KEY', 'OPENAI_TOKEN'];
@@ -966,7 +975,7 @@ if (isset($_GET['history'])) {
         if (count($calls) >= $limit) break;
     }
     
-    json_res(['ok' => true, 'calls' => $calls, 'total' => count($files)]);
+    json_res(['ok' => true, 'calls' => $calls, 'total' => count($calls)]);
     exit;
 }
 
@@ -1101,12 +1110,14 @@ function handle_dial() {
     curl_close($ch);
 
     if ($err) {
-        json_res(['ok' => false, 'error' => 'curl', 'detail' => $err]);
+        error_log("Twilio curl error: $err");
+        json_res(['ok' => false, 'error' => 'call_failed']);
     }
-    
+
     $j = json_decode($resp, true);
     if ($code >= 400 || !$j || empty($j['sid'])) {
-        json_res(['ok' => false, 'error' => 'twilio', 'detail' => ['http_status' => $code, 'twilio' => $j]]);
+        error_log("Twilio API error: HTTP $code, response: $resp");
+        json_res(['ok' => false, 'error' => 'call_failed']);
     }
 
     $callSid = $j['sid'];
