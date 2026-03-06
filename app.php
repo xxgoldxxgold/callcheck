@@ -3328,13 +3328,20 @@ const favNameInput = $('#favName');
 const favPhoneInput = $('#favPhone');
 const favAddBtn = $('#favAddBtn');
 
+function _getUidFromCookie() {
+  const m = document.cookie.match(/(?:^|;\s*)uid=([^;]*)/);
+  return m ? decodeURIComponent(m[1]) : 'anon';
+}
+
 function getFavorites() {
-  try { return JSON.parse(localStorage.getItem('callcheck_favorites') || '[]'); }
+  const key = 'callcheck_favorites_' + _getUidFromCookie();
+  try { return JSON.parse(localStorage.getItem(key) || '[]'); }
   catch(e) { return []; }
 }
 
 function saveFavorites(favs) {
-  localStorage.setItem('callcheck_favorites', JSON.stringify(favs));
+  const key = 'callcheck_favorites_' + _getUidFromCookie();
+  localStorage.setItem(key, JSON.stringify(favs));
 }
 
 function renderFavorites() {
@@ -3441,12 +3448,14 @@ renderFavorites();
 const rsvHistoryList = document.getElementById('rsvHistoryList');
 
 function getReservations() {
-  try { return JSON.parse(localStorage.getItem('callcheck_reservations') || '[]'); }
+  const key = 'callcheck_reservations_' + _getUidFromCookie();
+  try { return JSON.parse(localStorage.getItem(key) || '[]'); }
   catch(e) { return []; }
 }
 
 function saveReservations(list) {
-  localStorage.setItem('callcheck_reservations', JSON.stringify(list));
+  const key = 'callcheck_reservations_' + _getUidFromCookie();
+  localStorage.setItem(key, JSON.stringify(list));
 }
 
 function addReservation(data) {

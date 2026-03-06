@@ -523,7 +523,14 @@ if (isset($_GET['json'])) {
         http_response_code(204);
         exit;
     }
-    
+
+    // uid照合: 自分の通話データのみアクセス可能
+    $pollUid = preg_replace('/[^a-zA-Z0-9\-]/', '', $_COOKIE['uid'] ?? '');
+    if ($pollUid !== '' && ($data['uid'] ?? '') !== '' && ($data['uid'] ?? '') !== $pollUid) {
+        http_response_code(403);
+        json_res(['ok' => false, 'error' => 'access denied']);
+    }
+
     $nlp = $data['open_nlp'] ?? null;
     $label = $nlp['result']['label'] ?? null;
     $callMode = $data['call_mode'] ?? 'check';
@@ -874,7 +881,13 @@ if (isset($_GET['history'])) {
     $limit = min(100, max(1, intval($_GET['limit'] ?? 50)));
     $search = trim($_GET['search'] ?? '');
     $uid = preg_replace('/[^a-zA-Z0-9\-]/', '', $_COOKIE['uid'] ?? '');
-    
+
+    // uid未設定なら空配列を返す（他ユーザーの履歴混入防止）
+    if ($uid === '') {
+        json_res(['ok' => true, 'calls' => [], 'total' => 0]);
+        exit;
+    }
+
     $dir = logs_dir();
     $files = glob($dir . '/*.json');
     if (!$files) {
@@ -894,8 +907,8 @@ if (isset($_GET['history'])) {
         $d = json_decode($j, true);
         if (!$d) continue;
 
-        // uidフィルタ: 自分の通話のみ表示
-        if ($uid !== '' && ($d['uid'] ?? '') !== $uid) continue;
+        // uidフィルタ: 自分の通話のみ表示（常に適用）
+        if (($d['uid'] ?? '') !== $uid) continue;
 
         // 検索フィルタ
         if ($search !== '') {
@@ -1098,6 +1111,9 @@ function handle_dial() {
     $callSid = $j['sid'];
     $name = $_POST['name'] ?? '';
     $callUid = preg_replace('/[^a-zA-Z0-9\-]/', '', $_COOKIE['uid'] ?? '');
+    if ($callUid === '') {
+        json_res(['ok' => false, 'error' => 'uid required']);
+    }
     store_merge($callSid, ['created_at' => date('c'), 'status' => 'initiated', 'to' => $to, 'name' => $name, 'realtime_mode' => true, 'call_mode' => $mode, 'reservation_params' => $rsvParams, 'uid' => $callUid]);
     store_append($callSid, 'raw', '[dial] to=' . $to . ' name=' . $name);
     
@@ -1122,8 +1138,17 @@ if (isset($_GET['play_recording'])) {
     }
     
     $data = store_get($sid);
+
+    // uid照合: 自分の録音のみアクセス可能
+    $recUid = preg_replace('/[^a-zA-Z0-9\-]/', '', $_COOKIE['uid'] ?? '');
+    if ($recUid !== '' && ($data['uid'] ?? '') !== '' && ($data['uid'] ?? '') !== $recUid) {
+        http_response_code(403);
+        echo 'access denied';
+        exit;
+    }
+
     $recordingUrl = $data['recording_url'] ?? '';
-    
+
     if (!$recordingUrl) {
         http_response_code(404);
         echo 'recording not found';
