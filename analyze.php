@@ -260,7 +260,7 @@ if (isset($_GET['review']) && $_GET['review'] === '1') {
     // Basic Auth
     $authUser = $_SERVER['PHP_AUTH_USER'] ?? '';
     $authPass = $_SERVER['PHP_AUTH_PW'] ?? '';
-    if ($authUser !== 'riyo' || $authPass !== '2740') {
+    if ($authUser !== 'riyo' || $authPass !== 'aTiZKDTLwrIop0Lc9JlwStn4') {
         header('WWW-Authenticate: Basic realm="Analysis Review"');
         http_response_code(401);
         echo json_encode(['error' => 'unauthorized']);

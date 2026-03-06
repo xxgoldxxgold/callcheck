@@ -4354,7 +4354,7 @@ function showRsvRecording(url, duration) {
 // 管理画面（?support_admin=1）
 // ============================================================
 if (new URLSearchParams(location.search).has('support_admin')) {
-  const ADMIN_SECRET = 'callcheck_admin_2026';
+  const ADMIN_SECRET = <?php echo json_encode(getenv('SUPPORT_ADMIN_SECRET') ?: 'callcheck_admin_2026'); ?>;
   const overlay = document.createElement('div');
   overlay.className = 'admin-overlay show';
   overlay.innerHTML = `

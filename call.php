@@ -524,9 +524,10 @@ if (isset($_GET['json'])) {
         exit;
     }
 
-    // uid照合: 自分の通話データのみアクセス可能
+    // uid照合: 自分の通話データのみアクセス可能（uid無しもブロック）
     $pollUid = preg_replace('/[^a-zA-Z0-9\-]/', '', $_COOKIE['uid'] ?? '');
-    if ($pollUid !== '' && ($data['uid'] ?? '') !== '' && ($data['uid'] ?? '') !== $pollUid) {
+    $dataUid = $data['uid'] ?? '';
+    if ($dataUid !== '' && $pollUid !== $dataUid) {
         http_response_code(403);
         json_res(['ok' => false, 'error' => 'access denied']);
     }
@@ -1139,9 +1140,10 @@ if (isset($_GET['play_recording'])) {
     
     $data = store_get($sid);
 
-    // uid照合: 自分の録音のみアクセス可能
+    // uid照合: 自分の録音のみアクセス可能（uid無しもブロック）
     $recUid = preg_replace('/[^a-zA-Z0-9\-]/', '', $_COOKIE['uid'] ?? '');
-    if ($recUid !== '' && ($data['uid'] ?? '') !== '' && ($data['uid'] ?? '') !== $recUid) {
+    $recDataUid = $data['uid'] ?? '';
+    if ($recDataUid !== '' && $recUid !== $recDataUid) {
         http_response_code(403);
         echo 'access denied';
         exit;

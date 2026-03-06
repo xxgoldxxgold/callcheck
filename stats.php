@@ -304,7 +304,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
 
 // DELETEリクエストの処理（統計データのリセット - 開発用）
 if ($_SERVER['REQUEST_METHOD'] === 'DELETE') {
-    // セキュリティ: 本番環境ではこの機能を無効化すべき
+    // 本番環境では無効化
+        http_response_code(403);
+        echo json_encode(["error" => "disabled in production"]);
+        exit;
     if (isset($_GET['confirm']) && $_GET['confirm'] === 'yes') {
         if (@unlink($statsFile)) {
             echo json_encode(['ok' => true, 'message' => 'Statistics reset']);

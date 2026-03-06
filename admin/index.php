@@ -3,7 +3,7 @@
  * admin/index.php - 管理画面
  */
 $ADMIN_USER = 'riyo';
-$ADMIN_PASS = '2740';
+$ADMIN_PASS = 'aTiZKDTLwrIop0Lc9JlwStn4';
 
 if (!isset($_SERVER['PHP_AUTH_USER']) || $_SERVER['PHP_AUTH_USER'] !== $ADMIN_USER || $_SERVER['PHP_AUTH_PW'] !== $ADMIN_PASS) {
     header('WWW-Authenticate: Basic realm="Admin"');
