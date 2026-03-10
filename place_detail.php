@@ -5,6 +5,15 @@
  */
 header('Content-Type: application/json; charset=utf-8');
 
+// CORS: 自サイトのみ許可
+$allowedOrigins = ['https://denwa2.com', 'https://www.denwa2.com'];
+$origin = $_SERVER['HTTP_ORIGIN'] ?? '';
+if (in_array($origin, $allowedOrigins, true)) {
+    header('Access-Control-Allow-Origin: ' . $origin);
+} else {
+    header('Access-Control-Allow-Origin: https://denwa2.com');
+}
+
 $API_KEY = getenv('GOOGLE_API_KEY');
 if (!$API_KEY) {
     echo json_encode(['success' => false, 'error' => 'API key not configured']);
@@ -67,11 +76,7 @@ if (!empty($r['photos'])) {
         $ref = $r['photos'][$i]['photo_reference'] ?? '';
         if ($ref) {
             $photos[] = [
-                'url' => 'https://maps.googleapis.com/maps/api/place/photo?' . http_build_query([
-                    'maxwidth' => 400,
-                    'photo_reference' => $ref,
-                    'key' => $API_KEY
-                ]),
+                'url' => 'photo_proxy?ref=' . urlencode($ref) . '&w=400',
                 'attributions' => $r['photos'][$i]['html_attributions'] ?? []
             ];
         }

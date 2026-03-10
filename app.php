@@ -12,6 +12,22 @@ if (!isset($_GET['logout']) && ($_GET['v'] ?? '') !== $_APP_V) {
 }
 
 /**
+ * サポート管理画面: セッション認証
+ * ?support_admin&secret=XXX でアクセス → セッションに保存
+ */
+if (isset($_GET['support_admin'])) {
+    $adminSecret = getenv('SUPPORT_ADMIN_SECRET') ?: 'callcheck_admin_2026';
+    if (isset($_GET['secret']) && hash_equals($adminSecret, $_GET['secret'])) {
+        $_SESSION['support_admin_auth'] = true;
+        // secretをURLから除去してリダイレクト
+        $qs = $_GET;
+        unset($qs['secret']);
+        header('Location: ' . strtok($_SERVER['REQUEST_URI'], '?') . '?' . http_build_query($qs));
+        exit;
+    }
+}
+
+/**
  * ログアウト処理
  * ?logout=1 パラメータでログアウトを実行
  */
@@ -2076,7 +2092,7 @@ function buildDetailContent(d, store) {
   if (d.website) {
     let domain = '';
     try { domain = new URL(d.website).hostname; } catch(e) { domain = d.website; }
-    webHtml = `<div class="pd-info-row"><i class="fa-solid fa-globe"></i><a href="${s(d.website)}" target="_blank">${s(domain)}</a></div>`;
+    webHtml = `<div class="pd-info-row"><i class="fa-solid fa-globe"></i><a href="${s(d.website)}" target="_blank" rel="noopener noreferrer">${s(domain)}</a></div>`;
   }
 
   let gmapHtml = '';
@@ -4353,8 +4369,7 @@ function showRsvRecording(url, duration) {
 // ============================================================
 // 管理画面（?support_admin=1）
 // ============================================================
-if (new URLSearchParams(location.search).has('support_admin')) {
-  const ADMIN_SECRET = <?php echo json_encode(getenv('SUPPORT_ADMIN_SECRET') ?: 'callcheck_admin_2026'); ?>;
+if (new URLSearchParams(location.search).has('support_admin') && <?php echo json_encode(!empty($_SESSION['support_admin_auth'])); ?>) {
   const overlay = document.createElement('div');
   overlay.className = 'admin-overlay show';
   overlay.innerHTML = `
@@ -4428,7 +4443,7 @@ if (new URLSearchParams(location.search).has('support_admin')) {
     const list = document.getElementById('adminList');
     const detail = document.getElementById('adminDetail');
     try {
-      const res = await fetch(`support?detail=${encodeURIComponent(convId)}&secret=${ADMIN_SECRET}`);
+      const res = await fetch(`support?detail=${encodeURIComponent(convId)}&session_auth=1`);
       const j = await res.json();
       if (!j.ok) return;
       const c = j.conversation;
@@ -4455,7 +4470,7 @@ if (new URLSearchParams(location.search).has('support_admin')) {
           await fetch('support?resolve', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ secret: ADMIN_SECRET, convId: c.convId })
+            body: JSON.stringify({ session_auth: true, convId: c.convId })
           });
           resolveBtn.outerHTML = '<div style="margin-top:12px;font-size:12px;color:#1e8e3e;">✓ ' + t('解決済み') + '</div>';
           const idx = allConvs.findIndex(x => x.convId === c.convId);
@@ -4468,7 +4483,7 @@ if (new URLSearchParams(location.search).has('support_admin')) {
   // 初期読み込み
   (async () => {
     try {
-      const res = await fetch(`support?admin&secret=${ADMIN_SECRET}`);
+      const res = await fetch(`support?admin&session_auth=1`);
       const j = await res.json();
       if (j.ok) { allConvs = j.conversations; renderAdminList(); }
     } catch(e) {

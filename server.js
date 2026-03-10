@@ -730,8 +730,10 @@ app.get('/', async () => ({
 }));
 
 app.all('/twiml', async (req, reply) => {
-  const callSid = req.body?.CallSid || req.query?.CallSid || 'unknown';
-  const wsHost = req.hostname;
+  const callSid = (req.body?.CallSid || req.query?.CallSid || 'unknown').replace(/[^a-zA-Z0-9]/g, '');
+  // ホスト名のサニタイズ: 許可されたホストのみ使用
+  const allowedHosts = ['ws.denwa2.com', 'ws.callcheck.mom'];
+  const wsHost = allowedHosts.includes(req.hostname) ? req.hostname : 'ws.denwa2.com';
   reply.type('text/xml').send(`<?xml version="1.0" encoding="UTF-8"?>
 <Response>
   <Connect>
@@ -1384,6 +1386,10 @@ app.register(async function (fastify) {
     });
 
     socket.on('close', () => {
+      /* 全タイマーをクリア（メモリリーク防止） */
+      if (responseHangTimer) { clearTimeout(responseHangTimer); responseHangTimer = null; }
+      if (phoneFollowUpTimer) { clearTimeout(phoneFollowUpTimer); phoneFollowUpTimer = null; }
+      if (greetingFollowUpTimer) { clearTimeout(greetingFollowUpTimer); greetingFollowUpTimer = null; }
       /* リスナーに通話終了を通知 */
       const listeners = listenerMap.get(callSid);
       if (listeners) {

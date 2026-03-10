@@ -9,12 +9,15 @@
  */
 
 function envv($k, $d = '') {
-    return $_ENV[$k] ?? $_SERVER[$k] ?? getenv($k) ?: $d;
+    $v = $_ENV[$k] ?? $_SERVER[$k] ?? null;
+    if ($v !== null && $v !== '') return $v;
+    $v = getenv($k);
+    return ($v !== false && $v !== '') ? $v : $d;
 }
 
 function support_dir() {
     $d = __DIR__ . '/logs/support';
-    if (!is_dir($d)) @mkdir($d, 0777, true);
+    if (!is_dir($d)) @mkdir($d, 0755, true);
     return $d;
 }
 
@@ -40,6 +43,15 @@ function save_conv($conv) {
 }
 
 $ADMIN_SECRET = envv('SUPPORT_ADMIN_SECRET', 'callcheck_admin_2026');
+
+// セッション認証チェック関数
+function isAdminAuthenticated($secret, $adminSecret) {
+    // 直接シークレット一致
+    if ($secret !== '' && hash_equals($adminSecret, $secret)) return true;
+    // セッション認証（app.phpで認証済みの場合）
+    if (session_status() === PHP_SESSION_NONE) session_start();
+    return !empty($_SESSION['support_admin_auth']);
+}
 
 // ────────────────────────────────────────
 // POST: メッセージ送信
@@ -147,8 +159,8 @@ PROMPT;
 
     $conv['messages'][] = ['role' => 'ai', 'text' => $aiResponse, 'time' => date('c')];
 
-    // 要約生成（毎回更新）
-    if ($apiKey) {
+    // 要約生成（5メッセージごとに更新してAPIコスト削減）
+    if ($apiKey && (count($conv['messages']) <= 2 || count($conv['messages']) % 5 === 0)) {
         $allText = implode("\n", array_map(
             fn($m) => ($m['role'] === 'user' ? 'ユーザー' : 'AI') . ': ' . $m['text'],
             $conv['messages']
@@ -188,7 +200,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_GET['resolve'])) {
     $input = json_decode(file_get_contents('php://input'), true);
     $secret = $input['secret'] ?? '';
     $convId = $input['convId'] ?? '';
-    if ($secret !== $ADMIN_SECRET) json_out(['ok' => false, 'error' => 'unauthorized']);
+    if (!isAdminAuthenticated($secret, $ADMIN_SECRET)) json_out(['ok' => false, 'error' => 'unauthorized']);
     $conv = load_conv($convId);
     if (!$conv) json_out(['ok' => false, 'error' => 'not found']);
     $conv['resolved'] = true;
@@ -202,7 +214,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_GET['resolve'])) {
 // ────────────────────────────────────────
 if (isset($_GET['admin'])) {
     $secret = $_GET['secret'] ?? '';
-    if ($secret !== $ADMIN_SECRET) json_out(['ok' => false, 'error' => 'unauthorized']);
+    if (!isAdminAuthenticated($secret, $ADMIN_SECRET)) json_out(['ok' => false, 'error' => 'unauthorized']);
 
     $dir = support_dir();
     $files = glob($dir . '/*.json');
@@ -236,7 +248,7 @@ if (isset($_GET['admin'])) {
 // ────────────────────────────────────────
 if (isset($_GET['detail'])) {
     $secret = $_GET['secret'] ?? '';
-    if ($secret !== $ADMIN_SECRET) json_out(['ok' => false, 'error' => 'unauthorized']);
+    if (!isAdminAuthenticated($secret, $ADMIN_SECRET)) json_out(['ok' => false, 'error' => 'unauthorized']);
     $conv = load_conv($_GET['detail']);
     if (!$conv) json_out(['ok' => false, 'error' => 'not found']);
     json_out(['ok' => true, 'conversation' => $conv]);

@@ -11,7 +11,8 @@ date_default_timezone_set('Asia/Tokyo');
  * 環境変数ユーティリティ
  */
 function envv($k, $d = '') {
-    return getenv($k) ?: $d;
+    $v = getenv($k);
+    return ($v !== false && $v !== '') ? $v : $d;
 }
 
 function env_first(array $names, $default = '') {

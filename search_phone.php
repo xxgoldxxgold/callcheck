@@ -4,12 +4,22 @@
  */
 
 header('Content-Type: application/json; charset=utf-8');
-header('Access-Control-Allow-Origin: *');
+
+// CORS: 自サイトのみ許可
+$allowedOrigins = ['https://denwa2.com', 'https://www.denwa2.com'];
+$origin = $_SERVER['HTTP_ORIGIN'] ?? '';
+if (in_array($origin, $allowedOrigins, true)) {
+    header('Access-Control-Allow-Origin: ' . $origin);
+} else {
+    header('Access-Control-Allow-Origin: https://denwa2.com');
+}
 header('Access-Control-Allow-Methods: POST');
 header('Access-Control-Allow-Headers: Content-Type');
 
-// v14 marker
-error_log('search_phone.php v14 呼び出し: ' . print_r($_POST, true));
+if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+    http_response_code(204);
+    exit;
+}
 
 $rawQuery = trim($_POST['store_name'] ?? '');
 // UTF-8でない場合に変換（Windows端末等からのリクエスト対応）
@@ -115,9 +125,7 @@ if ($pageToken !== '') {
           for ($p = 0; $p < $pPhotoCount; $p++) {
             $ref = $pPhotoSource[$p]['photo_reference'] ?? '';
             if ($ref) {
-              $pPhotos[] = 'https://maps.googleapis.com/maps/api/place/photo?' . http_build_query([
-                'maxwidth' => 800, 'photo_reference' => $ref, 'key' => $API_KEY
-              ]);
+              $pPhotos[] = 'photo_proxy?ref=' . urlencode($ref) . '&w=800';
             }
           }
         }
@@ -166,16 +174,23 @@ function cache_get($key) {
     if (!file_exists($CACHE_FILE)) {
         return null;
     }
-    
-    $all = json_decode(@file_get_contents($CACHE_FILE), true);
+
+    $fp = @fopen($CACHE_FILE, 'r');
+    if (!$fp) return null;
+    flock($fp, LOCK_SH);
+    $content = stream_get_contents($fp);
+    flock($fp, LOCK_UN);
+    fclose($fp);
+
+    $all = json_decode($content, true);
     if (!is_array($all) || !isset($all[$key])) {
         return null;
     }
-    
+
     if (time() - ($all[$key]['ts'] ?? 0) > $CACHE_EXP) {
         return null;
     }
-    
+
     return $all[$key]['data'] ?? null;
 }
 
@@ -184,17 +199,24 @@ function cache_get($key) {
  */
 function cache_set($key, $data) {
     global $CACHE_FILE;
-    $all = [];
-    if (file_exists($CACHE_FILE)) {
-        $all = json_decode(@file_get_contents($CACHE_FILE), true) ?? [];
-    }
-    
+
+    $fp = @fopen($CACHE_FILE, 'c+');
+    if (!$fp) return;
+    flock($fp, LOCK_EX);
+
+    $content = stream_get_contents($fp);
+    $all = json_decode($content, true) ?? [];
+
     $all[$key] = ['ts' => time(), 'data' => $data];
     if (count($all) > 120) {
         $all = array_slice($all, -60, null, true);
     }
-    
-    @file_put_contents($CACHE_FILE, json_encode($all, JSON_UNESCAPED_UNICODE));
+
+    ftruncate($fp, 0);
+    rewind($fp);
+    fwrite($fp, json_encode($all, JSON_UNESCAPED_UNICODE));
+    flock($fp, LOCK_UN);
+    fclose($fp);
 }
 
 /**
@@ -764,9 +786,7 @@ try {
         for ($p = 0; $p < $photoCount; $p++) {
           $ref = $photoSource[$p]['photo_reference'] ?? '';
           if ($ref) {
-            $photos[] = 'https://maps.googleapis.com/maps/api/place/photo?' . http_build_query([
-              'maxwidth' => 800, 'photo_reference' => $ref, 'key' => $API_KEY
-            ]);
+            $photos[] = 'photo_proxy?ref=' . urlencode($ref) . '&w=800';
           }
         }
       }

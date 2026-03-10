@@ -6,6 +6,13 @@
 
 header('Content-Type: application/json; charset=utf-8');
 
+// CORS: 自サイトのみ許可
+$allowedOrigins = ['https://denwa2.com', 'https://www.denwa2.com'];
+$origin = $_SERVER['HTTP_ORIGIN'] ?? '';
+if (in_array($origin, $allowedOrigins, true)) {
+    header('Access-Control-Allow-Origin: ' . $origin);
+}
+
 // タイムゾーンを設定（重要！）
 date_default_timezone_set('Asia/Tokyo');
 
@@ -23,19 +30,27 @@ function stats_getData($file) {
     if (!file_exists($file)) {
         return [];
     }
-    
-    $content = @file_get_contents($file);
-    if ($content === false) {
-        error_log("stats.php: ファイル読み込みエラー: $file");
+
+    $fp = @fopen($file, 'r');
+    if (!$fp) {
+        error_log("stats.php: ファイルオープンエラー: $file");
         return [];
     }
-    
+    flock($fp, LOCK_SH);
+    $content = stream_get_contents($fp);
+    flock($fp, LOCK_UN);
+    fclose($fp);
+
+    if ($content === false || $content === '') {
+        return [];
+    }
+
     $data = json_decode($content, true);
     if (json_last_error() !== JSON_ERROR_NONE) {
         error_log("stats.php: JSONデコードエラー: " . json_last_error_msg());
         return [];
     }
-    
+
     return $data ?? [];
 }
 
@@ -302,23 +317,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     exit;
 }
 
-// DELETEリクエストの処理（統計データのリセット - 開発用）
+// DELETEリクエストは本番では無効
 if ($_SERVER['REQUEST_METHOD'] === 'DELETE') {
-    // 本番環境では無効化
-        http_response_code(403);
-        echo json_encode(["error" => "disabled in production"]);
-        exit;
-    if (isset($_GET['confirm']) && $_GET['confirm'] === 'yes') {
-        if (@unlink($statsFile)) {
-            echo json_encode(['ok' => true, 'message' => 'Statistics reset']);
-        } else {
-            http_response_code(500);
-            echo json_encode(['error' => 'Failed to reset statistics']);
-        }
-    } else {
-        http_response_code(400);
-        echo json_encode(['error' => 'Confirmation required']);
-    }
+    http_response_code(403);
+    echo json_encode(["error" => "disabled in production"]);
     exit;
 }
 

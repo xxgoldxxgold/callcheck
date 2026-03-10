@@ -4,6 +4,14 @@
  */
 
 header('Content-Type: application/json; charset=utf-8');
+
+// CORS: 自サイトのみ許可
+$allowedOrigins = ['https://denwa2.com', 'https://www.denwa2.com'];
+$origin = $_SERVER['HTTP_ORIGIN'] ?? '';
+if (in_array($origin, $allowedOrigins, true)) {
+    header('Access-Control-Allow-Origin: ' . $origin);
+}
+
 date_default_timezone_set('Asia/Tokyo');
 
 // 利用回数ファイルのパス
@@ -19,8 +27,15 @@ function getUsageCount($file, $date) {
     if (!file_exists($file)) {
         return 0;
     }
-    
-    $data = json_decode(file_get_contents($file), true);
+
+    $fp = @fopen($file, 'r');
+    if (!$fp) return 0;
+    flock($fp, LOCK_SH);
+    $content = stream_get_contents($fp);
+    flock($fp, LOCK_UN);
+    fclose($fp);
+
+    $data = json_decode($content, true);
     return $data[$date] ?? 0;
 }
 
