@@ -682,20 +682,30 @@ function elapsed(start) {
 
 async function sendResultToHeteml(callSid, result, conversationLog, targetUrl) {
   const url = targetUrl || CALLBACK_URL;
-  const t = Date.now();
-  try {
-    const payload = { secret: CALLBACK_SECRET, call_sid: callSid, result, conversation_log: conversationLog };
-    console.log(`[POST] CallSid=${callSid} -> ${url}`);
-    const response = await fetch(url, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload)
-    });
-    const text = await response.text();
-    console.log(`[RES] ${response.status} ${text} (${elapsed(t)})`);
-  } catch (err) {
-    console.error('[ERR] callback:', err.message);
+  const payload = { secret: CALLBACK_SECRET, call_sid: callSid, result, conversation_log: conversationLog };
+  const maxRetries = 3;
+  for (let attempt = 1; attempt <= maxRetries; attempt++) {
+    try {
+      console.log(`[POST] CallSid=${callSid} -> ${url} (attempt ${attempt}/${maxRetries})`);
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      if (response.ok) {
+        const text = await response.text();
+        console.log(`[RES] ${response.status} ${text} - callback sent successfully (attempt ${attempt})`);
+        return;
+      }
+      console.error(`[${callSid}] callback HTTP ${response.status} (attempt ${attempt}/${maxRetries})`);
+    } catch (err) {
+      console.error(`[${callSid}] callback error (attempt ${attempt}/${maxRetries}):`, err.message);
+    }
+    if (attempt < maxRetries) {
+      await new Promise(r => setTimeout(r, 1000 * Math.pow(2, attempt - 1)));
+    }
   }
+  console.error(`[${callSid}] callback FAILED after ${maxRetries} attempts - result may be lost!`);
 }
 
 /* === リアルタイム傍聴: リスナーマップ === */
@@ -782,6 +792,8 @@ app.register(async function (fastify) {
     let responseAudioStartTime = 0;     /* 現在のレスポンスの最初の音声デルタ時刻 */
     let estimatedPlaybackEndTime = 0;   /* Twilio再生完了推定時刻（エコーゲート用） */
     let farewellCloseScheduled = false; /* farewell切断タイマーが設定済みか */
+    let connectTimeoutTimer = null;    /* OpenAI接続タイムアウトタイマー */
+    let greetingFallbackTimer = null;  /* 挨拶フォールバックタイマー */
 
     function connectOpenAI() {
       const t = Date.now();
@@ -793,7 +805,7 @@ app.register(async function (fastify) {
       });
 
       /* OpenAI接続タイムアウト: 10秒以内に接続できなければ切断 */
-      const connectTimeout = setTimeout(() => {
+      connectTimeoutTimer = setTimeout(() => {
         if (openaiWs?.readyState !== WebSocket.OPEN) {
           console.error('[OpenAI] Connection timeout (10s)');
           openaiWs?.close();
@@ -802,7 +814,7 @@ app.register(async function (fastify) {
       }, 10000);
 
       openaiWs.on('open', () => {
-        clearTimeout(connectTimeout);
+        clearTimeout(connectTimeoutTimer); connectTimeoutTimer = null;
         console.log(`[OpenAI] Connected (${elapsed(t)}) mode=${callMode} lang=${callLang} model=${model}`);
 
         let sessionInstructions;
@@ -879,7 +891,7 @@ app.register(async function (fastify) {
             const ev = JSON.parse(data.toString());
             if (ev.type === 'session.updated') {
               openaiWs.removeListener('message', onSessionUpdated);
-              clearTimeout(greetingFallback);
+              clearTimeout(greetingFallbackTimer); greetingFallbackTimer = null;
               /* stream開始=相手が電話に出た後なので遅延不要。即座に挨拶 */
               sendGreeting();
             }
@@ -888,7 +900,7 @@ app.register(async function (fastify) {
         openaiWs.on('message', onSessionUpdated);
 
         /* フォールバック: session.updatedが来ない場合のタイムアウト */
-        const greetingFallback = setTimeout(() => {
+        greetingFallbackTimer = setTimeout(() => {
           openaiWs.removeListener('message', onSessionUpdated);
           console.warn('[GREETING] session.updated not received, sending greeting via fallback');
           sendGreeting();
@@ -1249,7 +1261,7 @@ app.register(async function (fastify) {
           }
           /* 最低限のフィールドが無い場合のフォールバック */
           if (name === 'report_reservation_result' && !args.reservation_status) {
-            args.reservation_status = 'confirmed';
+            args.reservation_status = 'unknown';
             args.summary = '予約結果（JSON解析エラーのため詳細不明）';
           }
           if (name === 'report_result' && !args.open_status) {
@@ -1347,6 +1359,12 @@ app.register(async function (fastify) {
             const cp = msg.start.customParameters || {};
             // 呼び出し元から渡されたcallback_urlを優先、なければ環境変数
             callbackUrl = cp.callback_url || CALLBACK_URL;
+            // callback_urlのバリデーション: 許可されたプレフィックスのみ受け入れ
+            const allowedCallbackPrefixes = ['https://denwa2.com/', 'https://callcheck.mom/'];
+            if (callbackUrl && !allowedCallbackPrefixes.some(p => callbackUrl.startsWith(p))) {
+              console.warn(`[${callSid}] Invalid callback URL, using default`);
+              callbackUrl = CALLBACK_URL || 'https://denwa2.com/call?rt_cb=1';
+            }
             rsvParams = {
               rsv_date: cp.rsv_date || '',
               rsv_time: cp.rsv_time || '',
@@ -1390,6 +1408,8 @@ app.register(async function (fastify) {
       if (responseHangTimer) { clearTimeout(responseHangTimer); responseHangTimer = null; }
       if (phoneFollowUpTimer) { clearTimeout(phoneFollowUpTimer); phoneFollowUpTimer = null; }
       if (greetingFollowUpTimer) { clearTimeout(greetingFollowUpTimer); greetingFollowUpTimer = null; }
+      if (connectTimeoutTimer) { clearTimeout(connectTimeoutTimer); connectTimeoutTimer = null; }
+      if (greetingFallbackTimer) { clearTimeout(greetingFallbackTimer); greetingFallbackTimer = null; }
       /* リスナーに通話終了を通知 */
       const listeners = listenerMap.get(callSid);
       if (listeners) {
@@ -1429,3 +1449,17 @@ try {
   console.error(err);
   process.exit(1);
 }
+
+const gracefulShutdown = async (signal) => {
+  console.log(`Received ${signal}, starting graceful shutdown...`);
+  // Stop accepting new connections
+  try {
+    await app.close();
+    console.log('Server closed, all connections finished');
+  } catch (err) {
+    console.error('Error during shutdown:', err);
+  }
+  process.exit(0);
+};
+process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
+process.on('SIGINT', () => gracefulShutdown('SIGINT'));

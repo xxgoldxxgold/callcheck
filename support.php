@@ -34,7 +34,13 @@ function sanitize_id($id) {
 function load_conv($convId) {
     $file = support_dir() . '/' . sanitize_id($convId) . '.json';
     if (!file_exists($file)) return null;
-    return json_decode(file_get_contents($file), true);
+    $fp = @fopen($file, 'r');
+    if (!$fp) return null;
+    flock($fp, LOCK_SH);
+    $content = stream_get_contents($fp);
+    flock($fp, LOCK_UN);
+    fclose($fp);
+    return json_decode($content, true);
 }
 
 function save_conv($conv) {

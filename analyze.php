@@ -16,9 +16,16 @@ $analysisDir = $logsDir . '/analysis';
 // ============================================================
 if (isset($_GET['run']) && $_GET['run'] === '1' && isset($_GET['sid'])) {
 
-    // localhostのみ許可
+    // localhostのみ許可 + シークレットキー検証
     $remoteIp = $_SERVER['REMOTE_ADDR'] ?? '';
     if (!in_array($remoteIp, ['127.0.0.1', '::1'], true)) {
+        http_response_code(403);
+        echo json_encode(['error' => 'forbidden']);
+        exit;
+    }
+    $analyzeSecret = $_SERVER['CALLBACK_SECRET'] ?? getenv('CALLBACK_SECRET') ?: '';
+    $providedSecret = $_GET['secret'] ?? '';
+    if ($analyzeSecret !== '' && !hash_equals($analyzeSecret, $providedSecret)) {
         http_response_code(403);
         echo json_encode(['error' => 'forbidden']);
         exit;

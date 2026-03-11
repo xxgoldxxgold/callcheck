@@ -1155,7 +1155,7 @@ if (isset($_GET['play_recording'])) {
     // uid照合: 自分の録音のみアクセス可能（uid無しもブロック）
     $recUid = preg_replace('/[^a-zA-Z0-9\-]/', '', $_COOKIE['uid'] ?? '');
     $recDataUid = $data['uid'] ?? '';
-    if ($recDataUid !== '' && $recUid !== $recDataUid) {
+    if ($recUid === '' || $recDataUid === '' || $recUid !== $recDataUid) {
         http_response_code(403);
         echo 'access denied';
         exit;

@@ -43,10 +43,12 @@ function getUsageCount($file, $date) {
  * 利用回数を増加させる関数
  */
 function incrementUsageCount($file, $date) {
-    $data = [];
-    if (file_exists($file)) {
-        $data = json_decode(file_get_contents($file), true) ?? [];
-    }
+    $fp = fopen($file, 'c+');
+    if (!$fp) return 0;
+    flock($fp, LOCK_EX);
+    
+    $content = stream_get_contents($fp);
+    $data = json_decode($content, true) ?? [];
     
     $data[$date] = ($data[$date] ?? 0) + 1;
     
@@ -56,7 +58,12 @@ function incrementUsageCount($file, $date) {
         if ($d < $cutoff) unset($data[$d]);
     }
     
-    file_put_contents($file, json_encode($data, JSON_UNESCAPED_UNICODE), LOCK_EX);
+    ftruncate($fp, 0);
+    rewind($fp);
+    fwrite($fp, json_encode($data, JSON_UNESCAPED_UNICODE));
+    fflush($fp);
+    flock($fp, LOCK_UN);
+    fclose($fp);
     return $data[$date];
 }
 

@@ -42,6 +42,22 @@ $redirectUrl = curl_getinfo($ch, CURLINFO_REDIRECT_URL);
 curl_close($ch);
 
 if ($redirectUrl) {
+    // リダイレクト先のドメインを検証
+    $redirectHost = parse_url($redirectUrl, PHP_URL_HOST);
+    $allowedDomains = ['google.com', 'googleapis.com', 'gstatic.com'];
+    $domainValid = false;
+    if ($redirectHost) {
+        foreach ($allowedDomains as $domain) {
+            if ($redirectHost === $domain || str_ends_with($redirectHost, '.' . $domain)) {
+                $domainValid = true;
+                break;
+            }
+        }
+    }
+    if (!$domainValid) {
+        http_response_code(502);
+        exit;
+    }
     // キャッシュヘッダー（写真は変わらないので長めに）
     header('Cache-Control: public, max-age=86400');
     header('Location: ' . $redirectUrl);

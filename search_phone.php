@@ -822,13 +822,7 @@ try {
     }
     echo json_encode([
       'success' => false, 
-      'error' => $errorMsg,
-      'debug' => [
-        'query' => $rawQuery,
-        'results_count' => count($results),
-        'is_food_search' => $isFoodSearch
-      ]
-    ]);
+      'error' => $errorMsg]);
     exit;
   }
 
@@ -842,33 +836,10 @@ try {
     return strcmp($a['name'], $b['name']);
   });
 
-  // デバッグ用：ソート前後の距離を記録
-  $sortedDistances = array_map(function($store) {
-    return [
-      'name' => $store['name'],
-      'distance' => round($store['distance'], 1),
-      'hit' => $store['hit']
-    ];
-  }, array_slice($stores, 0, 10)); // 上位10件のみ
-
   $payload = [
     'success' => true,
     'stores' => $stores,
-    'next_page_token' => $nextPageToken ?? null,
-    'debug' => [
-      'mode' => $mode,
-      'brand_query' => $brandQuery,
-      'location_hint' => $locationHint,
-      'received_location' => "{$userLat},{$userLng}",
-      'base_location' => $baseLat !== null ? "{$baseLat},{$baseLng}" : null,
-      'total_results' => count($results),
-      'stores_with_phone' => count($stores),
-      'is_food_search' => $isFoodSearch,
-      'text_search_count' => $textSearchCount ?? 0,
-      'text_search_status' => $textSearchStatus ?? 'N/A',
-      'top_10_distances' => $sortedDistances
-    ]
-  ];
+    'next_page_token' => $nextPageToken ?? null];
   
   if (!$DEBUG_MODE) cache_set($cacheKey, $payload);
 

@@ -2130,7 +2130,7 @@ function panelActionButtons(phone, name, store) {
   const noPhone = !phone;
   const disabledAttr = noPhone ? 'disabled style="opacity:0.4;pointer-events:none;"' : '';
   return `<div class="pd-actions">
-    <button class="pd-call-btn" ${disabledAttr} onclick="selectStoreFromPanel('${phone.replace(/'/g, "\\'")}','${name.replace(/'/g, "\\'")}')">
+    <button class="pd-call-btn" ${disabledAttr} onclick="selectStoreFromPanel('${escapeAttr(phone)}','${escapeAttr(name)}')">
       <i class="fa-solid fa-phone" style="font-size:12px;"></i> ${t('営業確認')}
     </button>
     <button class="pd-reserve-btn" ${disabledAttr} onclick="openReservationFromPanel(this)" data-phone="${phone.replace(/"/g, '&quot;')}" data-name="${name.replace(/"/g, '&quot;')}" data-store='${JSON.stringify(store).replace(/'/g, "&#39;").replace(/</g, "&lt;").replace(/>/g, "&gt;")}'>
@@ -2228,7 +2228,7 @@ function showRoutePanelInfo(store, leg) {
     <div class="pd-meta">${s(store.address || '')}</div>
     ${infoHtml}
     <div class="pd-actions" style="margin-top:10px;">
-      <button class="pd-call-btn" ${s(store.phone_number) ? '' : 'disabled style="opacity:0.4;pointer-events:none;"'} onclick="selectStoreFromPanel('${s(store.phone_number).replace(/'/g, "\\'")}','${s(store.name).replace(/'/g, "\\'")}')">
+      <button class="pd-call-btn" ${s(store.phone_number) ? '' : 'disabled style="opacity:0.4;pointer-events:none;"'} onclick="selectStoreFromPanel('${escapeAttr(s(store.phone_number))}','${escapeAttr(s(store.name))}')">
         <i class="fa-solid fa-phone" style="font-size:12px;"></i> ${t('発信')}
       </button>
       <button class="pd-route-btn" onclick="clearRoute()">
@@ -4491,6 +4491,20 @@ if (new URLSearchParams(location.search).has('support_admin') && <?php echo json
     }
   })();
 }
+// Pause polling when tab is hidden to reduce server load
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden) {
+    if (pollTimer) { clearInterval(pollTimer); pollTimer = null; }
+    if (typeof rsvPollTimer !== 'undefined' && rsvPollTimer) { clearInterval(rsvPollTimer); rsvPollTimer = null; }
+    if (typeof recordingPollTimer !== 'undefined' && recordingPollTimer) { clearInterval(recordingPollTimer); recordingPollTimer = null; }
+    if (typeof rsvRecordingPollTimer !== 'undefined' && rsvRecordingPollTimer) { clearInterval(rsvRecordingPollTimer); rsvRecordingPollTimer = null; }
+  } else {
+    // Resume polling if there's an active call
+    if (currentSid && !pollTimer) { pollTimer = setInterval(poll, 2000); poll(); }
+    if (typeof rsvSid !== 'undefined' && rsvSid && !rsvPollTimer) { rsvPollTimer = setInterval(pollReservation, 2000); pollReservation(); }
+  }
+});
+
 </script>
 </body>
 </html>
