@@ -414,6 +414,13 @@
     }
 
     .msg.show { display: flex; }
+    .msg.success { color: #16a34a; }
+
+    .forgot-link{display:block;text-align:center;margin-top:12px;color:var(--muted);font-size:13px;cursor:pointer;text-decoration:underline}
+    .forgot-link:hover{color:var(--text)}
+    .back-link{display:inline-flex;align-items:center;gap:6px;color:var(--muted);font-size:13px;cursor:pointer;margin-bottom:12px}
+    .back-link:hover{color:var(--text)}
+    #reset-view,#update-pw-view{display:none}
 
     #signed-in { display: none; }
 
@@ -721,8 +728,28 @@
       document.cookie = "php_logged_out=; Max-Age=0; path=/";
     }
 
+    const signedOutEl = document.getElementById("signed-out");
+    const resetViewEl = document.getElementById("reset-view");
+    const updatePwViewEl = document.getElementById("update-pw-view");
+    const modalEl = document.getElementById("auth-modal");
+
+    function showAuthView(view) {
+      if (signedOutEl) signedOutEl.style.display = view === 'main' ? 'block' : 'none';
+      if (resetViewEl) resetViewEl.style.display = view === 'reset' ? '' : 'none';
+      if (updatePwViewEl) updatePwViewEl.style.display = view === 'update' ? '' : 'none';
+    }
+
+    let isRecoveryMode = false;
+
     sb.auth.onAuthStateChange((event, session) => {
+      if (event === 'PASSWORD_RECOVERY') {
+        isRecoveryMode = true;
+        if (modalEl) modalEl.classList.add('open');
+        showAuthView('update');
+        return;
+      }
       if (session && (event === 'SIGNED_IN' || event === 'INITIAL_SESSION')) {
+        if (isRecoveryMode) return;
         const user = session.user;
         fetch('track_user', {
           method: 'POST',
@@ -738,9 +765,8 @@
         document.cookie = "uid=" + encodeURIComponent(user.id) + "; path=/; max-age=31536000; SameSite=Lax; Secure";
         window.location.href = "app";
       } else if (event === 'SIGNED_OUT' || !session) {
-        const signedOut = document.getElementById("signed-out");
+        showAuthView('main');
         const signedIn = document.getElementById("signed-in");
-        if (signedOut) signedOut.style.display = "block";
         if (signedIn) signedIn.style.display = "none";
       }
     });
@@ -763,7 +789,13 @@
       const pass  = document.getElementById("li-pass").value;
       const { error } = await sb.auth.signInWithPassword({ email, password: pass });
       if (error) {
-        showMsg("login-msg", `<i class="fa-solid fa-circle-exclamation"></i> ${translateError(error.message)}`);
+        if (error.message.includes('Invalid login')) {
+          showMsg("login-msg", `<i class="fa-solid fa-circle-exclamation"></i> ${translateError(error.message)} <a id="go-reset-from-error" href="#" style="color:var(--primary);text-decoration:underline">${t('パスワード設定はこちら')}</a>`);
+          const link = document.getElementById('go-reset-from-error');
+          if (link) link.addEventListener('click', (ev) => { ev.preventDefault(); showAuthView('reset'); document.getElementById('rs-email').value = email; });
+        } else {
+          showMsg("login-msg", `<i class="fa-solid fa-circle-exclamation"></i> ${translateError(error.message)}`);
+        }
       } else {
         showMsg("login-msg", '<i class="fa-solid fa-circle-check"></i> ' + t('ログイン成功。'));
       }
@@ -792,6 +824,57 @@
     document.getElementById("logout-btn").addEventListener("click", async () => {
       clearMsg("login-msg"); clearMsg("signup-msg");
       await sb.auth.signOut();
+    });
+
+    // パスワードリセット表示
+    document.getElementById('show-reset').addEventListener('click', () => {
+      showAuthView('reset');
+    });
+    document.getElementById('back-to-login').addEventListener('click', () => {
+      showAuthView('main');
+    });
+
+    // パスワードリセットメール送信
+    document.getElementById('reset-form').addEventListener('submit', async (e) => {
+      e.preventDefault(); clearMsg('reset-msg');
+      const email = document.getElementById('rs-email').value.trim();
+      const { error } = await sb.auth.resetPasswordForEmail(email, {
+        redirectTo: window.location.origin + '/'
+      });
+      if (error) {
+        showMsg('reset-msg', '<i class="fa-solid fa-circle-exclamation"></i> ' + translateError(error.message));
+      } else {
+        document.getElementById('reset-msg').style.color = '#16a34a';
+        showMsg('reset-msg', '<i class="fa-solid fa-circle-check"></i> ' + t('パスワード設定メールを送信しました。メールをご確認ください。'));
+      }
+    });
+
+    // パスワード更新
+    document.getElementById('update-pw-form').addEventListener('submit', async (e) => {
+      e.preventDefault(); clearMsg('update-pw-msg');
+      const pass = document.getElementById('up-pass').value;
+      const pass2 = document.getElementById('up-pass2').value;
+      if (pass !== pass2) {
+        showMsg('update-pw-msg', '<i class="fa-solid fa-circle-exclamation"></i> ' + t('パスワードが一致しません。'));
+        return;
+      }
+      if (pass.length < 6) {
+        showMsg('update-pw-msg', '<i class="fa-solid fa-circle-exclamation"></i> ' + t('パスワードは6文字以上にしてください。'));
+        return;
+      }
+      const { error } = await sb.auth.updateUser({ password: pass });
+      if (error) {
+        showMsg('update-pw-msg', '<i class="fa-solid fa-circle-exclamation"></i> ' + translateError(error.message));
+      } else {
+        document.getElementById('update-pw-msg').style.color = '#16a34a';
+        showMsg('update-pw-msg', '<i class="fa-solid fa-circle-check"></i> ' + t('パスワードを設定しました。ログインしています...'));
+        isRecoveryMode = false;
+        const { data } = await sb.auth.getUser();
+        if (data && data.user) {
+          document.cookie = 'uid=' + encodeURIComponent(data.user.id) + '; path=/; max-age=31536000; SameSite=Lax; Secure';
+        }
+        setTimeout(() => { window.location.href = 'app'; }, 1500);
+      }
     });
   </script>
 </head>
@@ -869,6 +952,7 @@
           </div>
           <button type="submit" class="btn"><i class="fa-solid fa-right-to-bracket"></i> ログイン</button>
           <div id="login-msg" class="msg" role="status" aria-live="polite"></div>
+          <a id="show-reset" class="forgot-link">パスワードを忘れた方・パスワード設定</a>
         </form>
 
         <!-- Signup Form -->
@@ -884,6 +968,36 @@
           <button type="submit" class="btn"><i class="fa-solid fa-paper-plane"></i> 登録する</button>
           <div id="signup-msg" class="msg" role="status" aria-live="polite"></div>
         </form>
+        <!-- パスワードリセットビュー -->
+        <div id="reset-view">
+          <a id="back-to-login" class="back-link"><i class="fa-solid fa-arrow-left"></i> ログインに戻る</a>
+          <form id="reset-form" class="loose">
+            <p style="color:var(--muted);font-size:14px;margin:0 0 16px">メールアドレスを入力してください。パスワード設定用のリンクをお送りします。</p>
+            <div class="input-row">
+              <i class="fa-solid fa-envelope"></i>
+              <input id="rs-email" type="email" placeholder="メールアドレス" required />
+            </div>
+            <button type="submit" class="btn"><i class="fa-solid fa-paper-plane"></i> リセットメールを送信</button>
+            <div id="reset-msg" class="msg" role="status"></div>
+          </form>
+        </div>
+
+        <!-- パスワード更新ビュー -->
+        <div id="update-pw-view">
+          <form id="update-pw-form" class="loose">
+            <p style="color:var(--muted);font-size:14px;margin:0 0 16px">新しいパスワードを設定してください。</p>
+            <div class="input-row">
+              <i class="fa-solid fa-lock"></i>
+              <input id="up-pass" type="password" placeholder="新しいパスワード（6文字以上）" required minlength="6" />
+            </div>
+            <div class="input-row">
+              <i class="fa-solid fa-lock"></i>
+              <input id="up-pass2" type="password" placeholder="パスワード確認" required minlength="6" />
+            </div>
+            <button type="submit" class="btn"><i class="fa-solid fa-check"></i> パスワードを設定</button>
+            <div id="update-pw-msg" class="msg" role="status"></div>
+          </form>
+        </div>
       </section>
 
       <!-- サインイン状態 -->
