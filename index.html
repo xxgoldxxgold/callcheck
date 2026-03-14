@@ -775,7 +775,7 @@
       e.preventDefault(); clearMsg("signup-msg");
       const email = document.getElementById("su-email").value.trim();
       const pass  = document.getElementById("su-pass").value;
-      const { error } = await sb.auth.signUp({ email, password: pass });
+      const { error } = await sb.auth.signUp({ email, password: pass, options: { data: { signup_source: 'denwa2' } } });
       if (error) {
         showMsg("signup-msg", `<i class="fa-solid fa-circle-exclamation"></i> ${translateError(error.message)}`);
       } else {
@@ -805,7 +805,7 @@
       clearMsg("login-msg"); clearMsg("signup-msg");
       const { error } = await sb.auth.signInWithOAuth({
         provider: 'google',
-        options: { redirectTo: window.location.origin + '/app' }
+        options: { redirectTo: window.location.origin + '/app', queryParams: { signup_source: 'denwa2' } }
       });
       if (error) showMsg("login-msg", `<i class="fa-solid fa-circle-exclamation"></i> ${translateError(error.message)}`);
     }
@@ -815,7 +815,7 @@
       clearMsg("login-msg"); clearMsg("signup-msg");
       const { error } = await sb.auth.signInWithOAuth({
         provider: 'apple',
-        options: { redirectTo: window.location.origin + '/app' }
+        options: { redirectTo: window.location.origin + '/app', queryParams: { signup_source: 'denwa2' } }
       });
       if (error) showMsg("login-msg", `<i class="fa-solid fa-circle-exclamation"></i> ${translateError(error.message)}`);
     }

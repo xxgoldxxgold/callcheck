@@ -5,6 +5,16 @@
 header('Content-Type: application/json; charset=utf-8');
 date_default_timezone_set('Asia/Tokyo');
 
+// リファラーチェック（外部からの直接アクセスを拒否）
+$referer = $_SERVER['HTTP_REFERER'] ?? '';
+$allowedHosts = ['denwa2.com', 'www.denwa2.com'];
+$refHost = parse_url($referer, PHP_URL_HOST) ?? '';
+if (!in_array($refHost, $allowedHosts, true)) {
+    http_response_code(403);
+    echo json_encode(['ok' => false, 'error' => 'Forbidden']);
+    exit;
+}
+
 $usersFile = __DIR__ . '/data/users.json';
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {

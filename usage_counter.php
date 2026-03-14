@@ -5,6 +5,16 @@
 
 header('Content-Type: application/json; charset=utf-8');
 
+// リファラーチェック（外部からの直接アクセスを拒否）
+$referer = $_SERVER['HTTP_REFERER'] ?? '';
+$allowedHosts = ['denwa2.com', 'www.denwa2.com'];
+$refHost = parse_url($referer, PHP_URL_HOST) ?? '';
+if (!in_array($refHost, $allowedHosts, true)) {
+    http_response_code(403);
+    echo json_encode(['error' => 'Forbidden']);
+    exit;
+}
+
 // CORS: 自サイトのみ許可
 $allowedOrigins = ['https://denwa2.com', 'https://www.denwa2.com'];
 $origin = $_SERVER['HTTP_ORIGIN'] ?? '';
