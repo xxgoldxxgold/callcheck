@@ -90,7 +90,7 @@ function store_get($sid) {
         error_log("store_get: JSON decode error for SID=$sid: " . json_last_error_msg());
         return null;
     }
-    return $decoded ?: null;
+    return is_array($decoded) ? $decoded : null;
 }
 
 /** flock付きアトミック読み書き */
@@ -537,7 +537,7 @@ if (isset($_GET['json'])) {
     // uid照合: 自分の通話データのみアクセス可能（uid無しもブロック）
     $pollUid = preg_replace('/[^a-zA-Z0-9\-]/', '', $_COOKIE['uid'] ?? '');
     $dataUid = $data['uid'] ?? '';
-    if ($dataUid !== '' && $pollUid !== $dataUid) {
+    if ($pollUid === '' || ($dataUid !== '' && $pollUid !== $dataUid)) {
         http_response_code(403);
         json_res(['ok' => false, 'error' => 'access denied']);
     }
@@ -1220,9 +1220,15 @@ if (isset($_GET['recording'])) {
     $recordingDuration = $_POST['RecordingDuration'] ?? '';
     
     if ($sid && $recordingUrl) {
-        store_put($sid, 'recording_url', $recordingUrl);
-        store_put($sid, 'recording_duration', $recordingDuration);
-        store_append($sid, 'raw', "[recording] sid=$recordingSid duration=$recordingDuration url=$recordingUrl");
+        store_atomic($sid, function($all) use ($recordingUrl, $recordingDuration, $recordingSid) {
+            $all['recording_url'] = $recordingUrl;
+            $all['recording_duration'] = $recordingDuration;
+            if (!isset($all['raw']) || !is_array($all['raw'])) {
+                $all['raw'] = [];
+            }
+            $all['raw'][] = "[recording] sid=$recordingSid duration=$recordingDuration url=$recordingUrl";
+            return $all;
+        });
     }
     
     http_response_code(204);

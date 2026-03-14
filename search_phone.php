@@ -685,14 +685,14 @@ try {
     $textSearchStatus = 'N/A';
   }
 
-  // 重複を除去（place_idで）
+  // 重複を除去（place_idで）- isset()で高速チェック
   $uniqueResults = [];
   $seenPlaceIds = [];
   foreach ($allResults as $result) {
     $placeId = $result['place_id'] ?? null;
-    if ($placeId && !in_array($placeId, $seenPlaceIds)) {
+    if ($placeId && !isset($seenPlaceIds[$placeId])) {
       $uniqueResults[] = $result;
-      $seenPlaceIds[] = $placeId;
+      $seenPlaceIds[$placeId] = true;
     }
   }
   

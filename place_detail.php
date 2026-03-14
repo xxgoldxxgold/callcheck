@@ -25,6 +25,11 @@ if (!$placeId) {
     echo json_encode(['success' => false, 'error' => 'place_id required']);
     exit;
 }
+// place_idのフォーマット検証（Google Place IDは英数字とアンダースコア/ハイフンのみ）
+if (!preg_match('/^[A-Za-z0-9_\-]+$/', $placeId)) {
+    echo json_encode(['success' => false, 'error' => 'invalid place_id format']);
+    exit;
+}
 
 $fields = implode(',', [
     'name',

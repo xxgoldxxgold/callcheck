@@ -3139,10 +3139,13 @@ function resetRecordingPlayer() {
   }
 }
 
+let isDialing = false;
 btn.addEventListener('click', async ()=>{
   const to = toEl.value.trim();
   const name = nameEl.value.trim();
   if(!to){ return; }
+  if(isDialing){ return; }
+  isDialing = true;
   /* AudioContextをawait前に作成（ユーザージェスチャー内で作らないとsuspendedになる） */
   const preAudioCtx = new (window.AudioContext || window.webkitAudioContext)({ sampleRate: 8000 });
   toActive(false);
@@ -3185,6 +3188,7 @@ btn.addEventListener('click', async ()=>{
     statusEl.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i> ' + t('エラー:') + ' ' + escapeHtml(e.message);
     toActive(true);
     resetCallBtn();
+    isDialing = false;
     try { preAudioCtx.close(); } catch(ignored){}
   }
 });
@@ -3289,7 +3293,8 @@ async function poll(){
       clearInterval(pollTimer);
       toActive(true);
       resetCallBtn();
-      
+      isDialing = false;
+
       // 統計データを更新
       getStatsData();
 
@@ -3419,7 +3424,7 @@ function escapeHtml(str) {
 }
 
 function escapeAttr(str) {
-  return (str || '').replace(/"/g, '&quot;').replace(/'/g, '&#39;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  return (str || '').replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/'/g, '&#39;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 }
 
 // お気に入り追加フォーム表示切り替え
@@ -3960,6 +3965,7 @@ function showReservationPanel(phone, name, store) {
   reservationTitle.textContent = t('{0} - 予約', name);
 
   // フォームリセット
+  isRsvDialing = false;
   rsvSubmitBtn.disabled = false;
   rsvSubmitBtn.innerHTML = '<i class="fa-solid fa-phone-volume"></i> ' + t('予約電話をかける');
   rsvSubmitBtn.style.background = '#e67e22';
@@ -4020,9 +4026,12 @@ function formatRsvDate(dateStr) {
 }
 
 // フォーム送信
+let isRsvDialing = false;
 reservationForm.addEventListener('submit', async (e) => {
   e.preventDefault();
   if (!currentRsvStore) return;
+  if (isRsvDialing) return;
+  isRsvDialing = true;
 
   const phone = rsvStorePhone.value.trim();
   const name = currentRsvStore.name;
@@ -4091,6 +4100,7 @@ reservationForm.addEventListener('submit', async (e) => {
     rsvSubmitBtn.disabled = false;
     rsvSubmitBtn.innerHTML = '<i class="fa-solid fa-phone-volume"></i> ' + t('予約電話をかける');
     rsvSubmitBtn.style.background = '#e67e22';
+    isRsvDialing = false;
     try { preRsvAudioCtx.close(); } catch(ignored){}
   }
 });

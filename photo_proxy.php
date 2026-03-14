@@ -4,6 +4,15 @@
  * APIキーをクライアントに露出させないため、サーバー側で写真を取得してリダイレクト
  */
 
+// リファラーチェック（外部からの直接アクセスによるAPI濫用を防止）
+$referer = $_SERVER['HTTP_REFERER'] ?? '';
+$refHost = parse_url($referer, PHP_URL_HOST) ?? '';
+$allowedHosts = ['denwa2.com', 'www.denwa2.com'];
+if ($referer !== '' && !in_array($refHost, $allowedHosts, true)) {
+    http_response_code(403);
+    exit;
+}
+
 $API_KEY = getenv('GOOGLE_API_KEY');
 if (!$API_KEY) {
     http_response_code(500);
