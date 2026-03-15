@@ -851,9 +851,18 @@
             link.disabled = true;
             link.style.opacity = '0.6';
             link.textContent = t('送信中...');
-            const { error: resetErr } = await sb.auth.resetPasswordForEmail(email, {
-              redirectTo: window.location.origin + '/'
-            });
+            let resetErr = null;
+            try {
+              const res = await fetch('https://denwa2.com/reset-password-api', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email: email, redirect_to: 'https://denwa2.com/', service: 'denwa2.com' })
+              });
+              const data = await res.json();
+              if (data.error) resetErr = { message: data.error };
+            } catch (e) {
+              resetErr = { message: e.message || 'ネットワークエラー' };
+            }
             if (resetErr) {
               link.style.opacity = '1';
               link.innerHTML = `<i class="fa-solid fa-circle-exclamation"></i> ${translateError(resetErr.message)}`;
@@ -909,9 +918,18 @@
     document.getElementById('reset-form').addEventListener('submit', async (e) => {
       e.preventDefault(); clearMsg('reset-msg');
       const email = document.getElementById('rs-email').value.trim();
-      const { error } = await sb.auth.resetPasswordForEmail(email, {
-        redirectTo: window.location.origin + '/'
-      });
+      let error = null;
+      try {
+        const res = await fetch('https://denwa2.com/reset-password-api', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email: email, redirect_to: 'https://denwa2.com/', service: 'denwa2.com' })
+        });
+        const data = await res.json();
+        if (data.error) error = { message: data.error };
+      } catch (e) {
+        error = { message: e.message || 'ネットワークエラー' };
+      }
       if (error) {
         showMsg('reset-msg', '<i class="fa-solid fa-circle-exclamation"></i> ' + translateError(error.message));
       } else {
